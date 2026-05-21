@@ -1,7 +1,7 @@
-import { TextInput, StyleSheet, TextInputProps } from "react-native" //TextInputProps apresenta todas as propriedades que o input pode ter
+import { StyleSheet, TextInput, TextInputProps } from "react-native"; //TextInputProps apresenta todas as propriedades que o input pode ter
 
 export function Input({...rest}: TextInputProps){ //o rest pega todas as propriedades enviadas
-    return <TextInput style={styles.input} {...rest}></TextInput> //{...rest} passa todas as propriedades
+    return <TextInput style={styles.input} {...rest} /> //{...rest} passa todas as propriedades
 }
 
 {/**ESTILO DO INPUT */}

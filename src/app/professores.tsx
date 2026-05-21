@@ -1,7 +1,7 @@
-import {Text, View, StyleSheet, Image, ScrollView, FlatList, Pressable} from "react-native"
-import{Button} from "../../components/Button"
-import {Link, router} from "expo-router"
-import {useState} from "react"
+import { router } from "expo-router"
+import { useState } from "react"
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native"
+import { Button } from "../../components/Button"
 
 
 
@@ -42,8 +42,7 @@ export default function Login(){
                 {/**LOGO */}
                 <Image
                     source={require("../../assets/images/logo.png")}
-                    style={styles.logo}>
-                </Image>
+                    style={styles.logo} />
 
                 {/**LISTA DE PROFESSORES */}
                 <FlatList

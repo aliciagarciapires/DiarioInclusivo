@@ -1,8 +1,8 @@
 import { router } from "expo-router"
-import { Image, ScrollView, StyleSheet, Text, View, Pressable } from "react-native"
+import { useState } from "react"
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native"
 import { Button } from "../../components/Button"
 import { Input } from "../../components/input"
-import { useState } from "react"
 
 export default function CadDiscente(){
     {/**controla se a lista do slect ta aberta ou fechada */}
@@ -29,8 +29,7 @@ export default function CadDiscente(){
                 <View style={styles.itens}>
                     <Image
                         source={require("../../assets/images/logoNome.png")}
-                        style={styles.logo}>
-                    </Image>
+                        style={styles.logo} />
                 </View>
 
                 {/**FORMULÁRIO */}
@@ -45,24 +44,21 @@ export default function CadDiscente(){
                     </Text>
                     <Input
                         placeholder="Nome Completo"
-                        placeholderTextColor="#0b8cbf5b">
-                    </Input>
+                        placeholderTextColor="#0b8cbf5b" />
 
                     <Text style={styles.textoInput}>
                         Nome Completo do Responsável:
                     </Text>
                     <Input
                         placeholder="Nome Completo"
-                        placeholderTextColor="#0b8cbf5b">
-                    </Input>
+                        placeholderTextColor="#0b8cbf5b" />
 
                     <Text style={styles.textoInput}>
                         Data de Nascimento:
                     </Text>
                     <Input
                         placeholder="00/00/0000"
-                        placeholderTextColor="#0b8cbf5b">
-                    </Input>
+                        placeholderTextColor="#0b8cbf5b" />
 
                     <Text style={styles.textoInput}>
                         Grau de Suporte:

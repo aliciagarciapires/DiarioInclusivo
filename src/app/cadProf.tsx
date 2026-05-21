@@ -1,7 +1,7 @@
-import {Text, View, StyleSheet, Image, ScrollView} from "react-native"
+import { router } from "expo-router"
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native"
+import { Button } from "../../components/Button"
 import { Input } from "../../components/input"
-import{Button} from "../../components/Button"
-import {Link, router} from "expo-router"
 
 export default function Login(){
     return(
@@ -16,8 +16,7 @@ export default function Login(){
             <View style={styles.itens}>
                 <Image
                     source={require("../../assets/images/logoNome.png")}
-                    style={styles.logo}>
-                </Image>
+                    style={styles.logo} />
             </View>
 
             {/**FORMULÁRIO */}
@@ -30,22 +29,22 @@ export default function Login(){
                 <Text style={styles.textoInput}>
                     Nome Completo:
                 </Text>
-                <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b"></Input>
+                <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b" />
 
                 <Text style={styles.textoInput}>
                     E-mail:
                 </Text>
-                <Input placeholder="professor@email.com"  placeholderTextColor="#0b8cbf5b" keyboardType="email-address"></Input>
+                <Input placeholder="professor@email.com"  placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
 
                 <Text style={styles.textoInput}>
                     MASP/Matrícula:
                 </Text>
-                <Input placeholder="xxxxxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric"></Input>
+                <Input placeholder="xxxxxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric" />
 
                 <Text style={styles.textoInput}>
                     Senha:
                 </Text>
-                <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry></Input>
+                <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
 
                 <View style={styles.botaoContainer}>
                     <Button

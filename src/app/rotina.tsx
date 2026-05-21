@@ -6,7 +6,7 @@ export default function Rotina(){
     return(
         <View style={styles.container}>
             <Text style={styles.topo}>
-                MENU
+                ROTINA
             </Text>
 
              <Image 
@@ -14,18 +14,18 @@ export default function Rotina(){
                     style={styles.logo}>
              </Image>
 
-            <View style={styles.caixa}>
-                 <View style={styles.botao}>
-                   
-                    <Text style={styles.textoBotao}>Diário</Text>       
-            </View>
-             <Button style={styles.botao}  onPress={() => router.push("/rotina")}
-              label="Rotina"
+            <Button style={styles.botao}  onPress={() => router.push("/criarRotina")}
+              label="Criar Rotina"
              />
-             <View style={styles.botao}>
-                <Text style={styles.textoBotao}>Configurações</Text>
-            </View>
-            </View>
+
+             <Button style={styles.botao}  onPress={() => router.push("/minhasRotinas")}
+              label="Minhas Rotinas"
+             />
+             
+             <Button style={styles.botao}  onPress={() => router.push("/minhasRotinas")}
+              label="Rotina Pronta"
+             />
+            
            
         </View>
         

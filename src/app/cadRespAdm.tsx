@@ -1,8 +1,8 @@
-import {Text, View, StyleSheet, Image, Pressable, ScrollView} from "react-native" //pressable cria áreas clicáveis; scrollview permite rolar a tela
-import {useState} from "react" //useState cria as variáveis de estado
-import { Input } from "../../components/input"/**Componentes criados personalizados */
-import{Button} from "../../components/Button" 
-import {Link, router} from "expo-router"
+import { router } from "expo-router"
+import { useState } from "react"; //useState cria as variáveis de estado
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native"; //pressable cria áreas clicáveis; scrollview permite rolar a tela
+import { Button } from "../../components/Button"
+import { Input } from "../../components/input"; /**Componentes criados personalizados */
 
 export default function CadResp(){
     const [tipoConta, setTipoConta] = useState("responsavel"); /*cria uma variável de estado, ela guarda qualtipo de conta foi selecionada e, quando ela muda, a tela muda tbm, iniciando ela como responsável*/ 
@@ -22,8 +22,7 @@ export default function CadResp(){
                     {/**LOGO */}
                     <Image
                         source={require("../../assets/images/logoNome.png")}
-                        style={styles.logo}>
-                    </Image>
+                        style={styles.logo} />
 
                     <Text style={styles.subtitulo}>
                         Selecione a opção de cadastro
@@ -60,22 +59,22 @@ export default function CadResp(){
                                 <Text style={styles.textoInput}>
                                     Nome Completo:
                                 </Text>
-                                <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b"></Input>
+                                <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b" />
 
                                 <Text style={styles.textoInput}>
                                     E-mail:
                                 </Text>
-                                <Input placeholder="usuario@email.com"  placeholderTextColor="#0b8cbf5b" keyboardType="email-address"></Input>
+                                <Input placeholder="usuario@email.com"  placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
 
                                 <Text style={styles.textoInput}>
                                     Telefone:
                                 </Text>
-                                <Input placeholder="(xx) xxxx-xxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric"></Input>
+                                <Input placeholder="(xx) xxxx-xxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric" />
 
                                 <Text style={styles.textoInput}>
                                     Senha:
                                 </Text>
-                                <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry></Input>
+                                <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
 
                                 <View style={styles.botaoContainer}>
                                     <Button
@@ -94,23 +93,22 @@ export default function CadResp(){
                                 <Text style={styles.textoInput}>
                                     Nome da Escola:
                                 </Text>
-                                <Input placeholder="Nome da Instituição" placeholderTextColor="#0b8cbf5b"></Input>
+                                <Input placeholder="Nome da Instituição" placeholderTextColor="#0b8cbf5b" />
 
                                 <Text style={styles.textoInput}>
                                     E-mail Institucional:
                                 </Text>
-                                <Input placeholder="escola@email.com"  placeholderTextColor="#0b8cbf5b" keyboardType="email-address"></Input>
+                                <Input placeholder="escola@email.com"  placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
 
                                 <Text style={styles.textoInput}>
                                     Código INEP:
                                 </Text>
-                                <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric"></Input>
+                                <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric" />
 
                                 <Text style={styles.textoInput}>
                                     Senha:
                                 </Text>
-                                <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry></Input>
-
+                                <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
 
                                 <View style={styles.botaoContainer}>
                                     <Button

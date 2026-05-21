@@ -1,6 +1,6 @@
-import {Text, View, StyleSheet, Image} from "react-native" //blibiotecas importadas: View=> tipo o div no html; StyleSheet=> cria os estilos (parte parecida com o css)
-import{Button} from "../../components/Button" //puxa o componente Button criado, para ficar padrão, como uma função
-import {Link, router} from "expo-router" //link cria links e o router vai para outra página
+import { Link, router } from "expo-router"; //link cria links e o router vai para outra página
+import { Image, StyleSheet, Text, View } from "react-native"; //blibiotecas importadas: View=> tipo o div no html; StyleSheet=> cria os estilos (parte parecida com o css)
+import { Button } from "../../components/Button"; //puxa o componente Button criado, para ficar padrão, como uma função
 
 export default function Index(){
     return (
@@ -21,8 +21,7 @@ export default function Index(){
             {/*LOGO DO SISTEMA*/}
             <Image 
                 source={require("../../assets/images/logo.png")} /*Importa a imagem*/
-                style={styles.logo}>
-            </Image>
+                style={styles.logo} />
 
             {/*BOTÃO COM LINK PARA O CADASTRO*/}
             <Button 
@@ -34,7 +33,7 @@ export default function Index(){
             <Text style={styles.footerText}>
                 Já possui uma conta?{"\n"}
                 <Link href="/login" style={styles.link}>
-                    Fazer login
+                    <Text>Fazer login</Text>
                 </Link>
             </Text>
 

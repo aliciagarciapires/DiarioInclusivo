@@ -20,10 +20,7 @@ export default function CadDiscente(){
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
             <View style={styles.container}>
-                {/**TOPO */}
-                <Text style={styles.topo}>
-                    CADASTRO
-                </Text>
+                
 
                 {/**LOGO */}
                 <View style={styles.itens}>

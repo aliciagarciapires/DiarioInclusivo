@@ -1,8 +1,9 @@
-import { Text, TextInput, View, StyleSheet, TouchableOpacity, Modal } from "react-native";  // são as ferramentas que utilizo no código
+import { Text, TextInput, View, StyleSheet, TouchableOpacity, Modal, Pressable, Image } from "react-native";  // são as ferramentas que utilizo no código
 import { useState } from "react";
 import {Link, router} from "expo-router"
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Button } from "../../components/Button"
+import Footer from "../../components/Footer";
 
 //Modal:utilizei para fazer a parte de escolher os dias da semana, ele sobe a janelinha
 //useState:guarda temporariamente tudo o que muda enquanto o usuário utiliza o app
@@ -78,8 +79,6 @@ export default function CriarRotina() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.topo}>ROTINA</Text>
-      <Text style={styles.subtitulo}>Criar Rotina</Text>
 
       <View style={styles.caixa}>
         <Text style={styles.caixaTitulo}>+ Adicionar tarefa</Text>
@@ -221,6 +220,30 @@ export default function CriarRotina() {
         )}
 
       </View>
+        <Footer />
+                    <View style={styles.barraMenuGeral}>
+                    
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                      <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                      <Text style={styles.tabLabel}>Início</Text>
+                    </Pressable>
+            
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                      <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+                      <Text style={styles.tabLabel}>Diário</Text>
+                    </Pressable>
+            
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                      <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                      <Text style={styles.tabLabel}>Rotina</Text>
+                    </Pressable>
+            
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                      <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                      <Text style={styles.tabLabel}>Conf.</Text>
+                    </Pressable>
+            
+                  </View>
     </View>
   );
 }
@@ -238,12 +261,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 18
   },
-  subtitulo: {
-    marginTop: 10,
-    color: "#0477BF",
-    fontWeight: "bold",
-    fontSize: 16
-  },
   
   caixa: {
     marginTop: 100, 
@@ -253,6 +270,7 @@ const styles = StyleSheet.create({
     borderColor: "#2F1CA6",
     borderRadius: 20,
     backgroundColor: "transparent",
+    marginBottom: 20,
   },
   caixaTitulo: {
     fontWeight: "bold",
@@ -431,5 +449,41 @@ const styles = StyleSheet.create({
     fontSize: 14,             // Fonte um pouco menor para caber a máscara perfeitamente
     color: "#4A4A46",
     textAlign: "center",       // Centraliza o texto digitado igual aos horários
+  },
+  botaoMenu: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    height: 30,
+  },
+  tabLabel: {
+    fontSize: 14,                  
+    fontWeight: "500",
+    color: "#2F1CA6",
+    marginTop: 4,
+  },
+  iconeCustom: {
+    width: 200,                     
+    height: 70,
+    resizeMode: "contain",         
+  },
+  barraMenuGeral: {
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    alignItems: "center",
+    backgroundColor: "#F5F2E8",    
+    height: 90,                    
+    paddingBottom: 30,             
+    borderTopWidth: 3,             
+    borderTopColor: "#F5F2E8",     
+    borderTopLeftRadius: 35,       
+    borderTopRightRadius: 35,      
+    position: "absolute",          // Fixa no rodapé
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,                 
+    shadowColor: "#000",
+    marginTop: 20   
   },
 });

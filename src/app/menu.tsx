@@ -5,9 +5,6 @@ import { Button } from "../../components/Button"
 export default function Rotina(){
     return(
         <View style={styles.container}>
-            <Text style={styles.topo}>
-                MENU
-            </Text>
 
              <Image 
                     source={require("../../assets/images/logoNome.png")}

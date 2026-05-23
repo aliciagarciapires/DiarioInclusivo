@@ -12,10 +12,6 @@ export default function Login() {
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
-                <Text style={styles.topo}>
-                    LOGIN
-                </Text>
-
                 <View style={styles.itens}>
                     <Image
                         source={require("../../assets/images/logoNome.png")}
@@ -135,11 +131,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         width: "100%"
     },
-    logo: {
-        width: 200,
-        height: 200,
-        marginTop: 25,
-        alignSelf: "center"
+    logo:{
+        width: 180, //usar 100% da imagem
+        height: 180, //altura
+        alignSelf: "center" //apenas esse item no centro
     },
     selectContainer: {
         flexDirection: "row",

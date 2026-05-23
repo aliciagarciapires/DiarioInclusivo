@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions } from "react-native";
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Pressable, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; 
 import {Link, router} from "expo-router"
+import Footer from "../../components/Footer";
 
 // Captura a largura da tela do celular para garantir o ajuste perfeito
 const { width } = Dimensions.get("window"); 
@@ -42,7 +43,6 @@ export default function VisualizarRotina() {
         </TouchableOpacity>
          </Link> 
         <View style={styles.blocoTextoTopo}>
-          <Text style={styles.topo}>ROTINA</Text>
           <Text style={styles.subtitulo}>Minhas rotinas</Text>
         </View>
       </View>
@@ -94,8 +94,34 @@ export default function VisualizarRotina() {
                     Adicionar mais atividades +
                 </Text>
                 </Link>
-              </View>   
-    </View>
+              </View> 
+
+              <Footer />
+                                  <View style={styles.barraMenuGeral}>
+                                  
+                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                    <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                                    <Text style={styles.tabLabel}>Início</Text>
+                                  </Pressable>
+                          
+                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                    <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+                                    <Text style={styles.tabLabel}>Diário</Text>
+                                  </Pressable>
+                          
+                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                                    <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                                    <Text style={styles.tabLabel}>Rotina</Text>
+                                  </Pressable>
+                          
+                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                    <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                                    <Text style={styles.tabLabel}>Conf.</Text>
+                                  </Pressable>
+                          
+                                </View>
+                  </View>  
+
   );
 }
 
@@ -203,5 +229,41 @@ const styles = StyleSheet.create({
     color: "#2F1CA6",
     fontWeight: "bold",
     fontSize: 16
-  }
+  },
+  botaoMenu: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    height: 30,
+  },
+  tabLabel: {
+    fontSize: 14,                  
+    fontWeight: "500",
+    color: "#2F1CA6",
+    marginTop: 4,
+  },
+  iconeCustom: {
+    width: 200,                     
+    height: 70,
+    resizeMode: "contain",         
+  },
+  barraMenuGeral: {
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    alignItems: "center",
+    backgroundColor: "#F5F2E8",    
+    height: 90,                    
+    paddingBottom: 30,             
+    borderTopWidth: 3,             
+    borderTopColor: "#F5F2E8",     
+    borderTopLeftRadius: 35,       
+    borderTopRightRadius: 35,      
+    position: "absolute",          // Fixa no rodapé
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,                 
+    shadowColor: "#000",
+    marginTop: 20   
+  },
 });

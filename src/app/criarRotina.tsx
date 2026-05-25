@@ -1,489 +1,332 @@
-import { Text, TextInput, View, StyleSheet, TouchableOpacity, Modal, Pressable, Image } from "react-native";  // são as ferramentas que utilizo no código
-import { useState } from "react";
-import {Link, router} from "expo-router"
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { Button } from "../../components/Button"
-import Footer from "../../components/Footer";
+import React, { useState } from 'react';
+import { 
+  View, Text, StyleSheet, TextInput, TouchableOpacity, 
+  ScrollView, Modal, FlatList 
+} from 'react-native';
+import { useRouter, Href } from 'expo-router';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Ionicons } from '@expo/vector-icons';
 
-//Modal:utilizei para fazer a parte de escolher os dias da semana, ele sobe a janelinha
-//useState:guarda temporariamente tudo o que muda enquanto o usuário utiliza o app
-//DateTimePicker:biblioteca externa para data e hora
+interface Atividade {
+  id: string;
+  nome: string;
+  inicio: Date;
+  fim: Date;
+}
+
 export default function CriarRotina() {
-  // Estados para as Horas
-  const [horaInicio, setHoraInicio] = useState<Date>(new Date()); //guarda a hora exata e começa com a hora atual
-  const [horaFim, setHoraFim] = useState<Date>(new Date()); 
-  const [mostrarInicio, setMostrarInicio] = useState(false);    //se o relogio deve aparecer ou não
-  const [mostrarFim, setMostrarFim] = useState(false);
+  const router = useRouter();
+  
+  // Estados do formulário principal
+  const [nomeRotina, setNomeRotina] = useState('');
+  const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]);
+  
+  // Estados de controle dos Modais e Pickers
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio');
+  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null);
 
-  // Estado para o Nome da Tarefa
-  const [tarefa, setTarefa] = useState('');  //guarda o texto que o usuário digitou em "Nome"
+  // ESTADOS NOVOS: Para a criação da atividade personalizada
+  const [criandoPersonalizada, setCriandoPersonalizada] = useState(false);
+  const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
 
-  // Estados para a Repetição (Dias da Semana)
-  const [mostrarRepetir, setMostrarRepetir] = useState(false);  //controla o Modal, se a janela aparece ou não e começa com falso pq ela fica escondida
-  const [diasSelecionados, setDiasSelecionados] = useState<number[]>([]); //guarda quais dias o usuário escolheu
-
- //Estado para a Data 
-  const [data, setData] = useState('');  //guarda a data que o usuário digitou
-
-  const aplicarMascaraData = (text: string) => {
-    // Remove tudo o que não for número
-    let num = text.replace(/\D/g, ''); 
-    
-    // Limita em no máximo 8 números impedindo que o usuário digite mais
-    if (num.length > 8) {
-        num = num.slice(0, 8);
-    }
-
-    // Aplica a formatação das barras de acordo com o tamanho do texto
-    if (num.length > 4) {
-        num = `${num.slice(0, 2)}/${num.slice(2, 4)}/${num.slice(4)}`;
-    } else if (num.length > 2) {
-        num = `${num.slice(0, 2)}/${num.slice(2)}`;
-    }
-
-  // Atualiza o estado com a string formatada (ex: 18/05/2026)
-  setData(num);
-};
-
-  // Lista de dias para renderizar no Modal
-  const diasDaSemana = [
-    { id: 0, label: 'D' },
-    { id: 1, label: 'S' },
-    { id: 2, label: 'T' },
-    { id: 3, label: 'Q' },
-    { id: 4, label: 'Q' },
-    { id: 5, label: 'S' },
-    { id: 6, label: 'S' },
+  // Lista Master de Atividades Pré-cadastradas
+  const listaMaster = [
+    "Mapa mental", "Esquemas Ilustrados", "Guia de leitura", 
+    "Desenho explicativo", "Objeto de toque", "Pausa programada"
   ];
 
-  // Função para marcar/desmarcar os dias no modal
-  const alternarDia = (id: number) => {
-    if (diasSelecionados.includes(id)) {                {/* varre o meu array e verifica qual numero foi clicado e se o dia já estava clicado ele vai desmarcar */}
-      setDiasSelecionados(diasSelecionados.filter(dia => dia !== id)); {/* O filter cria uma lista nova sem o número */}
-    } else {
-      setDiasSelecionados([...diasSelecionados, id]);
-    }
+  // Adiciona uma atividade da lista pré-definida
+  const adicionarDaMaster = (nome: string) => {
+    const novaAtiv: Atividade = {
+      id: Math.random().toString(),
+      nome,
+      inicio: new Date(),
+      fim: new Date(),
+    };
+    setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
+    setModalVisivel(false);
   };
 
-  // Função que gera o texto dinâmico (Ex: "Nunca", "Todos os dias" ou "Seg, Qua")
-  const obterTextoRepetir = () => {
-    if (diasSelecionados.length === 0) return "Nunca >";
-    if (diasSelecionados.length === 7) return "Todos os dias >";
+  // FUNÇÃO NOVA: Salva a atividade que o usuário digitou manualmente
+  const salvarAtividadePersonalizada = () => {
+    if (novoNomeAtividade.trim() === '') return; // Impede salvar sem nome
+
+    const novaAtiv: Atividade = {
+      id: Math.random().toString(),
+      nome: novoNomeAtividade,
+      inicio: new Date(), // Começa com o horário atual, editável na tela principal
+      fim: new Date(),
+    };
+
+    setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
     
-    const nomesDias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    return diasSelecionados
-      .sort((a, b) => a - b) //organiza os números do array em ordem crescente.
-      .map(id => nomesDias[id])  //muda os números do ID para os respectivos dias da semana
-      .join(', ') + " >";
+    // Limpa o formulário e fecha o modal
+    setNovoNomeAtividade('');
+    setCriandoPersonalizada(false);
+    setModalVisivel(false);
+  };
+
+  // Funções do DateTimePicker
+  const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
+    setIndexSendoEditado(index);
+    setPickerMode(modo);
+    setShowPicker(true);
+  };
+
+  const aoMudarHora = (event: any, selectedDate?: Date) => {
+    setShowPicker(false);
+    if (selectedDate && indexSendoEditado !== null) {
+      const novasAtividades = [...atividadesSelecionadas];
+      if (pickerMode === 'inicio') {
+        novasAtividades[indexSendoEditado].inicio = selectedDate;
+      } else {
+        novasAtividades[indexSendoEditado].fim = selectedDate;
+      }
+      setAtividadesSelecionadas(novasAtividades);
+    }
+    setIndexSendoEditado(null);
+  };
+
+  const finalizarRotina = () => {
+    console.log({ nomeRotina, atividadesSelecionadas });
+    router.push("/minhasRotinas" as Href);
   };
 
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={{ alignItems: 'center', flex: 1 }}>
 
-      <View style={styles.caixa}>
-        <Text style={styles.caixaTitulo}>+ Adicionar tarefa</Text>
-        
-        {/* FILEIRA HORÁRIOS (INÍCIO / TERMINAR) */}
-        <View style={styles.linha}>
-          
-          {/* Coluna Início */}
-          <View style={styles.colunaBotao}>
-            <Text style={styles.textoEtiqueta}>Iniciar</Text>
-            <TouchableOpacity style={styles.botaoHora} onPress={() => setMostrarInicio(true)}>
-              <Text style={styles.botaoHoraTexto}>
-                {horaInicio.getHours().toString().padStart(2, "0")}:
-                {horaInicio.getMinutes().toString().padStart(2, "0")}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
-          {/* Coluna Terminar */}
-          <View style={styles.colunaBotao}>
-            <Text style={styles.textoEtiqueta}>Terminar</Text>
-            <TouchableOpacity style={styles.botaoHora} onPress={() => setMostrarFim(true)}>
-              <Text style={styles.botaoHoraTexto}>
-                {horaFim.getHours().toString().padStart(2, "0")}:
-                {horaFim.getMinutes().toString().padStart(2, "0")}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.subtitulo}>Criar rotina</Text>
+        </View>
+      </View>
 
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Input Nome da Rotina */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Nome da rotina</Text>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Ex: Aula de Português"
+            value={nomeRotina}
+            onChangeText={setNomeRotina}
+          />
         </View>
 
-         {/* DATA */}
-        <View style={styles.colunaData}>
-            <Text style={styles.textoEtiqueta}>Data</Text>
-            <TextInput
-                style={styles.botaoData} 
-                placeholder="DD/MM/AAAA"
-                placeholderTextColor="#4A4A46BF"
-                keyboardType="numeric"    
-                maxLength={10}            
-                value={data}
-                onChangeText={aplicarMascaraData} // Usa a função de barras que criamos antes
-            />
-        </View>
-    
-        {/* INPUT NOME DA TAREFA */}
-        <TextInput 
-          style={styles.inputLargo} 
-          value={tarefa} 
-          onChangeText={setTarefa} 
-          placeholder="Nome"
-          placeholderTextColor="#4A4A46BF"
-        />
-
-        {/* BOTÃO COMPONENTE REPETIR */}
-        <TouchableOpacity style={styles.botaoRepetir} onPress={() => setMostrarRepetir(true)}>
-          <Text style={styles.textoEtiquetaInput}>Repetir</Text>
-          <Text style={styles.textoOpcaoRepetir}>{obterTextoRepetir()}</Text>
+        {/* Botão para Abrir a Lista Master */}
+        <TouchableOpacity 
+          style={styles.botaoMaster} 
+          onPress={() => {
+            setCriandoPersonalizada(false); // Garante que abre na lista
+            setModalVisivel(true);
+          }}
+        >
+          <Ionicons name="add-circle" size={24} color="white" />
+          <Text style={styles.textoBotaoMaster}>Lista de tarefas</Text>
         </TouchableOpacity>
 
-        {/* FILEIRA BOTÕES CANCELAR / SALVAR */}
-        <View style={styles.linhaBotoesAcao}>
-          <TouchableOpacity style={[styles.botaoAcao, styles.botaoCancelar]}>
-        
-             <Button style={styles.botaoAcao}  onPress={() => router.push("/rotina")}
-               label="Cancelar"
-               />    
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={[styles.botaoAcao, styles.botaoSalvar]}>
-            <Button style={styles.botaoAcao}  onPress={() => router.push("/minhasRotinas")}
-                label="Salvar"
-              />    
-  
-    
-          </TouchableOpacity>
+        {/* Lista de Atividades na Tela Principal */}
+        {atividadesSelecionadas.map((item, index) => (
+          <View key={item.id} style={styles.cardAtividade}>
+            <Text style={styles.nomeAtividade}>{item.nome}</Text>
+            
+            <View style={styles.containerHorarios}>
+              <TouchableOpacity onPress={() => abrirRelogio(index, 'inicio')} style={styles.botaoHora}>
+                <Text style={styles.textoHora}>Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+              </TouchableOpacity>
 
-        </View>
-
-
-        {/* MODAL BOTTOM SHEET DOS DIAS DA SEMANA */}
-        <Modal
-          visible={mostrarRepetir} //true==modal aparece, false==não aparece
-          animationType="slide" //efeito de suavidade, a janela sobe de baixo para cima
-          transparent={true} //deixa o fundo um pouco preto enquanto o modal está aberto
-          onRequestClose={() => setMostrarRepetir(false)} //faz o modal voltar caso o usuário queira, fznd o app não crachar
-        >
-          <View style={styles.fundoModal}>
-            <View style={styles.conteudoModal}>
-              <Text style={styles.tituloModal}>Repetir nos dias:</Text>
-              
-              <View style={styles.fileiraDias}>
-                {diasDaSemana.map((dia) => {  // roda o array e cria um botão para cada dia
-                  const selecionado = diasSelecionados.includes(dia.id); //verifica se o id foi selecionado
-                  return (
-                    <TouchableOpacity
-                      key={dia.id} //Ajuda o motor do framework a identificar de forma única cada elemento da lista para atualizar a tela de forma rápida quando o usuário clica.
-                      style={[styles.bolinhaDia, selecionado && styles.bolinhaSelecionada]}
-                      onPress={() => alternarDia(dia.id)} //adicionando ou removendo o dia do array de escolhas.
-                    >
-                      <Text style={[styles.textoDia, selecionado && styles.textoDiaSelecionado]}>
-                        {dia.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              <TouchableOpacity style={styles.botaoConfirmarModal} onPress={() => setMostrarRepetir(false)}>
-                <Text style={styles.textoBotaoConfirmar}>Confirmar</Text>
+              <TouchableOpacity onPress={() => abrirRelogio(index, 'fim')} style={styles.botaoHora}>
+                <Text style={styles.textoHora}>Fim: {item.fim.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        ))}
+      </ScrollView>
 
-        {/* CONTROLES DO DATETIMEPICKER */}
-        {mostrarInicio && ( //O relógio só é criado e jogado na tela se a variável antes do && for verdadeira.
-          <DateTimePicker
-            value={horaInicio}
-            mode="time"
-            is24Hour={true}
-            onChange={(event, selectedDate) => {
-              setMostrarInicio(false); //Fecha o relógio imediatamente para ele sumir da tela.
-              if (selectedDate) setHoraInicio(selectedDate); //atualiza a hora caso o usuário tenha escolhido uma.
-            }}
-          />
-        )}
+      {/* Botão Finalizar */}
+      <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarRotina}>
+        <Text style={styles.textoFinalizar}>Finalizar Rotina</Text>
+      </TouchableOpacity>
 
-        {mostrarFim && (
-          <DateTimePicker
-            value={horaFim}
-            mode="time"
-            is24Hour={true}
-            onChange={(event, selectedDate) => {
-              setMostrarFim(false);
-              if (selectedDate) setHoraFim(selectedDate);
-            }}
-          />
-        )}
+      {/* MODAL MODIFICADO */}
+      <Modal visible={modalVisivel} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            
+            {/* CONDICIONAL: Se clicou para criar uma nova atividade */}
+            {criandoPersonalizada ? (
+              <View style={{ flex: 1, justifyContent: 'center' }}>
+                <Text style={styles.modalTitulo}>Nova Atividade</Text>
+                
+                <TextInput 
+                  style={styles.input}
+                  placeholder="Digite o nome da atividade..."
+                  value={novoNomeAtividade}
+                  onChangeText={setNovoNomeAtividade}
+                />
+                
+                <Text style={styles.avisoHorario}>
+                  * O horário poderá ser ajustado assim que ela for adicionada à lista.
+                </Text>
 
-      </View>
-        <Footer />
-                    <View style={styles.barraMenuGeral}>
-                    
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                      <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                      <Text style={styles.tabLabel}>Início</Text>
-                    </Pressable>
-            
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                      <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                      <Text style={styles.tabLabel}>Diário</Text>
-                    </Pressable>
-            
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                      <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                      <Text style={styles.tabLabel}>Rotina</Text>
-                    </Pressable>
-            
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                      <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                      <Text style={styles.tabLabel}>Conf.</Text>
-                    </Pressable>
-            
-                  </View>
+                <TouchableOpacity style={styles.botaoAdicionarSimulado} onPress={salvarAtividadePersonalizada}>
+                  <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Adicionar na Lista</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ marginTop: 15, alignItems: 'center' }} onPress={() => setCriandoPersonalizada(false)}>
+                  <Text style={{ color: '#2F1CA6', fontWeight: 'bold' }}>Voltar para a lista</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              // CASO CONTRÁRIO: Mostra a lista padrão de atividades
+              <>
+                <Text style={styles.modalTitulo}>Escolha as Atividades</Text>
+                <FlatList 
+                  data={listaMaster}
+                  keyExtractor={(item) => item}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.itemMaster} onPress={() => adicionarDaMaster(item)}>
+                      <Text style={styles.textoItemMaster}>{item}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+
+                {/* BOTÃO NOVO: Criar nova atividade customizada */}
+                <TouchableOpacity 
+                  style={styles.botaoCriarNovaDentroDoModal} 
+                  onPress={() => setCriandoPersonalizada(true)}
+                >
+                  <Ionicons name="create-outline" size={20} color="white" />
+                  <Text style={styles.textoBotaoCriarNova}>Criar Nova Atividade</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.botaoFechar} onPress={() => setModalVisivel(false)}>
+                  <Text style={{ color: 'white', fontWeight: 'bold' }}>Fechar</Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+          </View>
+        </View>
+      </Modal>
+
+      {/* Picker do Relógio */}
+      {showPicker && (
+        <DateTimePicker
+          value={new Date()}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={aoMudarHora}
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "#F5F2E8",
-    padding: 32
-  },
-  topo: {
-    marginTop: 20,
-    color: "#2F1CA6",
-    fontWeight: "bold",
-    fontSize: 18
-  },
-  
-  caixa: {
-    marginTop: 100, 
-    width: 320,
-    height: 380, // Aumentado um pouco para acomodar confortavelmente todos os novos botões
-    borderWidth: 2,
-    borderColor: "#2F1CA6",
-    borderRadius: 20,
-    backgroundColor: "transparent",
-    marginBottom: 20,
-  },
-  caixaTitulo: {
-    fontWeight: "bold",
-    fontSize: 20,
-    color: "#2F1CA6",
-    marginLeft: 17,
-    marginTop: 10
-  },
-  linha: {
-    flexDirection: "row",
-    justifyContent: "space-around", 
-    marginTop: 15,
-    paddingHorizontal: 10
-  },
-  colunaBotao:{
-    flexDirection: "column", 
-    alignItems: "center",    
-  },
-  textoEtiqueta: {
-    fontWeight: "bold",
-    fontSize: 14,
-    color: "#7A7A76",
-    marginBottom: 4,              
-  },
-  botaoHora: {
-    width: 120,
-    height: 35,
-    backgroundColor: "transparent",
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#4A4A46",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  botaoHoraTexto: {
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#4A4A46"
-  },
-  inputLargo: {
-    width: '90%',
-    height: 40,
-    borderWidth: 2,
-    borderColor: "#4A4A46",
-    borderRadius: 10,
-    alignSelf: 'center',
-    marginTop: 15,
-    paddingHorizontal: 15,
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#4A4A46"
-  },
-  botaoRepetir: {
-    width: '90%',
-    height: 40,
-    borderWidth: 2,
-    borderColor: "#4A4A46",
-    borderRadius: 10,
-    alignSelf: 'center',
-    marginTop: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  container: 
+  { flex: 1,
+     backgroundColor: '#F5F2E8' 
+    },
+  header: 
+  { flexDirection: 'row', 
     alignItems: 'center',
-    paddingHorizontal: 15,
+   padding: 20,
+   paddingTop: 50 
   },
-  textoEtiquetaInput: {
+  titulo: 
+  { fontSize: 24, 
+   fontWeight: 'bold', 
+   color: '#2F1CA6' 
+  },
+  subtitulo: {
+    marginTop: 5,
+    color: "#0477BF",
     fontWeight: "bold",
-    fontSize: 16,
-    color: "#4A4A46",
-  },
-  textoOpcaoRepetir: {
-    fontWeight: "bold",
-    fontSize: 15,
-    color: "#7A7A76",
-  },
-  linhaBotoesAcao: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 25,
-    paddingHorizontal: 10
-  },
-  botaoAcao: {
-    width: 110,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  botaoCancelar: {
-    backgroundColor: '#E52222', // Vermelho correspondente ao print
-  },
-  botaoSalvar: {
-    backgroundColor: '#76C813', // Verde correspondente ao print
-  },
-  textoBotaoAcao: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
     fontSize: 16
   },
-  
-  // Estilos do Modal que simula Alarme
-  fundoModal: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', 
-    justifyContent: 'flex-end',            
+
+  scrollContent: 
+  { padding: 20 
+
   },
-  conteudoModal: {
-    backgroundColor: '#F5F2E8', 
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    padding: 24,
-    alignItems: 'center',
+  inputGroup: 
+  { marginBottom: 20 
+
   },
-  tituloModal: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2F1CA6',
-    marginBottom: 20,
-  },
-  fileiraDias: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 25,
-  },
-  bolinhaDia: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 2,
-    borderColor: '#4A4A46',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  bolinhaSelecionada: {
+  label: 
+  { fontSize: 18, 
+    color: '#2F1CA6', 
+    fontWeight: 'bold', 
+    marginBottom: 8 },
+  input: 
+  { backgroundColor: 'white', 
+    borderRadius: 15, 
+    padding: 15, 
+    borderWidth: 1, 
+    borderColor: '#2F1CA6' },
+  botaoMaster: { 
     backgroundColor: '#2F1CA6', 
-    borderColor: '#2F1CA6',
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    padding: 15, 
+    borderRadius: 15, 
+    justifyContent: 'center', 
+    marginBottom: 20 
   },
-  textoDia: {
-    fontWeight: 'bold',
-    color: '#4A4A46',
+  textoBotaoMaster: 
+  { color: 'white', 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    marginLeft: 10 
   },
-  textoDiaSelecionado: {
-    color: '#FFFFFF', 
+  cardAtividade: 
+  { backgroundColor: '#E8E4D0', 
+    padding: 15, 
+    borderRadius: 15, 
+    marginBottom: 10 
   },
-  botaoConfirmarModal: {
-    backgroundColor: '#0477BF',
-    paddingVertical: 12,
-    borderRadius: 10,
-    width: '100%',
+  nomeAtividade: 
+  { fontSize: 18, 
+    fontWeight: 'bold', 
+    color: '#2F1CA6', 
+    marginBottom: 10 
+  },
+  containerHorarios: { flexDirection: 'row', justifyContent: 'space-between' },
+  botaoHora: { backgroundColor: 'white', padding: 8, borderRadius: 10, flex: 0.48, alignItems: 'center' },
+  textoHora: { color: '#2F1CA6', fontWeight: 'bold' },
+  botaoFinalizar: { backgroundColor: '#2F1CA6', padding: 20, alignItems: 'center', margin: 20, borderRadius: 15 },
+  textoFinalizar: { color: 'white', fontSize: 20, fontWeight: 'bold' },
+  
+  // Estilos do Modal
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '85%', height: '65%', backgroundColor: 'white', borderRadius: 20, padding: 20, justifyContent: 'space-between' },
+  modalTitulo: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, color: '#2F1CA6', textAlign: 'center' },
+  itemMaster: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#EEE' },
+  textoItemMaster: { fontSize: 18, color: '#333' },
+  
+  // Estilos dos Novos Botões
+  botaoCriarNovaDentroDoModal: {
+    backgroundColor: '#4CAF50', // Verde para dar destaque positivo
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 12,
+    marginTop: 15
   },
-  textoBotaoConfirmar: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
+  textoBotaoCriarNova: { color: 'white', fontSize: 16, fontWeight: 'bold', marginLeft: 8 },
+  botaoAdicionarSimulado: {
+    backgroundColor: '#2F1CA6',
+    padding: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 20
   },
-
-  //DATAAAA
-
-  colunaData: {
-    flexDirection: "column", 
-    alignItems: "flex-start", // Alinha a etiqueta "Data" com o começo do input    
-    marginTop: 15,
-    marginLeft: 17
-  },
-  botaoData: {
-    width: 120,               // Mesma largura dos seus botões de hora (Iniciar/Terminar)
-    height: 35,               // Mesma altura dos botões menores
-    borderWidth: 2,
-    borderColor: "#4A4A46",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    fontWeight: "bold",
-    fontSize: 14,             // Fonte um pouco menor para caber a máscara perfeitamente
-    color: "#4A4A46",
-    textAlign: "center",       // Centraliza o texto digitado igual aos horários
-  },
-  botaoMenu: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    height: 30,
-  },
-  tabLabel: {
-    fontSize: 14,                  
-    fontWeight: "500",
-    color: "#2F1CA6",
-    marginTop: 4,
-  },
-  iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
-  },
-  barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
-    alignItems: "center",
-    backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 10,                 
-    shadowColor: "#000",
-    marginTop: 20   
-  },
+  avisoHorario: { color: '#666', fontSize: 13, fontStyle: 'italic', marginTop: 8, textAlign: 'center' },
+  botaoFechar: { backgroundColor: '#FF4444', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 10 }
 });

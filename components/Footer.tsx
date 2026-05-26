@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 
-export default function Footer() {
+export default function Footer({children}: {children: React.ReactNode}) {
   return (
     <View style={styles.rodapeFixo}>
+      {children}
     </View>
   );
 }

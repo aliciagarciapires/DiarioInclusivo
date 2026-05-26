@@ -70,6 +70,9 @@ export default function CadResp(){
                             <Text style={styles.textoInput}>Senha:</Text>
                             <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
 
+                            <Text style={styles.textoInput}>Confirmar Senha:</Text>
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+
                             <View style={styles.botaoContainer}>
                                 <Button
                                     label="Cadastrar"
@@ -92,6 +95,9 @@ export default function CadResp(){
                             <Text style={styles.textoInput}>Senha:</Text>
                             <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
 
+                            <Text style={styles.textoInput}>Confirmar Senha:</Text>
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+
                             <View style={styles.botaoContainer}>
                                 <Button
                                     label="Cadastrar"
@@ -102,6 +108,11 @@ export default function CadResp(){
                     )}
                 </View>
             </ScrollView>
+            <Footer>
+                <Text style={styles.textoRodape}>
+                    Diário Inclusivo.
+                </Text>
+            </Footer>
 
         </View>
     );

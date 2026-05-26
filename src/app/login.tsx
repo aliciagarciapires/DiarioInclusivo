@@ -3,6 +3,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 import { Button } from "../../components/Button";
 import { Input } from "../../components/input";
 import { router } from "expo-router";
+import Footer from "../../components/Footer";
 
 export default function Login() {
     // Estado para controlar qual tipo de conta está selecionada (padrão: responsavel)
@@ -10,13 +11,12 @@ export default function Login() {
     const [tipoConta, setTipoConta] = useState("responsavel");
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
                 <View style={styles.itens}>
                     <Image
                         source={require("../../assets/images/logoNome.png")}
-                        style={styles.logo}
-                    />
+                        style={styles.logo} />
 
                     <Text style={styles.subtitulo}>
                         Selecione a opção de login
@@ -63,13 +63,13 @@ export default function Login() {
                         <View style={styles.form}>
                             <Text style={styles.textoInput}>E-mail do Responsável:</Text>
                             <Input placeholder="responsavel@email.com" placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
-                            
+
                             <Text style={styles.textoInput}>Senha:</Text>
                             <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
-                            
+
                             <View style={styles.botaoContainer}>
                                 <Button onPress={() => router.push("/inicio")}
-                                label="Entrar" />
+                                    label="Entrar" />
                             </View>
                         </View>
                     )}
@@ -78,13 +78,13 @@ export default function Login() {
                         <View style={styles.form}>
                             <Text style={styles.textoInput}>E-mail do Professor:</Text>
                             <Input placeholder="professor@email.com" placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
-                            
+
                             <Text style={styles.textoInput}>Senha:</Text>
                             <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
-                            
+
                             <View style={styles.botaoContainer}>
                                 <Button onPress={() => router.push("/inicio")}
-                                label="Entrar" />
+                                    label="Entrar" />
                             </View>
                         </View>
                     )}
@@ -96,20 +96,24 @@ export default function Login() {
 
                             <Text style={styles.textoInput}>Código do Administrador:</Text>
                             <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbf5b" />
-                            
+
                             <Text style={styles.textoInput}>Senha:</Text>
                             <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
-                            
+
                             <View style={styles.botaoContainer}>
                                 <Button onPress={() => router.push("/professores")}
-                                label="Entrar" />
+                                    label="Entrar" />
                             </View>
                         </View>
                     )}
 
                 </View>
             </View>
-        </ScrollView>
+        </ScrollView><Footer>
+                <Text style={styles.textoRodape}>
+                    Diário Inclusivo.
+                </Text>
+            </Footer></>
     )
 }
 
@@ -182,4 +186,9 @@ const styles = StyleSheet.create({
         marginTop: 17,
         fontSize: 10,
     },
+    textoRodape: {
+        color: "#0B8CBF",
+        fontSize: 12,
+        fontWeight: "500",
+    }
 })

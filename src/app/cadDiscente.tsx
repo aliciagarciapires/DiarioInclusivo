@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native"
 import { Button } from "../../components/Button"
 import { Input } from "../../components/input"
+import Footer from "../../components/Footer"
 
 export default function CadDiscente(){
     {/**controla se a lista do slect ta aberta ou fechada */}
@@ -17,10 +18,10 @@ export default function CadDiscente(){
     ]
 
     return(
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
             <View style={styles.container}>
-                
+
 
                 {/**LOGO */}
                 <View style={styles.itens}>
@@ -37,7 +38,7 @@ export default function CadDiscente(){
                     </Text>
 
                     <Text style={styles.textoInput}>
-                        Nome Completo do Discente:
+                        Nome Completo:
                     </Text>
                     <Input
                         placeholder="Nome Completo"
@@ -64,7 +65,7 @@ export default function CadDiscente(){
                     {/**SELECT */}
                     <Pressable
                         style={styles.select}
-                        onPress={() => setAberto(!aberto)}//!aberto inverte o valor, ou seja, se aberto = false, !aberto faz aberto = true, isso a cada clique, ou seja, ao clicar a primeira vez, abrir, será true
+                        onPress={() => setAberto(!aberto)} //!aberto inverte o valor, ou seja, se aberto = false, !aberto faz aberto = true, isso a cada clique, ou seja, ao clicar a primeira vez, abrir, será true
                     >
                         <Text style={styles.selectTexto}>{/**texto do select com cada opção */}
                             {grau}
@@ -76,14 +77,15 @@ export default function CadDiscente(){
 
                             {opcoes.map((item) => (
                                 <Pressable //cria um pressable para cada opçao
+
                                     key={item}
                                     style={styles.opcao}
-                                    onPress={() => { //quando clicar
+                                    onPress={() => {
                                         setGrau(item) //muda o texto do select para o selecionado
                                         setAberto(false) //fecha a lista
-                                    }}
+                                    } }
                                 >
-                                    <Text style={{ color: "#0b8cbf5b"}}>
+                                    <Text style={{ color: "#0b8cbf5b" }}>
                                         {item}
                                     </Text>
                                 </Pressable>
@@ -95,8 +97,7 @@ export default function CadDiscente(){
                     <View style={styles.botaoContainer}>
                         <Button
                             label="Cadastrar"
-                            onPress={() => router.push("/discente")}
-                        />
+                            onPress={() => router.push("/discente")} />
                     </View>
 
                 </View>
@@ -104,6 +105,11 @@ export default function CadDiscente(){
             </View>
 
         </ScrollView>
+        <Footer>
+                <Text style={styles.textoRodape}>
+                    Diário Inclusivo.
+                </Text>
+            </Footer></>
     )
 }
 
@@ -190,5 +196,10 @@ const styles = StyleSheet.create({
         padding: 15,
         borderBottomWidth: 1,
         borderBottomColor: "#2e1ca667"
+    },
+    textoRodape: {
+        color: "#0B8CBF",
+        fontSize: 12,
+        fontWeight: "500",
     }
 })

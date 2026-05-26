@@ -54,7 +54,7 @@ export default function Discente() {
 
     </ScrollView>
     
-    <Footer />
+    <Footer children={undefined} />
         <View style={styles.barraMenuGeral}>
         
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>

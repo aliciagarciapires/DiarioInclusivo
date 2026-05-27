@@ -12,17 +12,23 @@ export default function Rotina(){
                     style={styles.logo}>
              </Image>
 
-            <Button style={styles.botao}  onPress={() => router.push("/criarRotina")}
-              label="Criar Rotina"
-             />
+            <View style={styles.botaoContainer}>
+                <Button
+                  label="Criar Rotina"
+                  onPress={() => router.push("/criarRotina")}/>
+            </View>
 
-             <Button style={styles.botao}  onPress={() => router.push("/minhasRotinas")}
-              label="Minhas Rotinas"
-             />
+             <View style={styles.botaoContainer}>
+                <Button
+                  label="Minhas Rotinas"
+                  onPress={() => router.push("/minhasRotinas")}/>
+            </View>
              
-             <Button style={styles.botao}  onPress={() => router.push("/minhasRotinas")}
-              label="Rotina Pronta"
-             />
+             <View style={styles.botaoContainer}>
+                <Button
+                  label="Rotina Pronta"
+                  onPress={() => router.push("/minhasRotinas")}/>
+            </View>
             
             <Footer children={undefined} />
                     <View style={styles.barraMenuGeral}>
@@ -129,5 +135,14 @@ const styles = StyleSheet.create ({
     elevation: 10,                 
     shadowColor: "#000",
     marginTop: 20   
+  },
+  botaoContainer:{
+    width: 250,
+    height: 55,
+    backgroundColor: "#2F1CA6",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 30
   },
 })

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, 
-  ScrollView, Modal, FlatList 
+  ScrollView, Modal, FlatList, 
+  Pressable, Image
 } from 'react-native';
 import { useRouter, Href } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import Footer from '../../components/Footer';
 
 
 
@@ -230,6 +232,31 @@ export default function CriarRotina() {
           onChange={aoMudarHora}
         />
       )}
+
+      <Footer children={undefined} />
+                          <View style={styles.barraMenuGeral}>
+                          
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Início</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Diário</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Rotina</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Conf.</Text>
+                          </Pressable>
+                  
+                        </View>
     </View>
   );
 }
@@ -271,7 +298,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', 
     marginBottom: 8 },
   input: 
-  { backgroundColor: 'white', 
+  { backgroundColor: '#F5F2E8', 
     borderRadius: 15, 
     padding: 15, 
     borderWidth: 1, 
@@ -281,15 +308,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     padding: 15, 
-    borderRadius: 15, 
+    borderRadius: 30, 
     justifyContent: 'center', 
-    marginBottom: 20 
+    marginBottom: 20
   },
   textoBotaoMaster: 
   { color: '#F5F2E8', 
     fontSize: 18, 
     fontWeight: 'bold', 
-    marginLeft: 10 
+    marginLeft: 10
   },
   cardAtividade: 
   { backgroundColor: '#F5F2E8', 
@@ -306,12 +333,12 @@ const styles = StyleSheet.create({
   containerHorarios: { flexDirection: 'row', justifyContent: 'space-between' },
   botaoHora: { backgroundColor: '#f8f6f2', padding: 8, borderRadius: 10, flex: 0.48, alignItems: 'center', borderWidth: 1, borderColor: '#2e1ca668' },
   textoHora: { color: '#2F1CA6', fontWeight: 'bold' },
-  botaoFinalizar: { backgroundColor: '#2F1CA6', padding: 20, alignItems: 'center', margin: 20, borderRadius: 15 },
+  botaoFinalizar: { backgroundColor: '#2F1CA6', padding: 15, alignItems: 'center', margin: 20, borderRadius: 30, marginBottom: 70 },
   textoFinalizar: { color: '#F5F2E8', fontSize: 20, fontWeight: 'bold' },
   
   // Estilos do Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { width: '85%', height: '65%', backgroundColor: 'white', borderRadius: 20, padding: 20, justifyContent: 'space-between' },
+  modalContent: { width: '85%', height: '65%', backgroundColor: '#F5F2E8', borderRadius: 20, padding: 20, justifyContent: 'space-between' },
   modalTitulo: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, color: '#2F1CA6', textAlign: 'center' },
   itemMaster: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#F5F2E8' },
   textoItemMaster: { fontSize: 18, color: '#2F1CA6' },
@@ -323,17 +350,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 30,
     marginTop: 15
   },
   textoBotaoCriarNova: { color: '#F5F2E8', fontSize: 16, fontWeight: 'bold', marginLeft: 8 },
   botaoAdicionarSimulado: {
     backgroundColor: '#2F1CA6',
     padding: 15,
-    borderRadius: 12,
+    borderRadius: 30,
     alignItems: 'center',
     marginTop: 20,
   },
   avisoHorario: { color: '#2e1ca665', fontSize: 13, fontStyle: 'italic', marginTop: 8, textAlign: 'center' },
-  botaoFechar: { backgroundColor: '#F22222', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 10 }
+  botaoFechar: { backgroundColor: '#F22222', padding: 12, borderRadius: 30, alignItems: 'center', marginTop: 10 },
+  botaoMenu: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    height: 30,
+  },
+  tabLabel: {
+    fontSize: 14,                  
+    fontWeight: "500",
+    color: "#2F1CA6",
+    marginTop: 4,
+  },
+  iconeCustom: {
+    width: 200,                     
+    height: 70,
+    resizeMode: "contain",         
+  },
+  barraMenuGeral: {
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    alignItems: "center",
+    backgroundColor: "#F5F2E8",    
+    height: 90,                    
+    paddingBottom: 30,             
+    borderTopWidth: 3,             
+    borderTopColor: "#F5F2E8",     
+    borderTopLeftRadius: 35,       
+    borderTopRightRadius: 35,      
+    position: "absolute",          // Fixa no rodapé
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,                 
+    shadowColor: "#000",
+    marginTop: 20   
+  },
 });

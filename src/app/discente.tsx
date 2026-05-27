@@ -1,61 +1,61 @@
-
-import { View, Text, StyleSheet, Image, Pressable, ScrollView} from "react-native";
-import { router, usePathname } from "expo-router";
-import { useNavigationState } from "@react-navigation/native";
+import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
+import { router } from "expo-router";
 import Footer from "../../components/Footer";
 
-const discente = [ //cria uma array de discentes
-  {
-    id: "1",
-    nome: "Discente 1",
-    imagem: require("../../assets/images/crianca.png")
-  }
+// Lista de alunos
+const listaOriginal = [
+  { id: "1", nome: "Discente 1", imagem: require("../../assets/images/crianca.png"), tipo: "aluno" },
+  { id: "2", nome: "Discente 2", imagem: require("../../assets/images/crianca.png"), tipo: "aluno" }
 ];
 
+// Item especial de adicionar
+const botaoAdicionar = { id: "add", tipo: "botao" };
+
 export default function Discente() {
+  // Juntamos os alunos com o botão no final
+  const itens = [...listaOriginal, botaoAdicionar];
+
   return (
-    <><ScrollView style={styles.container}>
+    <>
+      <ScrollView style={styles.container}>
+        <View style={styles.grid}> {/**organiza os cards */}
 
-      <View style={styles.grid}> {/**organiza os cards */}
+          {itens.map((item: any) => (
+            <View key={item.id} style={styles.item}> {/**key é pra identificar cada item */}
+              
+              {item.tipo === "aluno" ? (
+                // RENDERIZA O ALUNO
+                <>
+                  <Pressable style={styles.card} onPress={() => router.push("/menu")}> {/**area clicavel do discente */}
+                    <Image
+                      source={item.imagem} //imagem do array atual
+                      style={styles.imagem}
+                      resizeMode="contain" //faz a imagem caber sem deformar
+                    />
+                  </Pressable>
 
-        {discente.map((item) => ( //map percorre o array e, para cada item, criam um componente e mostra na tela
-          <View key={item.id} style={styles.item}> {/**key é pra identificar cada item */}
+                  {/**BOTAO COM O NOME */}
+                  <Pressable style={styles.botao} onPress={() => router.push("/menu")}>
+                    <Text style={styles.textoBotao}>
+                      {item.nome}{/**mostra o nome da criança atual */}
+                    </Text>
+                  </Pressable>
+                </>
+              ) : (
+                // RENDERIZA O BOTÃO ADICIONAR
+                <Pressable style={styles.cardAdicionar} onPress={() => router.push("/cadDiscente")}> {/**link para ir cadastrar discente */}
+                  <Text style={styles.mais}>+</Text>
+                </Pressable>
+              )}
 
-            <Pressable style={styles.card} onPress={() => router.push("/menu")}> {/**area clicavel do discente */}
-
-              <Image
-                source={item.imagem} //imagem do array atual
-                style={styles.imagem}
-                resizeMode="contain" //faz a imagem caber sem deformar
-              />
-
-            </Pressable>
-
-            {/**BOTAO COM O NOME */}
-            <Pressable style={styles.botao} onPress={() => router.push("/menu")}>
-              <Text style={styles.textoBotao}>
-                {item.nome}{/**mostra o nome da criança atual */}
-              </Text>
-            </Pressable>
-
-          </View>
-        ))}
-
-        {/**CARD DE ADICIONAR */}
-        <View style={styles.item}>
-
-          <Pressable style={styles.cardAdicionar} onPress={() => router.push("/cadDiscente")}> {/**link para ir cadastrar discente */}
-            <Text style={styles.mais}>+</Text>
-          </Pressable>
+            </View>
+          ))}
 
         </View>
-
-      </View>
-
-    </ScrollView>
-    
-    <Footer children={undefined} />
-        <View style={styles.barraMenuGeral}>
+      </ScrollView>
+      
+      <Footer children={undefined} />
+      <View style={styles.barraMenuGeral}>
         
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
           <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
@@ -78,7 +78,6 @@ export default function Discente() {
         </Pressable>
 
       </View>
-    
     </>
   );
 }
@@ -98,51 +97,54 @@ const styles = StyleSheet.create({
       textAlign: "center"
     },
   grid: {
-    flexDirection: "row", //itens lado a lado
-    flexWrap: "wrap", //permite quebrar a linha
-    justifyContent: "space-around", //cria espaço entre os itens
-    paddingHorizontal: 20,
-    marginTop: 40
+    flexDirection: "row", 
+    flexWrap: "wrap", 
+    justifyContent: "flex-start", // Mude de space-around para flex-start
+    paddingHorizontal: 20, 
+    marginTop: 40,
+    gap: 10 // Adicione um gap para dar respiro entre os itens
   },
   item: {
     alignItems: "center",
     marginBottom: 50,
-    width: "50%" //cada card ocupa metade da largura
+    width: "48%" //cada card ocupa metade da largura
   },
   card: { //define o tamanho e centraliza o card
-    width: 90,
-    height: 140,
+    width: 140,
+    height: 160,
     justifyContent: "center",
     alignItems: "center"
   },
   imagem: {
-    width: 130,
+    width: 140,
     height: 170,
   },
   botao: {
-    backgroundColor: "#F2BB13",
+    backgroundColor: "#2F1CA6",
     borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 5
+    paddingHorizontal: 25, // Aumenta a largura das laterais
+    paddingVertical: 12,  // Aumenta a altura do botão
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textoBotao: {
     color: "#F5F2E8",
     fontWeight: "bold",
-    fontSize: 13
+    fontSize: 14
     },
   cardAdicionar: {
-    width: 90,
-    height: 100,
-    backgroundColor: "#F2B705",
-    borderRadius: 10,
+    width: 115,
+    height: 155,
+    backgroundColor: "#2F1CA6",
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 20
+    marginTop: 0 // Ajustado para alinhar com o topo do card
   },
   mais: {
-  color: "#F5F2E8",
-  fontSize: 60,
-  fontWeight: "bold"
+    color: "#F5F2E8",
+    fontSize: 60,
+    fontWeight: "bold"
   },
   botaoMenu: {
     alignItems: "center",
@@ -157,9 +159,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                     
+    width: 200,                    
     height: 70,
-    resizeMode: "contain",         
+    resizeMode: "contain",        
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal
@@ -181,4 +183,3 @@ const styles = StyleSheet.create({
     marginTop: 20   
   },
 });
-

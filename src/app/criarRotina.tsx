@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, 
-  ScrollView, Modal, FlatList 
+  ScrollView, Modal, FlatList, Alert
 } from 'react-native';
 import { useRouter, Href } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -70,6 +70,26 @@ export default function CriarRotina() {
     setModalVisivel(false);
   };
 
+const apagarAtividade = (idParaApagar: string) => {
+  Alert.alert(
+    "Apagar Atividade",
+    "Tem certeza que deseja remover esta atividade da sua rotina?",
+    [
+      { text: "Cancelar", style: "cancel" },
+      { 
+        text: "Apagar", 
+        style: "destructive", 
+        onPress: () => {
+          const listaFiltrada = atividadesSelecionadas.filter(ativ => ativ.id !== idParaApagar);
+          setAtividadesSelecionadas(listaFiltrada);
+        }
+      }
+    ]
+  );
+};
+    
+    
+
   // funções do DateTimePicker
   const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
     setIndexSendoEditado(index);
@@ -135,21 +155,32 @@ export default function CriarRotina() {
         </TouchableOpacity>
 
         {/* lista de Atividades na Tela Principal */}
-        {atividadesSelecionadas.map((item, index) => (
-          <View key={item.id} style={styles.cardAtividade}>
-            <Text style={styles.nomeAtividade}>{item.nome}</Text>
-            
-            <View style={styles.containerHorarios}>
-              <TouchableOpacity onPress={() => abrirRelogio(index, 'inicio')} style={styles.botaoHora}>
-                <Text style={styles.textoHora}>Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-              </TouchableOpacity>
+      {atividadesSelecionadas.map((item, index) => (
+  <View key={item.id} style={styles.cardAtividade}>
+    
+    {/* Nova View estruturada em linha para colocar o texto de um lado e a lixeira do outro */}
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+      <Text style={styles.nomeAtividade}>{item.nome}</Text>
+      
+      {/* Botão da Lixeira */}
+      <TouchableOpacity onPress={() => apagarAtividade(item.id)}>
+        <Ionicons name="trash-outline" size={22} color="#FF4444" />
+      </TouchableOpacity>
+    </View>
+    
+    {/* Os botões de horário continuam aqui embaixo... */}
+    <View style={styles.containerHorarios}>
+      <TouchableOpacity onPress={() => abrirRelogio(index, 'inicio')} style={styles.botaoHora}>
+        <Text style={styles.textoHora}>Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => abrirRelogio(index, 'fim')} style={styles.botaoHora}>
-                <Text style={styles.textoHora}>Fim: {item.fim.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
+      <TouchableOpacity onPress={() => abrirRelogio(index, 'fim')} style={styles.botaoHora}>
+        <Text style={styles.textoHora}>Fim: {item.fim.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      </TouchableOpacity>
+    </View>
+
+  </View>
+))}
       </ScrollView>
 
       {/* botão Finalizar */}
@@ -157,12 +188,12 @@ export default function CriarRotina() {
         <Text style={styles.textoFinalizar}>Finalizar Rotina</Text>
       </TouchableOpacity>
 
-      {/* MODAL MODIFICADO */}
+      {/* modal */}
       <Modal visible={modalVisivel} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             
-            {/* CONDICIONAL: Se clicou para criar uma nova atividade */}
+            {/* condicional: Se clicou para criar uma nova atividade */}
             {criandoPersonalizada ? (
               <View style={{ flex: 1, justifyContent: 'center' }}>
                 <Text style={styles.modalTitulo}>Nova Atividade</Text>
@@ -188,7 +219,7 @@ export default function CriarRotina() {
                 </TouchableOpacity>
               </View>
             ) : (
-              // CASO CONTRÁRIO: Mostra a lista padrão de atividades
+              //se não entrou na condicional: mostra a lista padrão de atividades
               <>
                 <Text style={styles.modalTitulo}>Escolha as Atividades</Text>
                 <FlatList 
@@ -201,7 +232,7 @@ export default function CriarRotina() {
                   )}
                 />
 
-                {/* BOTÃO NOVO: Criar nova atividade customizada */}
+                {/*criar nova atividade customizada */}
                 <TouchableOpacity 
                   style={styles.botaoCriarNovaDentroDoModal} 
                   onPress={() => setCriandoPersonalizada(true)}
@@ -211,7 +242,7 @@ export default function CriarRotina() {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.botaoFechar} onPress={() => setModalVisivel(false)}>
-                  <Text style={{ color: '#F5F2E8', fontWeight: 'bold' }}>Fechar</Text>
+                  <Text style={{ color: '#F5F2E8', fontWeight: 'bold', fontSize: 16 }}>Fechar</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -251,7 +282,6 @@ const styles = StyleSheet.create({
    color: '#2F1CA6' 
   },
   subtitulo: {
-    marginTop: 5,
     color: "#0477BF",
     fontWeight: "bold",
     fontSize: 16
@@ -306,8 +336,20 @@ const styles = StyleSheet.create({
   containerHorarios: { flexDirection: 'row', justifyContent: 'space-between' },
   botaoHora: { backgroundColor: '#f8f6f2', padding: 8, borderRadius: 10, flex: 0.48, alignItems: 'center', borderWidth: 1, borderColor: '#2e1ca668' },
   textoHora: { color: '#2F1CA6', fontWeight: 'bold' },
-  botaoFinalizar: { backgroundColor: '#2F1CA6', padding: 20, alignItems: 'center', margin: 20, borderRadius: 15 },
-  textoFinalizar: { color: '#F5F2E8', fontSize: 20, fontWeight: 'bold' },
+  
+  botaoFinalizar: { 
+    backgroundColor: '#2F1CA6', 
+    padding: 20, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    margin: 20, 
+    borderRadius: 15
+  },
+  textoFinalizar: { 
+    color: '#F5F2E8', 
+    fontSize: 20, 
+    fontWeight: 'bold' 
+  },
   
   // Estilos do Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
@@ -335,5 +377,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   avisoHorario: { color: '#2e1ca665', fontSize: 13, fontStyle: 'italic', marginTop: 8, textAlign: 'center' },
-  botaoFechar: { backgroundColor: '#F22222', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 10 }
+  botaoFechar:
+   { backgroundColor: '#F22222',
+     padding: 12, 
+     borderRadius: 12, 
+     alignItems: 'center', 
+     marginTop: 10 }
 });

@@ -24,7 +24,7 @@ export default function Rotina(){
               label="Rotina Pronta"
              />
             
-            <Footer />
+            <Footer children={undefined} />
                     <View style={styles.barraMenuGeral}>
                     
                     <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>

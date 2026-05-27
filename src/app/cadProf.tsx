@@ -2,57 +2,67 @@ import { router } from "expo-router"
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native"
 import { Button } from "../../components/Button"
 import { Input } from "../../components/input"
+import Footer from "../../components/Footer"
 
 export default function Login(){
     return(
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
-                
-                
-            {/**LOGO */}
-            <View style={styles.itens}>
-                <Image
-                    source={require("../../assets/images/logoNome.png")}
-                    style={styles.logo} />
-            </View>
 
-            {/**FORMULÁRIO */}
-            <View style={styles.form}>
 
-                <Text style={styles.title}>
-                    Cadastro do Professor
-                </Text>
-
-                <Text style={styles.textoInput}>
-                    Nome Completo:
-                </Text>
-                <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b" />
-
-                <Text style={styles.textoInput}>
-                    E-mail:
-                </Text>
-                <Input placeholder="professor@email.com"  placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
-
-                <Text style={styles.textoInput}>
-                    MASP/Matrícula:
-                </Text>
-                <Input placeholder="xxxxxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric" />
-
-                <Text style={styles.textoInput}>
-                    Senha:
-                </Text>
-                <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
-
-                <View style={styles.botaoContainer}>
-                    <Button
-                        label="Cadastrar"
-                        onPress={() => router.push("/professores")}
-                    />
+                {/**LOGO */}
+                <View style={styles.itens}>
+                    <Image
+                        source={require("../../assets/images/logoNome.png")}
+                        style={styles.logo} />
                 </View>
-            </View>
-            
+
+                {/**FORMULÁRIO */}
+                <View style={styles.form}>
+
+                    <Text style={styles.title}>
+                        Cadastro do Professor
+                    </Text>
+
+                    <Text style={styles.textoInput}>
+                        Nome Completo:
+                    </Text>
+                    <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b" />
+
+                    <Text style={styles.textoInput}>
+                        E-mail:
+                    </Text>
+                    <Input placeholder="professor@email.com" placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
+
+                    <Text style={styles.textoInput}>
+                        MASP/Matrícula:
+                    </Text>
+                    <Input placeholder="xxxxxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric" />
+
+                    <Text style={styles.textoInput}>
+                        Senha:
+                    </Text>
+                    <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+
+                    <Text style={styles.textoInput}>
+                        Confirmar Senha:
+                    </Text>
+                    <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+
+                    <View style={styles.botaoContainer}>
+                        <Button
+                            label="Cadastrar"
+                            onPress={() => router.push("/professores")} />
+                    </View>
                 </View>
+
+            </View>
         </ScrollView>
+        <Footer>
+                <Text style={styles.textoRodape}>
+                    Diário Inclusivo.
+                </Text>
+            </Footer></>
             
     )
 }
@@ -104,5 +114,10 @@ const styles = StyleSheet.create ({
         color: "#2F1CA6", //cor do texto
         marginLeft: 8, //alinhar o texto no centro horizontal
         marginTop: 10
+    },
+    textoRodape: {
+        color: "#0B8CBF",
+        fontSize: 12,
+        fontWeight: "500",
     }
 })

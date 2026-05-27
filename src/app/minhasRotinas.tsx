@@ -96,7 +96,7 @@ export default function VisualizarRotina() {
                 </Link>
               </View> 
 
-              <Footer />
+              <Footer children={undefined} />
                                   <View style={styles.barraMenuGeral}>
                                   
                                   <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
@@ -198,16 +198,16 @@ const styles = StyleSheet.create({
   },
   textoNome: {
     fontSize: 18,
-    color: "#0477BF", 
+    color: "#0B8CBF", 
     fontWeight: "500",
   },
   textoHora: {
     fontSize: 15,
-    color: "#0477BF",
+    color: "#0B8CBF",
   },
   textoRiscado: {
     textDecorationLine: "line-through", 
-    color: "#83C5BEBF",                 
+    color: "#0b8cbf4e",                 
   },
   botaoAdicionar: {
     width: 300,
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   },
   adicionar: {
     marginTop: 5,
-    color: "#ffffff",
+    color: "#F5F2E8",
     fontWeight: "bold",
     fontSize: 19
   },

@@ -83,7 +83,7 @@ export default function Login(){
             </ScrollView>
 
             {/** 3. CHAMA O MENU INFERIOR FIXO */}
-            <Footer />
+            <Footer children={undefined} />
                                 <View style={styles.barraMenuGeral}>
                                 
                                 <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>

@@ -14,6 +14,7 @@ interface TarefaRotina {
   horaFim: string;
 }
 
+
 export default function VisualizarRotina() {
   const [rotina, setRotina] = useState<TarefaRotina[]>([
     { id: "1", nome: "Atividades sensoriais", horaInicio: "8:00", horaFim: "9:00" },
@@ -37,17 +38,12 @@ export default function VisualizarRotina() {
       
       {/* TOPO CORRIGIDO (Ocupando a largura correta) */}
       <View style={styles.areaCriarTopo}>
-         <Link href="/rotina">
-        <TouchableOpacity style={styles.botaoVoltar}>
-         <Ionicons name="arrow-back" size={24} color="#2F1CA6" />
-        </TouchableOpacity>
-         </Link> 
         <View style={styles.blocoTextoTopo}>
           <Text style={styles.subtitulo}>Minhas rotinas</Text>
         </View>
       </View>
 
-     <Text style={styles.nomeRotina}>Segunda-Feira - (21/05/2026)</Text>
+     <Text style={styles.nomeRotina}>Rotina do Miguel</Text>
 
       {/* LISTA CORRIGIDA (Com tamanho definido para não bugar no meio) */}
       <FlatList
@@ -85,17 +81,16 @@ export default function VisualizarRotina() {
             </TouchableOpacity>
              );
             
-        }}
-        
+        }}      
       />
-            <View style={styles.botaoAdicionar}>
+                <View style={styles.botaoAdicionar}>
                 <Link href="/criarRotina">
                  <Text style={styles.adicionar}>
                     Adicionar mais atividades +
                 </Text>
                 </Link>
-              </View> 
-
+              </View>   
+              
               <Footer children={undefined} />
                                   <View style={styles.barraMenuGeral}>
                                   
@@ -141,7 +136,6 @@ const styles = StyleSheet.create({
     fontSize: 18
   },
   subtitulo: {
-    marginTop: 5,
     color: "#0477BF",
     fontWeight: "bold",
     fontSize: 16
@@ -206,8 +200,7 @@ const styles = StyleSheet.create({
     color: "#0B8CBF",
   },
   textoRiscado: {
-    textDecorationLine: "line-through", 
-    color: "#0b8cbf4e",                 
+    color: '#7CBF17',                 
   },
   botaoAdicionar: {
     width: 300,

@@ -195,6 +195,38 @@ export default function Layout() {
           ),
         }} 
       />
+
+      <Stack.Screen 
+        name="infoProf" 
+        options={{ 
+          headerTitle: "INFORMAÇÕES DO PROFESSOR", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+        }} 
+      />
+
+      <Stack.Screen 
+        name="infoDiscente" 
+        options={{ 
+          headerTitle: "INFORMAÇÕES DO DISCENTE", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+        }} 
+      />
     </Stack>
   );
 }

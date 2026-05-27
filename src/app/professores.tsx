@@ -1,176 +1,153 @@
+import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
 import { router } from "expo-router";
-import { useState } from "react";
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button } from "../../components/Button";
-import Footer from "../../components/Footer"; // 1. IMPORTA O MENU DO STACK
+import Footer from "../../components/Footer";
 
-export default function Login(){
-    {/**ARRAY DE PROFESSORES */}
-    const [professores, setProfessores] = useState([
-      {
-        id: "1",
-        nome: "Professor 1",
-        email: "professor1@escola.com",
-        masp_matricula: "1234567"
-      },
-      {
-        id: "2",
-        nome: "Professor 2",
-        email: "professor2@escola.com",
-        masp_matricula: "7654321"
-      }
-    ])
+// Lista de professores
+const listaOriginal = [
+  { id: "1", nome: "Professor 1", imagem: require("../../assets/images/professor.png"), tipo: "professor" },
+  { id: "2", nome: "Professor 2", imagem: require("../../assets/images/professor.png"), tipo: "professor" }
+];
 
-    {/**FUNÇÃO DE EXCLUIR DA LISTA */}
-    function excluirProfessor(id: string){
-        const novaLista = professores.filter( 
-            (professor) => professor.id !== id 
-        )
-        setProfessores(novaLista) 
-    }
+// Item especial de adicionar
+const botaoAdicionar = { id: "add", tipo: "botao" };
 
-    return(
-        // 2. VIEW PRINCIPAL ENVOLVENDO TUDO PARA FIXAR A BARRA EMBAIXO
-        <View style={styles.containerPrincipal}>
-            
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
-                <View style={styles.container}>
+export default function Discente() {
+  // Juntamos os alunos com o botão no final
+  const itens = [...listaOriginal, botaoAdicionar];
 
-                    {/**LOGO */}
-                    <Image
-                        source={require("../../assets/images/logo.png")}
-                        style={styles.logo} 
-                    />
+  return (
+    <>
+      <ScrollView style={styles.container}>
+  <View style={styles.grid}>
+    {/* Apenas um map é necessário aqui */}
+    {itens.map((item: any) => (
+      <View key={item.id} style={styles.item}>
+        {item.tipo === "professor" ? (
+          <>
+            <Pressable 
+              style={styles.card} 
+              onPress={() => router.push(`/infoProf?id=${item.id}`)}
+            >
+              <Image 
+                source={item.imagem} 
+                style={styles.imagem} 
+                resizeMode="contain" 
+              />
+            </Pressable>
 
-                    {/**LISTA DE PROFESSORES */}
-                    <FlatList
-                        scrollEnabled={false} 
-                        data={professores} 
-                        keyExtractor={(item) => item.id} 
-                        renderItem={({ item }) => ( 
+            <Pressable 
+              style={styles.botao} 
+              onPress={() => router.push(`/infoProf?id=${item.id}`)}
+            >
+              <Text style={styles.textoBotao}>{item.nome}</Text>
+            </Pressable>
+          </>
+        ) : (
+          <Pressable 
+            style={styles.cardAdicionar} 
+            onPress={() => router.push("/cadProf")}
+          >
+            <Text style={styles.mais}>+</Text>
+          </Pressable>
+        )}
+      </View>
+    ))}
+  </View>
+</ScrollView>
+      
+      <Footer children={undefined} />
+      <View style={styles.barraMenuGeral}>
+        
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Início</Text>
+        </Pressable>
 
-                            <Pressable style={styles.item}> 
-                                <View>
-                                    <Text style={styles.nome}>
-                                        {item.nome}
-                                    </Text>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Diário</Text>
+        </Pressable>
 
-                                    <Text style={styles.info}>
-                                        {item.email}
-                                    </Text>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Rotina</Text>
+        </Pressable>
 
-                                    <Text style={styles.info}>
-                                        {item.masp_matricula}
-                                    </Text>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Conf.</Text>
+        </Pressable>
 
-                                    <Pressable onPress={() => excluirProfessor(item.id)}> 
-                                        <Text style={styles.excluir}>
-                                            Excluir
-                                        </Text>
-                                    </Pressable>
-                                </View>
-                            </Pressable>
-                        )}
-                    />
-
-                    <View style={styles.botaoContainer}>
-                        <Button
-                            label="Adicionar Mais"
-                            onPress={() => router.push("/cadProf")}
-                        />
-                    </View>
-                </View>
-            </ScrollView>
-
-            {/** 3. CHAMA O MENU INFERIOR FIXO */}
-            <Footer children={undefined} />
-                                <View style={styles.barraMenuGeral}>
-                                
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Início</Text>
-                                </Pressable>
-                        
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Diário</Text>
-                                </Pressable>
-                        
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                                  <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Rotina</Text>
-                                </Pressable>
-                        
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Conf.</Text>
-                                </Pressable>
-                        
-                              </View>
-        </View>
-    )
+      </View>
+    </>
+  )
 }
 
-const styles = StyleSheet.create ({
-    // Novo contêiner pai
-    containerPrincipal: {
-        flex: 1,
-        backgroundColor: "#F5F2E8",
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, //scrollview ocupar a tela inteira
+    backgroundColor: "#F5F2E8",
+    padding: 32
+  },
+  topo: {
+      justifyContent: "flex-start", //iniciar no inicio da flex
+      marginTop: 20,
+      color: "#2F1CA6",
+      fontWeight: "bold",
+      fontSize: 18,
+      textAlign: "center"
     },
-    container: {
-        flex: 1, 
-        backgroundColor: "#F5F2E8", 
-        padding: 32,
-        paddingBottom: 120 // Espaço de segurança essencial para o conteúdo não sumir atrás do MenuBar
+  grid: {
+    flexDirection: "row", 
+    flexWrap: "wrap", 
+    justifyContent: "flex-start", // Mude de space-around para flex-start
+    paddingHorizontal: 20, 
+    marginTop: 40,
+    gap: 10 // Adicione um gap para dar respiro entre os itens
+  },
+  item: {
+    alignItems: "center",
+    marginBottom: 50,
+    width: "48%" //cada card ocupa metade da largura
+  },
+  card: { //define o tamanho e centraliza o card
+    width: 140,
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  imagem: {
+    width: 120,
+    height: 170,
+  },
+  botao: {
+    backgroundColor: "#2F1CA6",
+    borderRadius: 20,
+    paddingHorizontal: 25, // Aumenta a largura das laterais
+    paddingVertical: 12,  // Aumenta a altura do botão
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textoBotao: {
+    color: "#F5F2E8",
+    fontWeight: "bold",
+    fontSize: 14
     },
-    topo: {
-        justifyContent: "flex-start",
-        textAlign: "center",
-        marginTop: 20,
-        color: "#2F1CA6",
-        fontWeight: "bold",
-        fontSize: 18
-    },
-    item: {
-        width: "100%",
-        borderWidth: 1,
-        borderColor: "#2F1CA6",
-        borderRadius: 20,
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-        marginBottom: 20,
-        backgroundColor: "#F5F2E8",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center"
-    },
-    nome: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#2F1CA6",
-        marginBottom: 4
-    },
-    info: {
-        fontSize: 14,
-        color: "#2e1ca687",
-        marginBottom: 2
-    },
-    excluir: {
-        fontSize: 16,
-        color: "#F22222",
-        textDecorationLine: "underline",
-        marginTop: 6 // Um espacinho a mais para o botão de excluir não colar nos dados
-    },
-    logo:{
-        width: 200, 
-        height: 200, 
-        alignSelf: "center"
-    },
-    botaoContainer:{
-        alignItems: "center",
-        marginTop: 20
-    },
-    botaoMenu: {
+  cardAdicionar: {
+    width: 115,
+    height: 155,
+    backgroundColor: "#2F1CA6",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 0 // Ajustado para alinhar com o topo do card
+  },
+  mais: {
+    color: "#F5F2E8",
+    fontSize: 60,
+    fontWeight: "bold"
+  },
+  botaoMenu: {
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
@@ -183,9 +160,9 @@ const styles = StyleSheet.create ({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                     
+    width: 200,                    
     height: 70,
-    resizeMode: "contain",         
+    resizeMode: "contain",        
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal

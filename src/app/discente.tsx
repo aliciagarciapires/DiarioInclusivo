@@ -2,10 +2,10 @@ import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-nati
 import { router } from "expo-router";
 import Footer from "../../components/Footer";
 
-// Lista de alunos
+// Lista de professores
 const listaOriginal = [
-  { id: "1", nome: "Discente 1", imagem: require("../../assets/images/crianca.png"), tipo: "aluno" },
-  { id: "2", nome: "Discente 2", imagem: require("../../assets/images/crianca.png"), tipo: "aluno" }
+  { id: "1", nome: "Discente 1", imagem: require("../../assets/images/discente.png"), tipo: "discente" },
+  { id: "2", nome: "Discente 2", imagem: require("../../assets/images/discente.png"), tipo: "discente" }
 ];
 
 // Item especial de adicionar
@@ -18,41 +18,42 @@ export default function Discente() {
   return (
     <>
       <ScrollView style={styles.container}>
-        <View style={styles.grid}> {/**organiza os cards */}
+  <View style={styles.grid}>
+    {/* Apenas um map é necessário aqui */}
+    {itens.map((item: any) => (
+      <View key={item.id} style={styles.item}>
+        {item.tipo === "discente" ? (
+          <>
+            <Pressable 
+              style={styles.card} 
+              onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
+            >
+              <Image 
+                source={item.imagem} 
+                style={styles.imagem} 
+                resizeMode="contain" 
+              />
+            </Pressable>
 
-          {itens.map((item: any) => (
-            <View key={item.id} style={styles.item}> {/**key é pra identificar cada item */}
-              
-              {item.tipo === "aluno" ? (
-                // RENDERIZA O ALUNO
-                <>
-                  <Pressable style={styles.card} onPress={() => router.push("/menu")}> {/**area clicavel do discente */}
-                    <Image
-                      source={item.imagem} //imagem do array atual
-                      style={styles.imagem}
-                      resizeMode="contain" //faz a imagem caber sem deformar
-                    />
-                  </Pressable>
-
-                  {/**BOTAO COM O NOME */}
-                  <Pressable style={styles.botao} onPress={() => router.push("/menu")}>
-                    <Text style={styles.textoBotao}>
-                      {item.nome}{/**mostra o nome da criança atual */}
-                    </Text>
-                  </Pressable>
-                </>
-              ) : (
-                // RENDERIZA O BOTÃO ADICIONAR
-                <Pressable style={styles.cardAdicionar} onPress={() => router.push("/cadDiscente")}> {/**link para ir cadastrar discente */}
-                  <Text style={styles.mais}>+</Text>
-                </Pressable>
-              )}
-
-            </View>
-          ))}
-
-        </View>
-      </ScrollView>
+            <Pressable 
+              style={styles.botao} 
+              onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
+            >
+              <Text style={styles.textoBotao}>{item.nome}</Text>
+            </Pressable>
+          </>
+        ) : (
+          <Pressable 
+            style={styles.cardAdicionar} 
+            onPress={() => router.push("/cadDiscente")}
+          >
+            <Text style={styles.mais}>+</Text>
+          </Pressable>
+        )}
+      </View>
+    ))}
+  </View>
+</ScrollView>
       
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
@@ -79,7 +80,7 @@ export default function Discente() {
 
       </View>
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   imagem: {
-    width: 140,
+    width: 120,
     height: 170,
   },
   botao: {

@@ -7,7 +7,9 @@ import { useRouter, Href } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
-interface Atividade {
+
+
+interface Atividade { //Defino o que é atividade e as suas informações
   id: string;
   nome: string;
   inicio: Date;
@@ -15,37 +17,37 @@ interface Atividade {
 }
 
 export default function CriarRotina() {
-  const router = useRouter();
+  const router = useRouter(); //para poder trocar de tela depois
   
-  // Estados do formulário principal
-  const [nomeRotina, setNomeRotina] = useState('');
-  const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]);
+  // estados iniciais 
+  const [nomeRotina, setNomeRotina] = useState(''); //começa sem nome
+  const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]); //array começa vazio
   
-  // Estados de controle dos Modais e Pickers
-  const [modalVisivel, setModalVisivel] = useState(false);
-  const [showPicker, setShowPicker] = useState(false);
-  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio');
-  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null);
+  // estados de controle dos Modais e Pickers
+  const [modalVisivel, setModalVisivel] = useState(false); //controla se o pop-up aparece na tela
+  const [showPicker, setShowPicker] = useState(false); //controla SE o relógio do celular aparece ou não na tela
+  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); //controla O QUE vai aparecer na tela depois do relógio ser aberto
+  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); //salva o indice numerico de qual atividade na lista o usuario esta alterando
 
-  // ESTADOS NOVOS: Para a criação da atividade personalizada
-  const [criandoPersonalizada, setCriandoPersonalizada] = useState(false);
-  const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
+  // estados novos: para a criação da atividade personalizada
+  const [criandoPersonalizada, setCriandoPersonalizada] = useState(false); //modal da personalizada
+  const [novoNomeAtividade, setNovoNomeAtividade] = useState(''); //guarda o texto digitado pelo usuário ao criar uma atividade do zero de forma manual.
 
-  // Lista Master de Atividades Pré-cadastradas
+  // lista de atividades pré-cadastradas
   const listaMaster = [
     "Mapa mental", "Esquemas Ilustrados", "Guia de leitura", 
     "Desenho explicativo", "Objeto de toque", "Pausa programada"
   ];
 
-  // Adiciona uma atividade da lista pré-definida
+  // adiciona uma atividade da lista pré-definida
   const adicionarDaMaster = (nome: string) => {
     const novaAtiv: Atividade = {
-      id: Math.random().toString(),
+      id: Math.random().toString(), //valor aleatorio do id
       nome,
       inicio: new Date(),
       fim: new Date(),
     };
-    setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
+    setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]); //pega tds as atividades que já existiam e add uma no final
     setModalVisivel(false);
   };
 
@@ -62,13 +64,13 @@ export default function CriarRotina() {
 
     setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
     
-    // Limpa o formulário e fecha o modal
+    // limpa o formulário e fecha o modal
     setNovoNomeAtividade('');
     setCriandoPersonalizada(false);
     setModalVisivel(false);
   };
 
-  // Funções do DateTimePicker
+  // funções do DateTimePicker
   const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
     setIndexSendoEditado(index);
     setPickerMode(modo);
@@ -76,20 +78,23 @@ export default function CriarRotina() {
   };
 
   const aoMudarHora = (event: any, selectedDate?: Date) => {
-    setShowPicker(false);
+    setShowPicker(false); //essa função é acionada assim que o usuario confirma ou cancela fechando o relogio automaticamente
+
     if (selectedDate && indexSendoEditado !== null) {
-      const novasAtividades = [...atividadesSelecionadas];
+      const novasAtividades = [...atividadesSelecionadas]; //cria uma cópia idêntica da lista de atividades chamada
+      
       if (pickerMode === 'inicio') {
-        novasAtividades[indexSendoEditado].inicio = selectedDate;
+        novasAtividades[indexSendoEditado].inicio = selectedDate; //muda o inicio
       } else {
-        novasAtividades[indexSendoEditado].fim = selectedDate;
+        novasAtividades[indexSendoEditado].fim = selectedDate; //muda o fim
       }
       setAtividadesSelecionadas(novasAtividades);
     }
-    setIndexSendoEditado(null);
+
+    setIndexSendoEditado(null); //Limpa o índice de edição para indicar que a alteração de horário acabou.
   };
 
-  const finalizarRotina = () => {
+  const finalizarRotina = () => {  //printa as informações no console para fins de teste e redireciona o usuário 
     console.log({ nomeRotina, atividadesSelecionadas });
     router.push("/minhasRotinas" as Href);
   };
@@ -105,22 +110,22 @@ export default function CriarRotina() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Input Nome da Rotina */}
+        {/* input Nome da Rotina */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Nome da rotina</Text>
           <TextInput 
             style={styles.input} 
             placeholder="Ex: Aula de Português"
-            value={nomeRotina}
-            onChangeText={setNomeRotina}
+            value={nomeRotina} //pega o valor da variavel nomeRotina
+            onChangeText={setNomeRotina} //se a variavel mudar, deve mudar tb
           />
         </View>
 
-        {/* Botão para Abrir a Lista Master */}
+        {/* botão para Abrir a Lista Master */}
         <TouchableOpacity 
           style={styles.botaoMaster} 
           onPress={() => {
-            setCriandoPersonalizada(false); // Garante que abre na lista
+            setCriandoPersonalizada(false); // garante que abre na lista
             setModalVisivel(true);
           }}
         >
@@ -128,7 +133,7 @@ export default function CriarRotina() {
           <Text style={styles.textoBotaoMaster}>Lista de tarefas</Text>
         </TouchableOpacity>
 
-        {/* Lista de Atividades na Tela Principal */}
+        {/* lista de Atividades na Tela Principal */}
         {atividadesSelecionadas.map((item, index) => (
           <View key={item.id} style={styles.cardAtividade}>
             <Text style={styles.nomeAtividade}>{item.nome}</Text>
@@ -146,7 +151,7 @@ export default function CriarRotina() {
         ))}
       </ScrollView>
 
-      {/* Botão Finalizar */}
+      {/* botão Finalizar */}
       <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarRotina}>
         <Text style={styles.textoFinalizar}>Finalizar Rotina</Text>
       </TouchableOpacity>
@@ -311,7 +316,7 @@ const styles = StyleSheet.create({
   
   // Estilos dos Novos Botões
   botaoCriarNovaDentroDoModal: {
-    backgroundColor: '#4CAF50', // Verde para dar destaque positivo
+    backgroundColor: "#0477BF", // Verde para dar destaque positivo
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

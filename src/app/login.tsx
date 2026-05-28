@@ -1,9 +1,9 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "../../components/Button";
-import { Input } from "../../components/input";
-import { router } from "expo-router";
 import Footer from "../../components/Footer";
+import { Input } from "../../components/input";
 
 export default function Login() {
     // Estado para controlar qual tipo de conta está selecionada (padrão: responsavel)
@@ -107,6 +107,16 @@ export default function Login() {
                         </View>
                     )}
 
+                    {/* BOTÃO | LINK: ESQUECER A SENHA */}
+                        <Pressable 
+                            style={styles.esqueceuSenhaBotao} 
+                            onPress={() => router.push("/PAGINA_CONFIG")} // que ainda n existe
+                        >
+                            <Text style={styles.esqueceuSenhaTexto}>
+                                Esqueceu sua senha? Clique aqui para recuperar
+                            </Text>
+                        </Pressable>
+
                 </View>
             </View>
         </ScrollView><Footer>
@@ -180,9 +190,22 @@ const styles = StyleSheet.create({
         marginTop: 17,
         fontSize: 10,
     },
+    esqueceuSenhaBotao: {
+        alignSelf: "center",
+        marginTop: 25,
+        padding: 10,
+    },
+    esqueceuSenhaTexto: {
+        color: "#2F1CA6",
+        fontSize: 13,
+        fontWeight: "600",
+        textDecorationLine: "underline", // Dá o efeito de link sublinhado
+        textAlign: "center",
+    },
     textoRodape: {
         color: "#0B8CBF",
         fontSize: 12,
         fontWeight: "500",
     }
+
 })

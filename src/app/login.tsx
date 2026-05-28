@@ -110,7 +110,7 @@ export default function Login() {
                     {/* BOTÃO | LINK: ESQUECER A SENHA */}
                         <Pressable 
                             style={styles.esqueceuSenhaBotao} 
-                            onPress={() => router.push("/PAGINA_CONFIG")} // que ainda n existe
+                            onPress={() => router.push("/inicio")} // na prática vai para a configuraçao, que ainda n existe
                         >
                             <Text style={styles.esqueceuSenhaTexto}>
                                 Esqueceu sua senha? Clique aqui para recuperar

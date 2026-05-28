@@ -102,7 +102,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap", 
     justifyContent: "flex-start", // Mude de space-around para flex-start
     paddingHorizontal: 20, 
-    marginTop: 40,
     gap: 10 // Adicione um gap para dar respiro entre os itens
   },
   item: {

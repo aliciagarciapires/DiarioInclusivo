@@ -126,13 +126,13 @@ const styles = StyleSheet.create({
     },
     itens: {
         justifyContent: "flex-start", // Garante que tudo fique no topo
-        width: "100%"
+        width: "100%",
+        marginTop: -10, // Sobe a logo e os botões para o topo
     },
     logo:{
-        width: 80, // Reduzi um pouco mais para dar espaço
-        height: 100,
+        width: 150, 
+        height: 160,
         alignSelf: "center",
-        marginBottom: 5, // Margem bem curta com o subtítulo
         
     },
     subtitulo: {

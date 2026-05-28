@@ -4,6 +4,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { StyleSheet, Image } from "react-native";
 
+const LogoDireita = () => (
+  <Image 
+    source={require("../../assets/images/logo.png")} 
+    style={{ width: 60, height: 40, marginRight: 5 }} 
+    resizeMode="contain"
+  />
+);
+
 export default function Layout() {
   return (
     <Stack
@@ -83,6 +91,7 @@ export default function Layout() {
               <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
             </Pressable>
           ),
+          headerRight: () => <LogoDireita />
         }} 
       />
 
@@ -105,7 +114,7 @@ export default function Layout() {
       <Stack.Screen 
         name="cadProf" 
         options={{ 
-          headerTitle: "CADATRO", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerTitle: "CADASTRO", // <-- Deixa o centro do cabeçalho totalmente vazio
           headerBackVisible: false, 
           headerLeft: () => (
             <Pressable 
@@ -131,6 +140,7 @@ export default function Layout() {
               <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
             </Pressable>
           ),
+          headerRight: () => <LogoDireita />
         }} 
       />
 
@@ -163,6 +173,7 @@ export default function Layout() {
               <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
             </Pressable>
           ),
+          headerRight: () => <LogoDireita />
         }} 
       />
 
@@ -180,6 +191,7 @@ export default function Layout() {
               
             </Pressable>
           ),
+          headerRight: () => <LogoDireita />
         }} 
       />
 

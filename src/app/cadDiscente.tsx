@@ -27,7 +27,7 @@ export default function CadDiscente() {
         <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
                 <View style={styles.itens}>
-                    <Image source={require("../../assets/images/logoNome.png")} style={styles.logo} />
+                    <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
                 </View>
 
                 <View style={styles.form}>
@@ -109,9 +109,9 @@ export default function CadDiscente() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, alignItems: "center", backgroundColor: "#F5F2E8", padding: 32 },
-    itens: { justifyContent: "center", width: "100%" },
-    logo: { width: 200, height: 200, marginTop: 25, alignSelf: "center" },
-    form: { marginTop: 12, gap: 5, width: "100%" },
+    itens: { justifyContent: "center", width: "100%", marginTop: -50},
+    logo:{ width: 150, height: 150, alignSelf: "center",  },
+    form: { gap: 5, width: "100%" },
     textoInput: { fontSize: 15, color: "#2F1CA6", fontWeight: "bold", marginLeft: 8, marginTop: 8 },
     botaoContainer: { alignItems: "center", marginTop: 20 },
     title: { fontSize: 22, fontWeight: "bold", color: "#2F1CA6", marginLeft: 8, marginTop: 10 },

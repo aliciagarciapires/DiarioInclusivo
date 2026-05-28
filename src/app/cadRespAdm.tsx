@@ -19,7 +19,12 @@ export default function CadResp(){
                 showsVerticalScrollIndicator={false}
             >
                 <View style={styles.itens}>
-
+                {/**LOGO */}
+                <View style={styles.itens}>
+                <Image
+                    source={require("../../assets/images/logo.png")}
+                    style={styles.logo} />
+                </View>
                     
 
                     <Text style={styles.subtitulo}>
@@ -122,18 +127,17 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 32,
-        paddingTop: 32,
-        paddingBottom: 40,          // Espaço extra no fim do formulário para não colar no rodapé ao rolar
+        paddingBottom: 50,          // Espaço para o rodapé fixo
     },
     itens: {
-        justifyContent: "center",
-        width: "100%"
+        justifyContent: "flex-start", // Garante que tudo fique no topo
+        width: "100%",
+        marginTop: -10,
     },
     logo:{
-        width: 200, 
-        height: 200, 
-        marginTop: 25, 
-        alignSelf: "center" 
+        width: 150, //usar 100% da imagem
+        height: 150, //altura
+        alignSelf: "center"
     },
     selectContainer:{
         flexDirection: "row", 
@@ -154,13 +158,12 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     subtitulo: {
-        fontSize: 19, 
-        fontWeight: "bold", 
-        color: "#2F1CA6", 
-        textAlign: "center", 
-        marginBottom: 10,
-        marginTop: 25
-    }, 
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#2F1CA6",
+        textAlign: "center",
+        marginBottom: 5, // Espaço mínimo entre o texto e os botões
+    },
     form : {
         marginTop: 12,
         gap: 5

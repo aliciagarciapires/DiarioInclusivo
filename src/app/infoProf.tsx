@@ -37,6 +37,7 @@ export default function InfoProf() {
 
   return (
     <View style={styles.container}>
+      {/**LOGO */}
       <View style={styles.itens}>
         <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
       </View>
@@ -130,8 +131,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 12, color: "#2F1CA6", fontWeight: "bold", textTransform: "uppercase" },
   value: { fontSize: 16, color: "#0b8cbfd1", marginTop: 2 },
   erro: { textAlign: "center", fontSize: 16, color: "red", marginTop: 20 },
-  itens: { justifyContent: "center", width: "100%", marginBottom: 20 },
-  logo: { width: 150, height: 150, alignSelf: "center" },
+  itens: { justifyContent: "center", width: "100%", marginTop: -40 },
   botaoMenu: {
     alignItems: "center",
     justifyContent: "center",
@@ -168,4 +168,9 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     marginTop: 20   
   },
+  logo: {
+    width: 100, //usar 100% da imagem
+        height: 100, //altura
+        alignSelf: "center"
+  }
 });

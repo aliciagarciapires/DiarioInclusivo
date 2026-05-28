@@ -13,7 +13,7 @@ export default function Login(){
                 {/**LOGO */}
                 <View style={styles.itens}>
                     <Image
-                        source={require("../../assets/images/logoNome.png")}
+                        source={require("../../assets/images/logo.png")}
                         style={styles.logo} />
                 </View>
 
@@ -75,25 +75,18 @@ const styles = StyleSheet.create ({
         padding: 32, //margem
         
     },
-    topo: {
-        justifyContent: "flex-start",
-        marginTop: 20,
-        color: "#2F1CA6",
-        fontWeight: "bold",
-        fontSize: 18
-    },
     itens: {
         justifyContent: "center",
-        width: "100%"
+        width: "100%",
+        marginTop: -50
     },
     logo:{
-        width: 200, //usar 100% da imagem
-        height: 200, //altura
-        marginTop: 25, //margem do topo
+        width: 150, //usar 100% da imagem
+        height: 150, //altura
         alignSelf: "center"
     }, 
     form : {
-        marginTop: 12,
+        marginTop: -10,
         gap: 5,
         width: "100%"
     },

@@ -267,10 +267,10 @@ const styles = StyleSheet.create({
      backgroundColor: '#F5F2E8' 
     },
   header: 
-  { flexDirection: 'row', 
+  { 
+    flexDirection: 'row', 
     alignItems: 'center',
    padding: 20,
-   paddingTop: 50 
   },
   titulo: 
   { fontSize: 24, 

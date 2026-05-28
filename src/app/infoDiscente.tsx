@@ -80,8 +80,10 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: "#F5F2E8", 
-    padding: 20, 
-    justifyContent: "flex-start" 
+    paddingHorizontal: 20, // Mantém margem lateral
+    paddingTop: 5,        // Diminuí de 20 para 5 para subir tudo
+    paddingBottom: 20, 
+    justifyContent: "flex-start"
   },
   card: {
     backgroundColor: "#F5F2E8",
@@ -124,12 +126,13 @@ const styles = StyleSheet.create({
   },
   erro: { textAlign: "center", fontSize: 16, color: "red" },
   itens: {
-        justifyContent: "center",
-        width: "100%"
+        justifyContent: "flex-start", // Garante que a logo suba para o topo
+        width: "100%",
+        marginTop: -20,
     },
     logo:{
-        width: 200, //usar 100% da imagem
-        height: 200, //altura
+        width: 100, //usar 100% da imagem
+        height: 100, //altura
         alignSelf: "center"
     }, 
     botaoMenu: {

@@ -67,38 +67,14 @@ const styles = StyleSheet.create ({
         backgroundColor: "#F5F2E8", //cor do fundo
         padding: 32 //margem
     },
-    topo: {
-        justifyContent: "flex-start",
-        marginTop: 20,
-        color: "#2F1CA6",
-        fontWeight: "bold",
-        fontSize: 18
-    },
     caixa: {
        flex: 1, //faz a View ocupar a tela toda
        justifyContent: "center", //centraliza vertical
        alignItems: "center",
-       marginBottom: 230
     },
-    botao: {
-       marginTop: 30,
-       marginBottom: 20,
-       width: 250,
-       height: 50,
-       backgroundColor: "#2F1CA6",
-       borderRadius: 15,
-       justifyContent: "center", //centraliza vertical
-       alignItems: "center" //centraliza horizontal
-    },
-    textoBotao: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold"
-  },
    logo:{
-        width: "60%", //usar 100% da imagem
-        height: 200, //altura
-        marginTop: 20 //margem do topo
+        width: 150, //usar 100% da imagem
+        height: 170, //altura
     },
     botaoMenu: {
     alignItems: "center",
@@ -143,6 +119,6 @@ const styles = StyleSheet.create ({
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 30
+    marginTop: 35
   },
 })

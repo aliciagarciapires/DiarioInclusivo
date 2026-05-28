@@ -14,7 +14,6 @@ interface TarefaRotina {
   horaFim: string;
 }
 
-
 export default function VisualizarRotina() {
   const [rotina, setRotina] = useState<TarefaRotina[]>([
     { id: "1", nome: "Atividades sensoriais", horaInicio: "8:00", horaFim: "9:00" },

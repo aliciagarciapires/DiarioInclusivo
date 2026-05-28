@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, 
   ScrollView, Modal, FlatList, 
-  Pressable, Image
+  Pressable, Image, Alert
 } from 'react-native';
 import { useRouter, Href } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -72,6 +72,25 @@ export default function CriarRotina() {
     setModalVisivel(false);
   };
 
+
+
+const apagarAtividade = (idParaApagar: string) => {
+  Alert.alert(
+    "Apagar Atividade",
+    "Tem certeza que deseja remover esta atividade da sua rotina?",
+    [
+      { text: "Cancelar", style: "cancel" },
+      { 
+        text: "Apagar", 
+        style: "destructive", 
+        onPress: () => {
+          const listaFiltrada = atividadesSelecionadas.filter(ativ => ativ.id !== idParaApagar);
+          setAtividadesSelecionadas(listaFiltrada);
+        }
+      }
+    ]
+  );
+};
   // funções do DateTimePicker
   const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
     setIndexSendoEditado(index);
@@ -136,22 +155,32 @@ export default function CriarRotina() {
           <Text style={styles.textoBotaoMaster}>Lista de tarefas</Text>
         </TouchableOpacity>
 
-        {/* lista de Atividades na Tela Principal */}
         {atividadesSelecionadas.map((item, index) => (
-          <View key={item.id} style={styles.cardAtividade}>
-            <Text style={styles.nomeAtividade}>{item.nome}</Text>
-            
-            <View style={styles.containerHorarios}>
-              <TouchableOpacity onPress={() => abrirRelogio(index, 'inicio')} style={styles.botaoHora}>
-                <Text style={styles.textoHora}>Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-              </TouchableOpacity>
+  <View key={item.id} style={styles.cardAtividade}>
+    
+    {/* Nova View estruturada em linha para colocar o texto de um lado e a lixeira do outro */}
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+      <Text style={styles.nomeAtividade}>{item.nome}</Text>
+      
+      {/* Botão da Lixeira */}
+      <TouchableOpacity onPress={() => apagarAtividade(item.id)}>
+        <Ionicons name="trash-outline" size={22} color="#FF4444" />
+      </TouchableOpacity>
+    </View>
+    
+    {/* Os botões de horário continuam aqui embaixo... */}
+    <View style={styles.containerHorarios}>
+      <TouchableOpacity onPress={() => abrirRelogio(index, 'inicio')} style={styles.botaoHora}>
+        <Text style={styles.textoHora}>Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => abrirRelogio(index, 'fim')} style={styles.botaoHora}>
-                <Text style={styles.textoHora}>Fim: {item.fim.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
+      <TouchableOpacity onPress={() => abrirRelogio(index, 'fim')} style={styles.botaoHora}>
+        <Text style={styles.textoHora}>Fim: {item.fim.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      </TouchableOpacity>
+    </View>
+
+  </View>
+))}
       </ScrollView>
 
       {/* botão Finalizar */}

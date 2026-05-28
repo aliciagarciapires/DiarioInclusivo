@@ -1,6 +1,7 @@
 import { Link, router } from "expo-router"; //link cria links e o router vai para outra página
 import { Image, StyleSheet, Text, View } from "react-native"; //blibiotecas importadas: View=> tipo o div no html; StyleSheet=> cria os estilos (parte parecida com o css)
 import { Button } from "../../components/Button"; //puxa o componente Button criado, para ficar padrão, como uma função
+import Footer from "../../components/Footer";
 
 export default function Index(){
     return (
@@ -36,6 +37,8 @@ export default function Index(){
                     <Text>Fazer login</Text>
                 </Link>
             </Text>
+
+            <Footer children={undefined} />
 
         </View>
     )
@@ -79,6 +82,12 @@ const styles = StyleSheet.create({
         fontSize: 12
     },
     link: {
-        textDecorationLine: "underline" //sublinhar o texto
+        textDecorationLine: "underline", //sublinhar o texto
+        marginBottom: 20
+    },
+    textoRodape: {
+        color: "#0B8CBF",
+        fontSize: 12,
+        fontWeight: "500",
     }
 })

@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
 import { router } from "expo-router";
 import Footer from "../../components/Footer";
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 
 // Lista de professores
 const listaOriginal = [

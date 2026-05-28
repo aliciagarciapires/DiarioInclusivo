@@ -34,14 +34,14 @@ export default function CadDiscente() {
                     <Text style={styles.title}>Cadastro do Discente</Text>
 
                     <Text style={styles.textoInput}>Nome Completo:</Text>
-                    <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b" />
+                    <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbfd1" />
 
                     {/* CAMPO RESPONSÁVEL TRANSFORMÁVEL */}
                     <Text style={styles.textoInput}>Responsável:</Text>
                     {editando ? (
                         <Input 
                             placeholder="Digite o nome..." 
-                            placeholderTextColor="#0b8cbf5b"
+                            placeholderTextColor="#0b8cbfd1"
                             value={busca} 
                             onChangeText={setBusca} 
                             autoFocus
@@ -75,7 +75,7 @@ export default function CadDiscente() {
                     )}
 
                     <Text style={styles.textoInput}>Data de Nascimento:</Text>
-                    <Input placeholder="00/00/0000" placeholderTextColor="#0b8cbf5b" />
+                    <Input placeholder="00/00/0000" placeholderTextColor="#0b8cbfd1" />
 
                     <Text style={styles.textoInput}>Grau de Suporte:</Text>
                     <Pressable style={styles.select} onPress={() => setAberto(!aberto)}>

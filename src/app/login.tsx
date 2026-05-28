@@ -15,7 +15,7 @@ export default function Login() {
             <View style={styles.container}>
                 <View style={styles.itens}>
                     <Image
-                        source={require("../../assets/images/logoNome.png")}
+                        source={require("../../assets/images/logo.png")}
                         style={styles.logo} />
 
                     <Text style={styles.subtitulo}>
@@ -62,10 +62,10 @@ export default function Login() {
                     {tipoConta === "responsavel" && (
                         <View style={styles.form}>
                             <Text style={styles.textoInput}>E-mail do Responsável:</Text>
-                            <Input placeholder="responsavel@email.com" placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
+                            <Input placeholder="responsavel@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
                             <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                             <View style={styles.botaoContainer}>
                                 <Button onPress={() => router.push("/inicio")}
@@ -77,10 +77,10 @@ export default function Login() {
                     {tipoConta === "professor" && (
                         <View style={styles.form}>
                             <Text style={styles.textoInput}>E-mail do Professor:</Text>
-                            <Input placeholder="professor@email.com" placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
+                            <Input placeholder="professor@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
                             <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                             <View style={styles.botaoContainer}>
                                 <Button onPress={() => router.push("/inicio")}
@@ -92,13 +92,13 @@ export default function Login() {
                     {tipoConta === "administrador" && (
                         <View style={styles.form}>
                             <Text style={styles.textoInput}>E-mail do Administrador:</Text>
-                            <Input placeholder="escola@email.com" placeholderTextColor="#0b8cbf5b" />
+                            <Input placeholder="escola@email.com" placeholderTextColor="#0b8cbfd1" />
 
                             <Text style={styles.textoInput}>Código do Administrador:</Text>
-                            <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbf5b" />
+                            <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbfd1" />
 
                             <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                             <View style={styles.botaoContainer}>
                                 <Button onPress={() => router.push("/professores")}
@@ -122,29 +122,31 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         backgroundColor: "#F5F2E8",
-        padding: 32
-    },
-    topo: {
-        justifyContent: "flex-start",
-        marginTop: 20,
-        color: "#2F1CA6",
-        fontWeight: "bold",
-        fontSize: 18
+        paddingHorizontal: 32,
     },
     itens: {
-        justifyContent: "center",
+        justifyContent: "flex-start", // Garante que tudo fique no topo
         width: "100%"
     },
     logo:{
-        width: 180, //usar 100% da imagem
-        height: 180, //altura
-        alignSelf: "center" //apenas esse item no centro
+        width: 80, // Reduzi um pouco mais para dar espaço
+        height: 100,
+        alignSelf: "center",
+        marginBottom: 5, // Margem bem curta com o subtítulo
+        
+    },
+    subtitulo: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#2F1CA6",
+        textAlign: "center",
+        marginBottom: 5, // Espaço mínimo entre o texto e os botões
     },
     selectContainer: {
         flexDirection: "row",
-        gap: 6, // Diminuí um pouco o espaçamento para caber os 3 botões lado a lado
-        justifyContent: "center",
-        width: "100%"
+        gap: 6,
+        width: "100%",
+        marginBottom: 5, // Aproxima os botões do formulário
     },
     botaoSelect: {
         backgroundColor: "#2e1ca63f",
@@ -161,14 +163,6 @@ const styles = StyleSheet.create({
         color: "#F5F2E8",
         fontWeight: "bold",
         fontSize: 10 // Fonte ligeiramente menor para garantir que "Administrador" ou "Professor" caibam bem
-    },
-    subtitulo: {
-        fontSize: 19,
-        fontWeight: "bold",
-        color: "#2F1CA6",
-        textAlign: "center",
-        marginBottom: 15,
-        marginTop: 25
     },
     form: {
         marginTop: 12,

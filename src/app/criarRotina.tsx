@@ -118,7 +118,7 @@ export default function CriarRotina() {
           <TextInput 
             style={styles.input} 
             placeholder="Ex: Aula de Português"
-            placeholderTextColor="#0b8cbf5b"
+            placeholderTextColor="#0b8cbfd1"
             value={nomeRotina}
             onChangeText={setNomeRotina}
           />
@@ -172,7 +172,7 @@ export default function CriarRotina() {
                 <TextInput 
                   style={styles.input}
                   placeholder="Digite o nome da atividade..."
-                  placeholderTextColor="#0b8cbf5b"
+                  placeholderTextColor="#0b8cbfd1"
                   value={novoNomeAtividade}
                   onChangeText={setNovoNomeAtividade}
                 />
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   containerHorarios: { flexDirection: 'row', justifyContent: 'space-between' },
   botaoHora: { backgroundColor: '#f8f6f2', padding: 8, borderRadius: 10, flex: 0.48, alignItems: 'center', borderWidth: 1, borderColor: '#2e1ca668' },
   textoHora: { color: '#2F1CA6', fontWeight: 'bold' },
-  botaoFinalizar: { backgroundColor: '#2F1CA6', padding: 15, alignItems: 'center', margin: 20, borderRadius: 30, marginBottom: 70 },
+  botaoFinalizar: { backgroundColor: '#2F1CA6', padding: 15, alignItems: 'center', margin: 20, borderRadius: 30, marginBottom: 80 },
   textoFinalizar: { color: '#F5F2E8', fontSize: 20, fontWeight: 'bold' },
   
   // Estilos do Modal

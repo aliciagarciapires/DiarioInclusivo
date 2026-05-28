@@ -27,27 +27,27 @@ export default function Login(){
                     <Text style={styles.textoInput}>
                         Nome Completo:
                     </Text>
-                    <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b" />
+                    <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbfd1" />
 
                     <Text style={styles.textoInput}>
                         E-mail:
                     </Text>
-                    <Input placeholder="professor@email.com" placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
+                    <Input placeholder="professor@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
                     <Text style={styles.textoInput}>
                         MASP/Matrícula:
                     </Text>
-                    <Input placeholder="xxxxxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric" />
+                    <Input placeholder="xxxxxxx" placeholderTextColor="#0b8cbfd1" keyboardType="numeric" />
 
                     <Text style={styles.textoInput}>
                         Senha:
                     </Text>
-                    <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                    <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                     <Text style={styles.textoInput}>
                         Confirmar Senha:
                     </Text>
-                    <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                    <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                     <View style={styles.botaoContainer}>
                         <Button

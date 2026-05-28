@@ -39,6 +39,8 @@ export default function Layout() {
               style={{ padding: 8, marginLeft: -8 }}
             >
               <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+
+              
             </Pressable>
           ),
         }} 
@@ -175,6 +177,7 @@ export default function Layout() {
               style={{ padding: 8, marginLeft: -8 }}
             >
               <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+              
             </Pressable>
           ),
         }} 

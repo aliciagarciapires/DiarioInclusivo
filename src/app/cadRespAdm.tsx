@@ -20,11 +20,7 @@ export default function CadResp(){
             >
                 <View style={styles.itens}>
 
-                    {/** LOGO */}
-                    <Image
-                        source={require("../../assets/images/logoNome.png")}
-                        style={styles.logo} 
-                    />
+                    
 
                     <Text style={styles.subtitulo}>
                         Selecione a opção de cadastro
@@ -59,19 +55,19 @@ export default function CadResp(){
                         <View style={styles.form}>
                             {/** FORMULÁRIO DE CADASTRO RESPONSÁVEL */}
                             <Text style={styles.textoInput}>Nome Completo:</Text>
-                            <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbf5b" />
+                            <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbfd1" />
 
                             <Text style={styles.textoInput}>E-mail:</Text>
-                            <Input placeholder="usuario@email.com" placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
+                            <Input placeholder="usuario@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
                             <Text style={styles.textoInput}>Telefone:</Text>
-                            <Input placeholder="(xx) xxxx-xxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric" />
+                            <Input placeholder="(xx) xxxx-xxxx" placeholderTextColor="#0b8cbfd1" keyboardType="numeric" />
 
                             <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                             <Text style={styles.textoInput}>Confirmar Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                             <View style={styles.botaoContainer}>
                                 <Button
@@ -84,19 +80,19 @@ export default function CadResp(){
                         <View style={styles.form}>
                             {/** FORMULÁRIO DE CADASTRO ADMINISTRADOR */}
                             <Text style={styles.textoInput}>Nome da Escola:</Text>
-                            <Input placeholder="Nome da Instituição" placeholderTextColor="#0b8cbf5b" />
+                            <Input placeholder="Nome da Instituição" placeholderTextColor="#0b8cbfd1" />
 
                             <Text style={styles.textoInput}>E-mail Institucional:</Text>
-                            <Input placeholder="escola@email.com" placeholderTextColor="#0b8cbf5b" keyboardType="email-address" />
+                            <Input placeholder="escola@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
                             <Text style={styles.textoInput}>Código INEP:</Text>
-                            <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbf5b" keyboardType="numeric" />
+                            <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbfd1" keyboardType="numeric" />
 
                             <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                             <Text style={styles.textoInput}>Confirmar Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbf5b" secureTextEntry />
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                             <View style={styles.botaoContainer}>
                                 <Button

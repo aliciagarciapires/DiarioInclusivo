@@ -8,6 +8,7 @@ import { useRouter, Href } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import Footer from '../../components/Footer';
+import { Button } from "../../components/Button"
 
 
 
@@ -152,7 +153,7 @@ const apagarAtividade = (idParaApagar: string) => {
           }}
         >
           <Ionicons name="add-circle" size={24} color="#F5F2E8" />
-          <Text style={styles.textoBotaoMaster}>Lista de tarefas</Text>
+          <Text style={styles.textoBotaoMaster}>Atividade</Text>
         </TouchableOpacity>
 
         {atividadesSelecionadas.map((item, index) => (
@@ -185,7 +186,7 @@ const apagarAtividade = (idParaApagar: string) => {
 
       {/* botão Finalizar */}
       <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarRotina}>
-        <Text style={styles.textoFinalizar}>Finalizar Rotina</Text>
+        <Text style={styles.textoFinalizar}>Salvar Rotina</Text>
       </TouchableOpacity>
 
       {/* MODAL MODIFICADO */}
@@ -226,11 +227,23 @@ const apagarAtividade = (idParaApagar: string) => {
                   data={listaMaster}
                   keyExtractor={(item) => item}
                   renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.itemMaster} onPress={() => adicionarDaMaster(item)}>
-                      <Text style={styles.textoItemMaster}>{item}</Text>
+                    <TouchableOpacity 
+                      style={styles.itemMaster} 
+                      onPress={() => adicionarDaMaster(item)}
+                    >
+                     
+                      {/* Container em linha para alinhar o texto e o ícone */}
+                      <View style={styles.containerMaster}>
+                         <Ionicons name="add-circle-outline" size={22} color="#2F1CA6" />
+                           <View style={styles.conteudoItemMaster}>
+                           <Text style={styles.textoItemMaster}>{item}</Text>
+                           </View>
+                      </View>
+                      
                     </TouchableOpacity>
                   )}
                 />
+              
 
                 {/* BOTÃO NOVO: Criar nova atividade customizada */}
                 <TouchableOpacity 
@@ -359,20 +372,57 @@ const styles = StyleSheet.create({
     color: '#2F1CA6', 
     marginBottom: 10 
   },
-  containerHorarios: { flexDirection: 'row', justifyContent: 'space-between' },
-  botaoHora: { backgroundColor: '#f8f6f2', padding: 8, borderRadius: 10, flex: 0.48, alignItems: 'center', borderWidth: 1, borderColor: '#2e1ca668' },
+  containerHorarios:
+   { flexDirection: 'row', 
+    justifyContent: 'space-between' 
+  },
+  botaoHora: { 
+    backgroundColor: '#f8f6f2', 
+    padding: 8, 
+    borderRadius: 10, 
+    flex: 0.48, 
+    alignItems: 'center', 
+    borderWidth: 1, 
+    borderColor: '#2e1ca668' },
   textoHora: { color: '#2F1CA6', fontWeight: 'bold' },
-  botaoFinalizar: { backgroundColor: '#2F1CA6', padding: 15, alignItems: 'center', margin: 20, borderRadius: 30, marginBottom: 80 },
+  botaoFinalizar: 
+  { backgroundColor: '#2F1CA6', 
+    padding: 15, 
+    alignItems: 'center', 
+    margin: 20, 
+    borderRadius: 30, 
+    marginBottom: 80 },
+
+
   textoFinalizar: { color: '#F5F2E8', fontSize: 20, fontWeight: 'bold' },
   
   // Estilos do Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { width: '85%', height: '65%', backgroundColor: '#F5F2E8', borderRadius: 20, padding: 20, justifyContent: 'space-between' },
   modalTitulo: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, color: '#2F1CA6', textAlign: 'center' },
-  itemMaster: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#F5F2E8' },
-  textoItemMaster: { fontSize: 18, color: '#2F1CA6' },
-  
-  // Estilos dos Novos Botões
+
+  containerMaster: {
+    flexDirection: "row", 
+    alignItems: "center", 
+    gap: 10
+  },
+  itemMaster: { 
+    paddingVertical: 15, 
+    paddingHorizontal: 10,
+    borderBottomWidth: 1, 
+    borderBottomColor: '#e0e0e0' // Uma linha mais suave para separar os itens
+  },
+  conteudoItemMaster: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Empurra o texto para a esquerda e o ícone para a direita
+    alignItems: 'center',
+  },
+  textoItemMaster: { 
+    fontSize: 18, 
+    color: '#2F1CA6',
+    fontWeight: '500' // Deixa o texto levemente mais destacado
+  },
+
   botaoCriarNovaDentroDoModal: {
     backgroundColor: '#7CBF17', // Verde para dar destaque positivo
     flexDirection: 'row',

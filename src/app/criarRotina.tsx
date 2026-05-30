@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
-import { 
-  View, Text, StyleSheet, TextInput, TouchableOpacity, 
-  ScrollView, Modal, FlatList, 
-  Pressable, Image, Alert
-} from 'react-native';
-import { useRouter, Href } from 'expo-router';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Href, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  Alert,
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput, TouchableOpacity,
+  View
+} from 'react-native';
 import Footer from '../../components/Footer';
-import { Button } from "../../components/Button"
 
 
 
@@ -55,23 +61,51 @@ export default function CriarRotina() {
   };
 
   // FUNÇÃO NOVA: Salva a atividade que o usuário digitou manualmente
-  const salvarAtividadePersonalizada = () => {
-    if (novoNomeAtividade.trim() === '') return; // Impede salvar sem nome
+  const salvarAtividadePersonalizada = async () => {
+  if (novoNomeAtividade.trim() === '') return; // Impede salvar em branco
 
-    const novaAtiv: Atividade = {
-      id: Math.random().toString(),
-      nome: novoNomeAtividade,
-      inicio: new Date(), // Começa com o horário atual, editável na tela principal
-      fim: new Date(),
-    };
+  try {
+    // tem q botar o ip do computador ou do servidor php / xamp aq p funcionar
+    const URL_API = 'http://192.168.1.7/diario/criar_atividade.php'; 
 
-    setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
-    
-    // limpa o formulário e fecha o modal
-    setNovoNomeAtividade('');
-    setCriandoPersonalizada(false);
-    setModalVisivel(false);
-  };
+    const resposta = await fetch(URL_API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        novoNomeAtividade: novoNomeAtividade // Envia o texto pro PHP
+      }),
+    });
+
+    const resultado = await resposta.json();
+
+    if (resultado.sucesso) {
+      // Se salvou no banco, adiciona na lista da tela usando o ID que o banco gerou
+      const novaAtiv: Atividade = {
+        id: resultado.idAtividades.toString(), // Usa o ID real do banco!
+        nome: novoNomeAtividade,
+        inicio: new Date(),
+        fim: new Date(),
+      };
+
+      setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
+      
+      // Limpa os campos e fecha os modais
+      setNovoNomeAtividade('');
+      setCriandoPersonalizada(false);
+      setModalVisivel(false);
+      
+      Alert.alert("Sucesso", "Atividade salva!");
+    } else {
+      Alert.alert("Erro", resultado.mensagem);
+    }
+
+  } catch (error) {
+    console.error(error);
+    Alert.alert("Erro", "Não foi possível conectar ao servidor backend.");
+  }
+};
 
 
 

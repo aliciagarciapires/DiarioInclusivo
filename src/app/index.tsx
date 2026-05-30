@@ -9,20 +9,22 @@ export default function Index(){
 
             {/*FRASE PRINCIPAL*/}
             <Text style={styles.title}> 
-                Bem-vindo ao {"\n"} 
-                Diário Inclusivo 
+                Bem-vindo ao 
+            </Text>
+            <Text style={styles.title}> 
+                Diário Inclusivo
+            </Text>
 
                 {/*SUBTITULO*/}
                 <Text style={styles.subtitulo}>
-                    {"\n\n"}O aplicativo que irá auxiliar na sua jornada.
+                    O aplicativo que irá auxiliar na sua jornada.
                 </Text>
 
-            </Text>
+            
 
             {/*LOGO DO SISTEMA*/}
-            <Image 
-                source={require("../../assets/images/logo.png")} /*Importa a imagem*/
-                style={styles.logo} />
+            <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
+            {/*Importa a imagem*/}
 
             {/*BOTÃO COM LINK PARA O CADASTRO*/}
             <Button 
@@ -32,7 +34,7 @@ export default function Index(){
 
             {/*LINK PARA LOGIN*/}
             <Text style={styles.footerText}>
-                Já possui uma conta?{"\n"}
+                Já possui uma conta?
                 <Link href="/login" style={styles.link}>
                     <Text>Fazer login</Text>
                 </Link>

@@ -1,44 +1,43 @@
-import { Link, router } from "expo-router"; //link cria links e o router vai para outra página
-import { Image, StyleSheet, Text, View } from "react-native"; //blibiotecas importadas: View=> tipo o div no html; StyleSheet=> cria os estilos (parte parecida com o css)
-import { Button } from "../../components/Button"; //puxa o componente Button criado, para ficar padrão, como uma função
+import { Link, router } from "expo-router"; 
+import { Image, StyleSheet, Text, View } from "react-native"; 
+import { Button } from "../../components/Button"; 
 import Footer from "../../components/Footer";
 
 export default function Index(){
     return (
         <View style={styles.container}>
 
-            {/*FRASE PRINCIPAL*/}
-            <Text style={styles.title}> 
-                Bem-vindo ao 
-            </Text>
-            <Text style={styles.title}> 
-                Diário Inclusivo
-            </Text>
-
-                {/*SUBTITULO*/}
-                <Text style={styles.subtitulo}>
-                    O aplicativo que irá auxiliar na sua jornada.
+            <View style={{marginTop: 140}}>
+                <Text style={styles.title}> 
+                    Bem-vindo ao  
                 </Text>
-
+                <Text style={styles.title}> 
+                    Diário Inclusivo 
+                </Text>
+            </View>
             
 
-            {/*LOGO DO SISTEMA*/}
-            <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
-            {/*Importa a imagem*/}
+            <Text style={styles.subtitulo}> 
+               O aplicativo que irá auxiliar na sua jornada. 
+            </Text>
+            
+            <Image 
+                source={require("../../assets/images/logo.png")}
+                style={styles.logo} />
 
-            {/*BOTÃO COM LINK PARA O CADASTRO*/}
+            
             <Button 
                 label="Criar conta"
-                onPress={() => router.push("/cadRespAdm")}> {/*quando clicar, vai para a página do cadastro*/}
-            </Button>
+                onPress={() => router.push("/cadRespAdm")}/> 
+            
 
-            {/*LINK PARA LOGIN*/}
+           
             <Text style={styles.footerText}>
                 Já possui uma conta?
-                <Link href="/login" style={styles.link}>
-                    <Text>Fazer login</Text>
-                </Link>
             </Text>
+            <Link href="/login" style={styles.link}>
+                    <Text style={styles.footerText}>Fazer login</Text>
+            </Link>
 
             <Footer children={undefined} />
 
@@ -48,27 +47,28 @@ export default function Index(){
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1, //view ocupar a tela inteira
-        justifyContent: "center", //centraliza na vertical 
-        alignItems: "center", //centraliza na horizontal
-        backgroundColor: "#F5F2E8", //cor do fundo
-        padding: 32 //margem
+        flex: 1, 
+        justifyContent: "center",  
+        alignItems: "center", 
+        backgroundColor: "#F5F2E8", 
+        padding: 32 
     },
     title: {
-        fontSize: 36, //tamanho da fonte
-        fontWeight: "bold", //texto em negrito
-        color: "#2F1CA6", //cor do texto
-        textAlign: "center", //alinhar o texto no centro horizontal
-        marginTop: 130 //margem em cima
+        fontSize: 36, 
+        fontWeight: "bold", 
+        color: "#2F1CA6", 
+        textAlign: "center", 
     },
     subtitulo: {
+        fontWeight: "bold",
         fontSize: 15,
-        color: "#0B8CBF"
+        color: "#0B8CBF",
+        marginTop: 10,
     },
     logo:{
-        width: "100%", //usar 100% da imagem
-        height: 210, //altura
-        marginTop: 10 //margem do topo
+        width: "100%", 
+        height: 210, 
+        marginTop: 10 
     },
     textoBotao: {
         fontSize: 25, 
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
         fontSize: 12
     },
     link: {
-        textDecorationLine: "underline", //sublinhar o texto
+        textDecorationLine: "underline", 
         marginBottom: 20
     },
     textoRodape: {

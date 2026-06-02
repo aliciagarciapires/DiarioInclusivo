@@ -4,7 +4,7 @@ import { Button } from "../../components/Button"
 import { Input } from "../../components/input"
 import Footer from "../../components/Footer"
 
-export default function CadProf(){
+export default function CadAdm(){
     return(
         <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
@@ -21,7 +21,7 @@ export default function CadProf(){
                 <View style={styles.form}>
 
                     <Text style={styles.title}>
-                        Cadastro do Professor
+                        Cadastro do Administrador
                     </Text>
 
                     <Text style={styles.textoInput}>
@@ -32,7 +32,7 @@ export default function CadProf(){
                     <Text style={styles.textoInput}>
                         E-mail:
                     </Text>
-                    <Input placeholder="professor@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
+                    <Input placeholder="administrador@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
                     <Text style={styles.textoInput}>
                         Senha:

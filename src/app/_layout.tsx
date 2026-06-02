@@ -7,8 +7,8 @@ import { StyleSheet, Image } from "react-native";
 const LogoDireita = () => (
   <Image 
     source={require("../../assets/images/logo.png")} 
-    style={{ width: 60, height: 40, marginRight: 5 }} 
-    resizeMode="contain"
+    style={{ width: 95, height: 45, }} 
+    
   />
 );
 

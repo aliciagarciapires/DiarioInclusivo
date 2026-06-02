@@ -18,94 +18,18 @@ export default function Login() {
                         source={require("../../assets/images/logo.png")}
                         style={styles.logo} />
 
-                    <Text style={styles.subtitulo}>
-                        Selecione a opção de login
-                    </Text>
+                    <View style={styles.form}>
+                            <Text style={styles.textoInput}>E-mail:</Text>
+                            <Input placeholder="usuario@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
-                    {/* CONTAINER DOS TRÊS BOTÕES DE SELEÇÃO */}
-                    <View style={styles.selectContainer}>
-                        <Pressable
-                            style={[
-                                styles.botaoSelect,
-                                tipoConta === "responsavel" && styles.botaoAtivo
-                                // se o requerimento for cumprido o botão vai mudar de cor pra
-                                // sinalizar qual opção foi sinalizada, além de mudar a const
-                                // para esse tipo
-                            ]}
-                            onPress={() => setTipoConta("responsavel")}
-                        >
-                            <Text style={styles.textoSelect}>Responsável</Text>
-                        </Pressable>
+                            <Text style={styles.textoInput}>Senha:</Text>
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
-                        <Pressable
-                            style={[
-                                styles.botaoSelect,
-                                tipoConta === "professor" && styles.botaoAtivo
-                            ]}
-                            onPress={() => setTipoConta("professor")}
-                        >
-                            <Text style={styles.textoSelect}>Professor</Text>
-                        </Pressable>
-
-                        <Pressable
-                            style={[
-                                styles.botaoSelect,
-                                tipoConta === "administrador" && styles.botaoAtivo
-                            ]}
-                            onPress={() => setTipoConta("administrador")}
-                        >
-                            <Text style={styles.textoSelect}>Administrador</Text>
-                        </Pressable>
+                            <View style={styles.botaoContainer}>
+                                <Button onPress={() => router.push("/inicio")}
+                                    label="Entrar" />
+                            </View>
                     </View>
-
-                    {/**RENDERIZAÇÃO CONDICIONAL DOS FORMULÁRIOS*/}
-                    {tipoConta === "responsavel" && (
-                        <View style={styles.form}>
-                            <Text style={styles.textoInput}>E-mail do Responsável:</Text>
-                            <Input placeholder="responsavel@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
-
-                            <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
-
-                            <View style={styles.botaoContainer}>
-                                <Button onPress={() => router.push("/inicio")}
-                                    label="Entrar" />
-                            </View>
-                        </View>
-                    )}
-
-                    {tipoConta === "professor" && (
-                        <View style={styles.form}>
-                            <Text style={styles.textoInput}>E-mail do Professor:</Text>
-                            <Input placeholder="professor@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
-
-                            <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
-
-                            <View style={styles.botaoContainer}>
-                                <Button onPress={() => router.push("/inicio")}
-                                    label="Entrar" />
-                            </View>
-                        </View>
-                    )}
-
-                    {tipoConta === "administrador" && (
-                        <View style={styles.form}>
-                            <Text style={styles.textoInput}>E-mail do Administrador:</Text>
-                            <Input placeholder="escola@email.com" placeholderTextColor="#0b8cbfd1" />
-
-                            <Text style={styles.textoInput}>Código do Administrador:</Text>
-                            <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbfd1" />
-
-                            <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
-
-                            <View style={styles.botaoContainer}>
-                                <Button onPress={() => router.push("/professores")}
-                                    label="Entrar" />
-                            </View>
-                        </View>
-                    )}
 
                     {/* BOTÃO | LINK: ESQUECER A SENHA */}
                         <Pressable 
@@ -145,37 +69,9 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         
     },
-    subtitulo: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#2F1CA6",
-        textAlign: "center",
-        marginBottom: 5, // Espaço mínimo entre o texto e os botões
-    },
-    selectContainer: {
-        flexDirection: "row",
-        gap: 6,
-        width: "100%",
-        marginBottom: 5, // Aproxima os botões do formulário
-    },
-    botaoSelect: {
-        backgroundColor: "#2e1ca63f",
-        paddingVertical: 12, // Diminuí o padding vertical e horizontal para os 3 botões não "esmagarem" na tela
-        paddingHorizontal: 14,
-        borderRadius: 40,
-        flex: 1, // Faz com que os 3 botões dividam o espaço igualmente
-        alignItems: "center"
-    },
-    botaoAtivo: {
-        backgroundColor: "#2F1CA6",
-    },
-    textoSelect: {
-        color: "#F5F2E8",
-        fontWeight: "bold",
-        fontSize: 10 // Fonte ligeiramente menor para garantir que "Administrador" ou "Professor" caibam bem
-    },
+    
     form: {
-        marginTop: 12,
+        marginTop: 60,
         gap: 5
     },
     textoInput: {
@@ -187,7 +83,7 @@ const styles = StyleSheet.create({
     },
     botaoContainer: {
         alignItems: "center",
-        marginTop: 17,
+        marginTop: 40,
         fontSize: 10,
     },
     esqueceuSenhaBotao: {

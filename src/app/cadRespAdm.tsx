@@ -58,6 +58,7 @@ export default function CadResp(){
 
                     {tipoConta === "responsavel" ? ( 
                         <View style={styles.form}>
+                           
                             {/** FORMULÁRIO DE CADASTRO RESPONSÁVEL */}
                             <Text style={styles.textoInput}>Nome Completo:</Text>
                             <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbfd1" />
@@ -83,6 +84,9 @@ export default function CadResp(){
                         </View>
                     ) : ( 
                         <View style={styles.form}>
+                            <Text style={styles.subtitulo2}>
+                                Preencha os campos abaixo para nos enviar a solicitação de cadastro para a equipe do Diário Inclusivo.
+                            </Text>
                             {/** FORMULÁRIO DE CADASTRO ADMINISTRADOR */}
                             <Text style={styles.textoInput}>Nome da Escola:</Text>
                             <Input placeholder="Nome da Instituição" placeholderTextColor="#0b8cbfd1" />
@@ -90,18 +94,16 @@ export default function CadResp(){
                             <Text style={styles.textoInput}>E-mail Institucional:</Text>
                             <Input placeholder="escola@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
-                            <Text style={styles.textoInput}>Código INEP:</Text>
-                            <Input placeholder="xxxxxxxx" placeholderTextColor="#0b8cbfd1" keyboardType="numeric" />
+                            <Text style={styles.textoInput}>E-mail do Administrador:</Text>
+                            <Input placeholder="adm@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
 
                             <Text style={styles.textoInput}>Senha:</Text>
                             <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
-                            <Text style={styles.textoInput}>Confirmar Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
 
                             <View style={styles.botaoContainer}>
                                 <Button
-                                    label="Cadastrar"
+                                    label="Enviar Solicitação"
                                     onPress={() => router.push("/cadProf")}
                                 />
                             </View>
@@ -161,6 +163,13 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         color: "#2F1CA6",
+        textAlign: "center",
+        marginBottom: 5, // Espaço mínimo entre o texto e os botões
+    },
+    subtitulo2: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#088CBF",
         textAlign: "center",
         marginBottom: 5, // Espaço mínimo entre o texto e os botões
     },

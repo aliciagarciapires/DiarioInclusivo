@@ -66,7 +66,7 @@ export default function CriarRotina() {
 
   try {
     // tem q botar o ip do computador ou do servidor php / xamp aq p funcionar
-    const URL_API = 'http://192.168.1.7/diario/criar_atividade.php'; 
+    const URL_API = 'http://localhost/diario/criar_atividade.php';
 
     const resposta = await fetch(URL_API, {
       method: 'POST',
@@ -101,9 +101,10 @@ export default function CriarRotina() {
       Alert.alert("Erro", resultado.mensagem);
     }
 
-  } catch (error) {
-    console.error(error);
-    Alert.alert("Erro", "Não foi possível conectar ao servidor backend.");
+  } catch (error: any) {
+    console.error("Erro detalhado:", error);
+    // Isso vai abrir um pop-up com o erro real na tela do celular
+    Alert.alert("Erro de Rede/Conexão", error.message || String(error));
   }
 };
 

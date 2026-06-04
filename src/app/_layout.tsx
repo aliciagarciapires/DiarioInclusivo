@@ -3,6 +3,7 @@ import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; 
 import { Tabs } from "expo-router";
 import { StyleSheet, Image } from "react-native";
+import React from "react";
 
 const LogoDireita = () => (
   <Image 

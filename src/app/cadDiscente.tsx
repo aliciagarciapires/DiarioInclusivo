@@ -1,11 +1,15 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "../../components/Button";
 import { Input } from "../../components/input";
 import Footer from "../../components/Footer";
+import React from "react";
 
 export default function CadDiscente() {
+
+    const [nome, setNome] = useState("");
+    const [dataNasc, setDataNasc] = useState("");
     // Estados para Grau de Suporte
     const [aberto, setAberto] = useState(false);
     const [grau, setGrau] = useState("Selecione o grau de suporte");
@@ -23,6 +27,36 @@ export default function CadDiscente() {
         r.toLowerCase().includes(busca.toLowerCase())
     );
 
+    const cadastrarDiscente = async () => {
+                // 1. Validação básica
+                if (!nome || !dataNasc) {
+                    Alert.alert('Erro', 'Preencha todos os campos');
+                    return;
+                }
+        
+        
+                // 2. Envio para o Backend
+                try {
+                    const response = await fetch('http://192.168.0.108/DiarioInclusivo/src/app/cadDiscente.php', { // Ajuste a URL conforme seu servidor
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nome, dataNasc})
+                    });
+        
+                    const textResponse = await response.text();
+        
+                    if (response.ok) {
+                        Alert.alert('Sucesso', 'Cadastro realizado!');
+                        router.push("/inicio"); // Só redireciona se o servidor confirmar o sucesso
+                    } else {
+                        Alert.alert('Erro do Servidor', textResponse); 
+                        console.log("Erro bruto:", textResponse);
+                    }
+                } catch (error) {
+                    Alert.alert('Erro', 'Não foi possível conectar ao servidor');
+                }
+            };
+
     return (
         <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
@@ -34,7 +68,7 @@ export default function CadDiscente() {
                     <Text style={styles.title}>Cadastro do Discente</Text>
 
                     <Text style={styles.textoInput}>Nome Completo:</Text>
-                    <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbfd1" />
+                    <Input placeholder="Nome Completo" placeholderTextColor="#0b8cbfd1" value={nome} onChangeText={setNome} />
 
                     {/* CAMPO RESPONSÁVEL TRANSFORMÁVEL */}
                     <Text style={styles.textoInput}>Responsável:</Text>
@@ -75,7 +109,7 @@ export default function CadDiscente() {
                     )}
 
                     <Text style={styles.textoInput}>Data de Nascimento:</Text>
-                    <Input placeholder="00/00/0000" placeholderTextColor="#0b8cbfd1" />
+                    <Input placeholder="00/00/0000" placeholderTextColor="#0b8cbfd1" value={dataNasc} onChangeText={setDataNasc} />
 
                     <Text style={styles.textoInput}>Grau de Suporte:</Text>
                     <Pressable style={styles.select} onPress={() => setAberto(!aberto)}>
@@ -96,7 +130,7 @@ export default function CadDiscente() {
                     )}
 
                     <View style={styles.botaoContainer}>
-                        <Button label="Cadastrar" onPress={() => router.push("/discente")} />
+                        <Button label="Cadastrar" onPress={cadastrarDiscente} />
                     </View>
                 </View>
             </View>

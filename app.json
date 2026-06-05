@@ -35,6 +35,9 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "packagerOpts": {
+      "nonPersistent": true
     }
   }
 }

@@ -3,19 +3,33 @@ import { router } from "expo-router";
 import Footer from "../../components/Footer";
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
+import React from "react";
 
-// Lista de professores
-const listaOriginal = [
-  { id: "1", nome: "Professor 1", imagem: require("../../assets/images/professor.png"), tipo: "professor" },
-  { id: "2", nome: "Professor 2", imagem: require("../../assets/images/professor.png"), tipo: "professor" }
-];
 
-// Item especial de adicionar
-const botaoAdicionar = { id: "add", tipo: "botao" };
+export default function Professores() {
+  // Juntamos os professores com o botão no final
+  const [listaProfessores, setListaProfessores] = useState([]);
 
-export default function Discente() {
-  // Juntamos os alunos com o botão no final
-  const itens = [...listaOriginal, botaoAdicionar];
+  // Função para buscar no banco
+  const buscarProfessores = async () => {
+    try {
+      const response = await fetch('http://192.168.0.108/DiarioInclusivo/src/app/professores.php');
+      const dados = await response.json();
+      setListaProfessores(dados);
+    } catch (error) {
+      console.error("Erro ao buscar professores:", error);
+    }
+  };
+
+  // Recarrega sempre que o usuário voltar para a tela
+  useFocusEffect(
+    useCallback(() => {
+      buscarProfessores();
+    }, [])
+  );
+
+  // O "itens" agora usa o estado, não a constante estática
+  const itens = [...listaProfessores, { id: "add", tipo: "botao" }];
 
   return (
     <>

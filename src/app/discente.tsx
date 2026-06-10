@@ -1,88 +1,77 @@
 import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router"; // Importamos useFocusEffect
 import Footer from "../../components/Footer";
-import React from "react";
-
-// Lista de professores
-const listaOriginal = [
-  { id: "1", nome: "Discente 1", imagem: require("../../assets/images/discente.png"), tipo: "discente" },
-  { id: "2", nome: "Discente 2", imagem: require("../../assets/images/discente.png"), tipo: "discente" }
-];
-
-// Item especial de adicionar
-const botaoAdicionar = { id: "add", tipo: "botao" };
+import React, { useState, useCallback } from "react";
 
 export default function Discente() {
-  // Juntamos os alunos com o botão no final
-  const itens = [...listaOriginal, botaoAdicionar];
+  const [listaDiscentes, setListaDiscentes] = useState([]);
+
+  // Função que busca do seu PHP
+  const buscarDiscentes = async () => {
+    try {
+      const response = await fetch('http://192.168.0.108/DiarioInclusivo/src/app/discente.php');
+      const dados = await response.json();
+      setListaDiscentes(dados); // Atualiza o estado com os dados do banco
+    } catch (error) {
+      console.error("Erro ao buscar discentes:", error);
+    }
+  };
+
+  // Sempre que a tela ganhar foco, ele busca os dados novamente
+  useFocusEffect(
+    useCallback(() => {
+      buscarDiscentes();
+    }, [])
+  );
+
+  // Criamos o array final combinando a lista do banco + o botão fixo
+  const itens = [...listaDiscentes, { id: "add", tipo: "botao" }];
 
   return (
     <>
-      <ScrollView style={styles.container}>
-  <View style={styles.grid}>
-    {/* Apenas um map é necessário aqui */}
-    {itens.map((item: any) => (
-      <View key={item.id} style={styles.item}>
-        {item.tipo === "discente" ? (
-          <>
-            <Pressable 
-              style={styles.card} 
-              onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
-            >
-              <Image 
-                source={item.imagem} 
-                style={styles.imagem} 
-                resizeMode="contain" 
-              />
-            </Pressable>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
+        <View style={styles.grid}>
+          {itens.map((item: any) => (
+            <View key={item.id} style={styles.item}>
+              {item.tipo === "discente" ? (
+                <>
+                  <Pressable 
+                    style={styles.card} 
+                    onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
+                  >
+                    <Image 
+                      source={require("../../assets/images/discente.png")} 
+                      style={styles.imagem} 
+                      resizeMode="contain" 
+                    />
+                  </Pressable>
 
-            <Pressable 
-              style={styles.botao} 
-              onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
-            >
-              <Text style={styles.textoBotao}>{item.nome}</Text>
-            </Pressable>
-          </>
-        ) : (
-          <Pressable 
-            style={styles.cardAdicionar} 
-            onPress={() => router.push("/cadDiscente")}
-          >
-            <Text style={styles.mais}>+</Text>
-          </Pressable>
-        )}
-      </View>
-    ))}
-  </View>
-</ScrollView>
+                  <Pressable 
+                    style={styles.botao} 
+                    onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
+                  >
+                    <Text style={styles.textoBotao}>{item.nome}</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <Pressable 
+                  style={styles.cardAdicionar} 
+                  onPress={() => router.push("/cadDiscente")}
+                >
+                  <Text style={styles.mais}>+</Text>
+                </Pressable>
+              )}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
       
       <Footer children={undefined} />
-      <View style={styles.barraMenuGeral}>
-        
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
-
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
-
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
-
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
-
-      </View>
+      {/* ... (Seu menu abaixo permanece igual) */}
     </>
-  )
+  );
 }
+// ... (Seus styles permanecem iguais)
 
 const styles = StyleSheet.create({
   container: {

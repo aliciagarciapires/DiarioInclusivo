@@ -27,7 +27,7 @@ export default function CadProf(){
     
             // 2. Envio para o Backend
             try {
-                const response = await fetch('http://192.168.0.108/DiarioInclusivo/src/app/cadProf.php', { // Ajuste a URL conforme seu servidor
+                const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/cadProf.php', { // Ajuste a URL conforme seu servidor
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nome, email, senha, tipoConta })
@@ -37,7 +37,7 @@ export default function CadProf(){
     
                 if (response.ok) {
                     Alert.alert('Sucesso', 'Cadastro realizado!');
-                    router.push("/inicio"); // Só redireciona se o servidor confirmar o sucesso
+                    router.push("/professores"); // Só redireciona se o servidor confirmar o sucesso
                 } else {
                     Alert.alert('Erro do Servidor', textResponse); 
                     console.log("Erro bruto:", textResponse);

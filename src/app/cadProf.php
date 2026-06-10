@@ -7,6 +7,10 @@
         die(json_encode(["mensagem" => "Nenhum dado recebido pelo servidor"]));
     }
 
+    if (!$dados) {
+    echo json_encode(["sucesso" => false, "mensagem" => "JSON vazio ou mal formado. Recebido: " . $input]);
+    exit();
+}
     //RECEBE OS DADOS ENVIADOS PELO FRONT-END (CADASTRO DE RESPONSÁVEL)
     $dados = json_decode(file_get_contents("php://input"), true);
 

@@ -1,14 +1,44 @@
 import { router } from "expo-router";
-import { useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
     // Estado para controlar qual tipo de conta está selecionada (padrão: responsavel)
     //Define uma variável de memória chamada 'tipoConta' e uma função 'setTipoConta' para alterá-la.
-    const [tipoConta, setTipoConta] = useState("responsavel");
+    const [email, setEmail] = useState("");
+    const [senha, setSenha] = useState("");
+
+    const handleLogin = async () => {
+  try {
+    const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/login.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: email.trim(), // state do seu e-mail
+        senha: senha  // state da sua senha
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.sucesso) {
+      Alert.alert("Sucesso", data.mensagem);
+      // Aqui você pode salvar o ID do usuário para usar no app
+      //await AsyncStorage.setItem('userIdUsuario', data.userIdUsuario.toString());
+      router.replace("/inicio");
+    } else {
+      Alert.alert("Erro", data.mensagem);
+    }
+  } catch (error) {
+    Alert.alert("Erro", "Falha na conexão com o servidor.");
+  }
+};
 
     return (
         <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -18,15 +48,15 @@ export default function Login() {
                         source={require("../../assets/images/logo.png")}
                         style={styles.logo} />
 
-                    <View style={styles.form}>
+                    <View style={styles.form} >
                             <Text style={styles.textoInput}>E-mail:</Text>
-                            <Input placeholder="usuario@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" />
+                            <Input placeholder="usuario@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" value={email} onChangeText={setEmail} />
 
                             <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
+                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry value={senha} onChangeText={setSenha} />
 
                             <View style={styles.botaoContainer}>
-                                <Button onPress={() => router.push("/inicio")}
+                                <Button onPress={handleLogin}
                                     label="Entrar" />
                             </View>
                     </View>

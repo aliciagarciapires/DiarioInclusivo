@@ -1,28 +1,48 @@
 <?php
-    //CONEXÃO COM conexao.php PARA USAR O $mysqli
-    include 'conexao.php';
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json");
 
-    $conteudo = file_get_contents("php://input");
-    if (empty($conteudo)) {
-        die(json_encode(["mensagem" => "Nenhum dado recebido pelo servidor"]));
-    }
+include 'conexao.php';
 
-    //RECEBE OS DADOS ENVIADOS PELO FRONT-END (CADASTRO DE RESPONSÁVEL)
-    $dados = json_decode(file_get_contents("php://input"), true);
+$conteudo = file_get_contents("php://input");
+$dados = json_decode($conteudo, true);
 
-    if ($dados) {
-        $nome = $dados['nome'];
-        $dataNasc = $dados['dataNasc'];
+if ($dados) {
+    $nome = $dados['nome'] ?? '';
+    $dataNasc = $dados['dataNasc'] ?? ''; // Ajustado para o nome que você envia no App
+    $grau = (int)($dados['grau'] ?? 0);   // Já recebe o número (1, 2 ou 3) diretamente
 
-        //INSERE OS DADOS NA TABELA "responsaveis"
-        $sql = "INSERT INTO discente (nome, data_nascimento) VALUES ('$nome', '$dataNasc')";
-
-        if ($mysqli->query($sql) === TRUE) {
-            echo json_encode(["success" => true, "message" => "Discente cadastrado com sucesso!"]);
-        } else {
-            echo json_encode(["success" => false, "message" => "Erro ao cadastrar discente: " . $mysqli->error]);
+    // Tratamento da data (caso ela venha como dd/mm/yyyy)
+    if (strpos($dataNasc, '/') !== false) {
+        $dateObj = DateTime::createFromFormat('d/m/Y', $dataNasc);
+        if ($dateObj) {
+            $dataNasc = $dateObj->format('Y-m-d');
         }
-    } else {
-        echo json_encode(["success" => false, "message" => "Dados inválidos!"]);
     }
+
+    // Preparação única e execução direta
+    $stmt = $mysqli->prepare("INSERT INTO discente (nome, data_nascimento, grau_de_suporte) VALUES (?, ?, ?)");
+    
+    if ($stmt) {
+        // "ssi" = string, string, inteiro
+        $stmt->bind_param("ssi", $nome, $dataNasc, $grau);
+        
+        if ($stmt->execute()) {
+            echo json_encode([
+                "success" => true, 
+                "message" => "Discente cadastrado com sucesso!",
+                "idUsuario" => $stmt->insert_id 
+            ]);
+        } else {
+            echo json_encode(["success" => false, "message" => "Erro ao executar: " . $stmt->error]);
+        }
+        $stmt->close();
+    } else {
+        echo json_encode(["success" => false, "message" => "Erro na preparação: " . $mysqli->error]);
+    }
+} else {
+    echo json_encode(["success" => false, "message" => "Dados vazios ou formato inválido"]);
+}
 ?>

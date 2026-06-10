@@ -1,31 +1,48 @@
 <?php
-    //CONEXÃO COM conexao.php PARA USAR O $mysqli
-    include 'conexao.php';
+header("Content-Type: application/json; charset=UTF-8");
+error_reporting(0);
 
-    $conteudo = file_get_contents("php://input");
-    if (empty($conteudo)) {
-        die(json_encode(["mensagem" => "Nenhum dado recebido pelo servidor"]));
-    }
+include('conexao.php');
 
-    //RECEBE OS DADOS ENVIADOS PELO FRONT-END (CADASTRO DE RESPONSÁVEL)
-    $dados = json_decode(file_get_contents("php://input"), true);
+$input = file_get_contents("php://input");
+$dados = json_decode($input, true);
 
-    if ($dados) {
-        $nome = $dados['nome'];
-        $email = $dados['email'];
-        $telefone = $dados['telefone'];
-        $senha = $dados['senha'];
-        $tipoConta = $dados['tipoConta']; // 1 para responsável, 2 para administrador, 3 para professor
+if (!$dados) {
+    echo json_encode(["sucesso" => false, "mensagem" => "Nenhum dado enviado."]);
+    exit();
+}
 
-        //INSERE OS DADOS NA TABELA "responsaveis"
-        $sql = "INSERT INTO usuario (nome, email, telefone, senha, tipo_de_usuario) VALUES ('$nome', '$email', '$telefone', '$senha', '$tipoConta')";
+$nome           = $dados['nome'] ?? '';
+$email          = $dados['email'] ?? '';
+$telefone       = $dados['telefone'] ?? '';
+$senha          = $dados['senha'] ?? '';
+$confirmarSenha = $dados['confirmarSenha'] ?? '';
 
-        if ($mysqli->query($sql) === TRUE) {
-            echo json_encode(["success" => true, "message" => "Responsável cadastrado com sucesso!"]);
-        } else {
-            echo json_encode(["success" => false, "message" => "Erro ao cadastrar responsável: " . $mysqli->error]);
-        }
-    } else {
-        echo json_encode(["success" => false, "message" => "Dados inválidos!"]);
-    }
+// Validação simples
+if (empty($nome) || empty($email) || empty($senha)) {
+    echo json_encode(["sucesso" => false, "mensagem" => "Preencha todos os campos."]);
+    exit();
+}
+
+if ($senha !== $confirmarSenha) {
+    echo json_encode(["sucesso" => false, "mensagem" => "As senhas não coincidem."]);
+    exit();
+}
+
+// Criptografia e Inserção
+
+$stmt = $mysqli->prepare("INSERT INTO usuario (nome, email, telefone, senha) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("ssss", $nome, $email, $telefone, $senha);
+
+// Substitua o bloco if final do seu cadResp.php por este:
+
+if ($stmt->execute()) {
+    $idInserido = $mysqli->insert_id; // Pega o ID que o banco acabou de criar
+    echo json_encode([
+        "sucesso" => true, 
+        "mensagem" => "Cadastro realizado com sucesso! ID no banco: " . $idInserido
+    ]);
+} else {
+    echo json_encode(["sucesso" => false, "mensagem" => "Erro no banco: " . $mysqli->error]);
+}
 ?>

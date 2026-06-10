@@ -5,6 +5,7 @@ import { Button } from "../../components/Button";
 import { Input } from "../../components/input";
 import Footer from "../../components/Footer";
 import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function CadDiscente() {
 
@@ -28,34 +29,51 @@ export default function CadDiscente() {
     );
 
     const cadastrarDiscente = async () => {
-                // 1. Validação básica
-                if (!nome || !dataNasc) {
-                    Alert.alert('Erro', 'Preencha todos os campos');
-                    return;
-                }
-        
-        
-                // 2. Envio para o Backend
-                try {
-                    const response = await fetch('http://192.168.0.108/DiarioInclusivo/src/app/cadDiscente.php', { // Ajuste a URL conforme seu servidor
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ nome, dataNasc})
-                    });
-        
-                    const textResponse = await response.text();
-        
-                    if (response.ok) {
-                        Alert.alert('Sucesso', 'Cadastro realizado!');
-                        router.push("/inicio"); // Só redireciona se o servidor confirmar o sucesso
-                    } else {
-                        Alert.alert('Erro do Servidor', textResponse); 
-                        console.log("Erro bruto:", textResponse);
-                    }
-                } catch (error) {
-                    Alert.alert('Erro', 'Não foi possível conectar ao servidor');
-                }
-            };
+        // 1. Validações básicas
+        if (!nome || !dataNasc || grau === "Selecione o grau de suporte") {
+            Alert.alert('Erro', 'Por favor, preencha todos os campos corretamente.');
+            return;
+        }
+
+        // 2. Formatação da data
+        let dataFormatada = dataNasc;
+        if (dataNasc.includes('/')) {
+            const partes = dataNasc.split('/');
+            if (partes.length === 3) {
+                const dia = partes[0].padStart(2, '0');
+                const mes = partes[1].padStart(2, '0');
+                const ano = partes[2];
+                dataFormatada = `${ano}-${mes}-${dia}`;
+            }
+        }
+
+        // 3. Envio para o Backend
+        try {
+            const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/cadDiscente.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    nome: nome, 
+                    dataNasc: dataFormatada, 
+                    grau: grau 
+                })
+            });
+
+            const resultado = await response.json();
+
+            // 4. Verificação de sucesso
+            if (resultado.success) {
+                await AsyncStorage.setItem('@id_usuario_logado', resultado.idUsuario.toString());
+                Alert.alert('Sucesso', 'Discente cadastrado com sucesso!');
+                router.push("/inicio");
+            } else {
+                Alert.alert('Erro', resultado.message || 'Não foi possível realizar o cadastro.');
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Erro', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+        }
+    };
 
     return (
         <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -111,24 +129,33 @@ export default function CadDiscente() {
                     <Text style={styles.textoInput}>Data de Nascimento:</Text>
                     <Input placeholder="00/00/0000" placeholderTextColor="#0b8cbfd1" value={dataNasc} onChangeText={setDataNasc} />
 
+                    {/* CAMPO GRAU DE SUPORTE */}
                     <Text style={styles.textoInput}>Grau de Suporte:</Text>
+
+                    {/* Botão que abre a lista */}
                     <Pressable style={styles.select} onPress={() => setAberto(!aberto)}>
-                        <Text style={styles.selectTexto}>{grau}</Text>
+                        {/* Exibe o texto correspondente ao valor, ou o padrão */}
+                        <Text style={styles.selectTexto}>
+                            {grau === "1" ? "Grau 1" : grau === "2" ? "Grau 2" : grau === "3" ? "Grau 3" : "Selecione o grau de suporte"}
+                        </Text>
                     </Pressable>
 
+                    {/* Lista de opções */}
                     {aberto && (
                         <View style={styles.lista}>
-                            {opcoes.map((item) => (
-                                <Pressable key={item} style={styles.opcao} onPress={() => {
-                                    setGrau(item);
-                                    setAberto(false);
-                                }}>
-                                    <Text style={{ color: "#2F1CA6" }}>{item}</Text>
-                                </Pressable>
-                            ))}
+                            <Pressable style={styles.opcao} onPress={() => { setGrau("1"); setAberto(false); }}>
+                                <Text style={{ color: "#2F1CA6" }}>Grau 1</Text>
+                            </Pressable>
+
+                            <Pressable style={styles.opcao} onPress={() => { setGrau("2"); setAberto(false); }}>
+                                <Text style={{ color: "#2F1CA6" }}>Grau 2</Text>
+                            </Pressable>
+
+                            <Pressable style={styles.opcao} onPress={() => { setGrau("3"); setAberto(false); }}>
+                                <Text style={{ color: "#2F1CA6" }}>Grau 3</Text>
+                            </Pressable>
                         </View>
                     )}
-
                     <View style={styles.botaoContainer}>
                         <Button label="Cadastrar" onPress={cadastrarDiscente} />
                     </View>

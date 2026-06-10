@@ -13,7 +13,7 @@ export default function Professores() {
   // Função para buscar no banco
   const buscarProfessores = async () => {
     try {
-      const response = await fetch('http://192.168.0.108/DiarioInclusivo/src/app/professores.php');
+      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/professores.php');
       const dados = await response.json();
       setListaProfessores(dados);
     } catch (error) {

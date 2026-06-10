@@ -1,174 +1,126 @@
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Footer from "../../components/Footer";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+
+type Discente = {
+  nome: string;
+  data_nascimento: string;
+  grau_de_suporte: string;
+};
 
 export default function InfoDiscente() {
   const { id } = useLocalSearchParams();
+  const [discente, setDiscente] = useState<Discente | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const discentes = [
-    { id: "1", nome: "Discente 1", responsavel: "responsavel1", emailResp: "responsavel1@email.com", dataNasc: "11/05/2015", grauSuporte: "Grau 3" },
-    { id: "2", nome: "Discente 2", responsavel: "responsavel2", emailResp: "responsavel2@email.com", dataNasc: "06/04/2019", grauSuporte: "Grau 2" },
-  ];
+  useEffect(() => {
+    const buscarDados = async () => {
+      try {
+        // Altere o IP se necessário para o IP do seu servidor local
+        const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+        const json = await response.json();
+        
+        if (json.success) {
+          setDiscente(json.dados);
+        } else {
+          Alert.alert("Erro", json.message);
+        }
+      } catch (error) {
+        Alert.alert("Erro", "Não foi possível conectar ao servidor.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const discente = discentes.find((d) => d.id === id);
+    if (id) buscarDados();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center" }]}>
+        <ActivityIndicator size="large" color="#2F1CA6" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-        {/**LOGO */}
-        <View style={styles.itens}>
-            <Image
-                source={require("../../assets/images/logo.png")}
-                style={styles.logo} />
-        </View>
+      <View style={styles.itens}>
+        <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
+      </View>
+
       {discente ? (
         <View style={styles.card}>
           <Text style={styles.titulo}>{discente.nome}</Text>
           <View style={styles.divider} />
           
           <View style={styles.infoRow}>
-            <Text style={styles.label}>Responsável:</Text>
-            <Text style={styles.value}>{discente.responsavel}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>E-mail do Responsável:</Text>
-            <Text style={styles.value}>{discente.emailResp}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
             <Text style={styles.label}>Data de Nascimento:</Text>
-            <Text style={styles.value}>{discente.dataNasc}</Text>
+            <Text style={styles.value}>{discente.data_nascimento}</Text>
           </View>
 
           <View style={styles.infoRow}>
             <Text style={styles.label}>Grau de Suporte:</Text>
-            <Text style={styles.value}>{discente.grauSuporte}</Text>
+            <Text style={styles.value}>Grau {discente.grau_de_suporte}</Text>
           </View>
         </View>
       ) : (
         <Text style={styles.erro}>Discente não encontrado.</Text>
       )}
 
-      <Footer children={undefined} />
-                  <View style={styles.barraMenuGeral}>
-                    
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                      <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                      <Text style={styles.tabLabel}>Início</Text>
-                    </Pressable>
-            
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                      <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                      <Text style={styles.tabLabel}>Diário</Text>
-                    </Pressable>
-            
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                      <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                      <Text style={styles.tabLabel}>Rotina</Text>
-                    </Pressable>
-            
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                      <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                      <Text style={styles.tabLabel}>Conf.</Text>
-                    </Pressable>
-                    </View>
+      {/* Barra de Navegação */}
+      <View style={styles.barraMenuGeral}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Início</Text>
+        </Pressable>
+        
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Diário</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Rotina</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Conf.</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#F5F2E8", 
-    paddingHorizontal: 20, // Mantém margem lateral
-    paddingTop: 5,        // Diminuí de 20 para 5 para subir tudo
-    paddingBottom: 20, 
-    justifyContent: "flex-start"
-  },
-  card: {
-    backgroundColor: "#F5F2E8",
-    borderRadius: 20,
-    padding: 25,
-    shadowColor: "#2F1CA6",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: "#2F1CA6"
-  },
-  titulo: { 
-    fontSize: 24, 
-    fontWeight: "bold", 
-    color: "#2F1CA6", 
-    textAlign: "center",
-    marginBottom: 10 
-  },
-  divider: {
-    height: 2,
-    backgroundColor: "#2F1CA6",
-    marginVertical: 15,
-    borderRadius: 1
-  },
-  infoRow: {
-    marginBottom: 15
-  },
-  label: {
-    fontSize: 12,
-    color: "#2F1CA6",
-    fontWeight: "bold",
-    textTransform: "uppercase"
-  },
-  value: {
-    fontSize: 16,
-    color: "#0b8cbf90",
-    marginTop: 2
-  },
-  erro: { textAlign: "center", fontSize: 16, color: "red" },
-  itens: {
-        justifyContent: "flex-start", // Garante que a logo suba para o topo
-        width: "100%",
-        marginTop: -20,
-    },
-    logo:{
-        width: 100, //usar 100% da imagem
-        height: 100, //altura
-        alignSelf: "center"
-    }, 
-    botaoMenu: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    height: 30,
-  },
-  tabLabel: {
-    fontSize: 14,                  
-    fontWeight: "500",
-    color: "#2F1CA6",
-    marginTop: 4,
-  },
-  iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
-  },
+  container: { flex: 1, backgroundColor: "#F5F2E8", paddingHorizontal: 20, paddingTop: 5 },
+  card: { backgroundColor: "#F5F2E8", borderRadius: 20, padding: 25, elevation: 5, borderWidth: 1, borderColor: "#2F1CA6", marginTop: 20 },
+  titulo: { fontSize: 24, fontWeight: "bold", color: "#2F1CA6", textAlign: "center", marginBottom: 10 },
+  divider: { height: 2, backgroundColor: "#2F1CA6", marginVertical: 15, borderRadius: 1 },
+  infoRow: { marginBottom: 15 },
+  label: { fontSize: 12, color: "#2F1CA6", fontWeight: "bold", textTransform: "uppercase" },
+  value: { fontSize: 16, color: "#0b8cbf90", marginTop: 2 },
+  erro: { textAlign: "center", fontSize: 16, color: "red", marginTop: 20 },
+  itens: { justifyContent: "flex-start", width: "100%", marginTop: -20 },
+  logo: { width: 100, height: 100, alignSelf: "center" },
+  botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1, height: 30 },
+  tabLabel: { fontSize: 12, fontWeight: "500", color: "#2F1CA6", marginTop: 4 },
+  iconeCustom: { width: 40, height: 40, resizeMode: "contain" },
   barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    flexDirection: "row",
+    justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
+    backgroundColor: "#F5F2E8",
+    height: 90,
+    paddingBottom: 30,
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 10,                 
-    shadowColor: "#000",
-    marginTop: 20   
+    elevation: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd"
   },
 });

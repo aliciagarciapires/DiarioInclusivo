@@ -65,7 +65,7 @@ export default function CadDiscente() {
             if (resultado.success) {
                 await AsyncStorage.setItem('@id_usuario_logado', resultado.idUsuario.toString());
                 Alert.alert('Sucesso', 'Discente cadastrado com sucesso!');
-                router.push("/inicio");
+                router.push("/discente");
             } else {
                 Alert.alert('Erro', resultado.message || 'Não foi possível realizar o cadastro.');
             }

@@ -5,12 +5,9 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import React from "react";
 
-
 export default function Professores() {
-  // Juntamos os professores com o botão no final
   const [listaProfessores, setListaProfessores] = useState([]);
 
-  // Função para buscar no banco
   const buscarProfessores = async () => {
     try {
       const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/professores.php');
@@ -21,84 +18,49 @@ export default function Professores() {
     }
   };
 
-  // Recarrega sempre que o usuário voltar para a tela
   useFocusEffect(
     useCallback(() => {
       buscarProfessores();
     }, [])
   );
 
-  // O "itens" agora usa o estado, não a constante estática
   const itens = [...listaProfessores, { id: "add", tipo: "botao" }];
 
   return (
     <>
       <ScrollView style={styles.container}>
-  <View style={styles.grid}>
-    {/* Apenas um map é necessário aqui */}
-    {itens.map((item: any) => (
-      <View key={item.id} style={styles.item}>
-        {item.tipo === "professor" ? (
-          <>
-            <Pressable 
-              style={styles.card} 
-              onPress={() => router.push(`/infoProf?id=${item.id}`)}
-            >
-              <Image 
-                source={item.imagem} 
-                style={styles.imagem} 
-                resizeMode="contain" 
-              />
-            </Pressable>
+        <View style={styles.grid}>
+          {itens.map((item: any) => (
+            <View key={item.id} style={styles.item}>
+              {item.tipo === "professor" ? (
+                <>
+                  <Pressable 
+                    style={styles.card} 
+                    onPress={() => router.push({ pathname: "/infoProf", params: { idUsuario: item.id } })}
+                  >
+                    <Image source={item.imagem} style={styles.imagem} resizeMode="contain" />
+                  </Pressable>
 
-            <Pressable 
-              style={styles.botao} 
-              onPress={() => router.push(`/infoProf?id=${item.id}`)}
-            >
-              <Text style={styles.textoBotao}>{item.nome}</Text>
-            </Pressable>
-          </>
-        ) : (
-          <Pressable 
-            style={styles.cardAdicionar} 
-            onPress={() => router.push("/cadProf")}
-          >
-            <Text style={styles.mais}>+</Text>
-          </Pressable>
-        )}
-      </View>
-    ))}
-  </View>
-</ScrollView>
-      
+                  <Pressable 
+                    style={styles.botao} 
+                    onPress={() => router.push({ pathname: "/infoProf", params: { idUsuario: item.id } })}
+                  >
+                    <Text style={styles.textoBotao}>{item.nome}</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <Pressable style={styles.cardAdicionar} onPress={() => router.push("/cadProf")}>
+                  <Text style={styles.mais}>+</Text>
+                </Pressable>
+              )}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
       <Footer children={undefined} />
-      <View style={styles.barraMenuGeral}>
-        
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
-
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
-
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
-
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
-
-      </View>
     </>
-  )
+  );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1, //scrollview ocupar a tela inteira

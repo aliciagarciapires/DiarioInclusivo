@@ -1,34 +1,40 @@
 <?php
-    //CONEXÃO COM conexao.php PARA USAR O $mysqli
-    include 'conexao.php';
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
 
-    $conteudo = file_get_contents("php://input");
-    if (empty($conteudo)) {
-        die(json_encode(["mensagem" => "Nenhum dado recebido pelo servidor"]));
-    }
+include 'conexao.php';
 
-    if (!$dados) {
-    echo json_encode(["sucesso" => false, "mensagem" => "JSON vazio ou mal formado. Recebido: " . $input]);
+// 1. Captura o JSON enviado
+$conteudo = file_get_contents("php://input");
+$dados = json_decode($conteudo, true);
+
+// 2. Validação básica
+if (!$dados) {
+    echo json_encode(["success" => false, "message" => "JSON inválido ou vazio."]);
     exit();
 }
-    //RECEBE OS DADOS ENVIADOS PELO FRONT-END (CADASTRO DE RESPONSÁVEL)
-    $dados = json_decode(file_get_contents("php://input"), true);
 
-    if ($dados) {
-        $nome = $dados['nome'];
-        $email = $dados['email'];
-        $senha = $dados['senha'];
-        $tipoConta = $dados['tipoConta']; // 1 para responsável, 2 para administrador, 3 para professor
+$nome = $dados['nome'] ?? '';
+$email = $dados['email'] ?? '';
+$senha = $dados['senha'] ?? '';
+$tipoConta = $dados['tipoConta'] ?? '1';
 
-        //INSERE OS DADOS NA TABELA "responsaveis"
-        $sql = "INSERT INTO usuario (nome, email, senha, tipo_de_usuario) VALUES ('$nome', '$email', '$senha', '$tipoConta')";
+// 3. Segurança: Use prepared statements (Obrigatório para não haver erro de SQL)
+$stmt = $mysqli->prepare("INSERT INTO usuario (nome, email, senha, tipo_de_usuario) VALUES (?, ?, ?, ?)");
 
-        if ($mysqli->query($sql) === TRUE) {
-            echo json_encode(["success" => true, "message" => "Professor cadastrado com sucesso!"]);
-        } else {
-            echo json_encode(["success" => false, "message" => "Erro ao cadastrar professor: " . $mysqli->error]);
-        }
+if ($stmt) {
+    // Vincula os dados (s = string, i = inteiro)
+    $stmt->bind_param("sssi", $nome, $email, $senha, $tipoConta);
+
+    if ($stmt->execute()) {
+        echo json_encode(["success" => true, "message" => "Cadastro realizado com sucesso!"]);
     } else {
-        echo json_encode(["success" => false, "message" => "Dados inválidos!"]);
+        echo json_encode(["success" => false, "message" => "Erro ao inserir: " . $stmt->error]);
     }
+    $stmt->close();
+} else {
+    echo json_encode(["success" => false, "message" => "Erro na preparação da consulta: " . $mysqli->error]);
+}
+
+$mysqli->close();
 ?>

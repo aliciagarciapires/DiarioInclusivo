@@ -17,6 +17,7 @@ $email          = $dados['email'] ?? '';
 $telefone       = $dados['telefone'] ?? '';
 $senha          = $dados['senha'] ?? '';
 $confirmarSenha = $dados['confirmarSenha'] ?? '';
+$tipoConta      = $dados['tipoConta'] ?? 1; // 1 para responsável, 2 para administrador, 3 para professor
 
 // Validação simples
 if (empty($nome) || empty($email) || empty($senha)) {
@@ -31,8 +32,8 @@ if ($senha !== $confirmarSenha) {
 
 // Criptografia e Inserção
 
-$stmt = $mysqli->prepare("INSERT INTO usuario (nome, email, telefone, senha) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $nome, $email, $telefone, $senha);
+$stmt = $mysqli->prepare("INSERT INTO usuario (nome, email, telefone, senha, tipo_conta) VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssi", $nome, $email, $telefone, $senha, $tipoConta);
 
 // Substitua o bloco if final do seu cadResp.php por este:
 

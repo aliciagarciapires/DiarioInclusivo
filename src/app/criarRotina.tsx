@@ -66,7 +66,7 @@ export default function CriarRotina() {
 
   try {
     // tem q botar o ip do computador ou do servidor php / xamp aq p funcionar
-    const URL_API = 'http://192.168.1.7/diario/criar_atividade.php'; 
+    const URL_API = 'http://172.20.10.3/AulaemPHP/DiarioInclusivo/src/app/criar_atividade.php'; 
 
     const resposta = await fetch(URL_API, {
       method: 'POST',

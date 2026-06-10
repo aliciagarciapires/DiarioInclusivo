@@ -2,6 +2,7 @@ import { Link, router } from "expo-router";
 import { Image, StyleSheet, Text, View } from "react-native"; 
 import { Button } from "../../components/Button"; 
 import Footer from "../../components/Footer";
+import React from "react";
 
 export default function Index(){
     return (

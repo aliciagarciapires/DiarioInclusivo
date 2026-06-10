@@ -1,6 +1,7 @@
 import {Text, View, StyleSheet, Image} from "react-native"
 import{Button} from "../../components/Button"
 import {Link, router} from "expo-router"
+import React from "react"
 
 export default function Inicio(){
     return (

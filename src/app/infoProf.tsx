@@ -54,7 +54,31 @@ export default function InfoProf() {
         <Text style={styles.erro}>Nenhum dado encontrado.</Text>
       )}
 
-      <Footer children={undefined} />
+      {/* Barra de Navegação */}
+            <Footer children={undefined} />
+                                <View style={styles.barraMenuGeral}>
+                                
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                  <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Início</Text>
+                                </Pressable>
+                        
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                  <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Diário</Text>
+                                </Pressable>
+                        
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                                  <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Rotina</Text>
+                                </Pressable>
+                        
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                  <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Conf.</Text>
+                                </Pressable>
+                        
+                              </View>
     </View>
   );
 }
@@ -68,5 +92,40 @@ const styles = StyleSheet.create({
   value: { fontSize: 16, color: "#0b8cbfd1" },
   erro: { textAlign: "center", marginTop: 50, color: "red" },
   itens: { alignItems: "center", marginTop: 20 },
-  logo: { width: 100, height: 100 }
+  logo: { width: 100, height: 100 },
+  botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1, height: 30 },
+  tabLabel: { fontSize: 12, fontWeight: "500", color: "#2F1CA6", marginTop: 4 },
+  iconeCustom: {
+    width: 200,                     
+    height: 70,
+    resizeMode: "contain",         
+  },
+  barraMenuGeral: {
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    alignItems: "center",
+    backgroundColor: "#F5F2E8",    
+    height: 90,                    
+    paddingBottom: 30,             
+    borderTopWidth: 3,             
+    borderTopColor: "#F5F2E8",     
+    borderTopLeftRadius: 35,       
+    borderTopRightRadius: 35,      
+    position: "absolute",          // Fixa no rodapé
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,                 
+    shadowColor: "#000",
+    marginTop: 20   
+  },
+  botaoContainer:{
+    width: 250,
+    height: 55,
+    backgroundColor: "#2F1CA6",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 35
+  },
 });

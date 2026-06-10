@@ -9,7 +9,7 @@ export default function Discente() {
   // Função que busca do seu PHP
   const buscarDiscentes = async () => {
     try {
-      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/discente.php');
+      const response = await fetch('http://172.20.10.4/DiarioInclusivo/src/app/discente.php');
       const dados = await response.json();
       setListaDiscentes(dados); // Atualiza o estado com os dados do banco
     } catch (error) {
@@ -67,7 +67,29 @@ export default function Discente() {
       </ScrollView>
       
       <Footer children={undefined} />
-      {/* ... (Seu menu abaixo permanece igual) */}
+                          <View style={styles.barraMenuGeral}>
+                          
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Início</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Diário</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Rotina</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Conf.</Text>
+                          </Pressable>
+                  
+                        </View>
     </>
   );
 }
@@ -149,9 +171,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                    
+    width: 200,                     
     height: 70,
-    resizeMode: "contain",        
+    resizeMode: "contain",         
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal
@@ -171,5 +193,14 @@ const styles = StyleSheet.create({
     elevation: 10,                 
     shadowColor: "#000",
     marginTop: 20   
+  },
+  botaoContainer:{
+    width: 250,
+    height: 55,
+    backgroundColor: "#2F1CA6",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 35
   },
 });

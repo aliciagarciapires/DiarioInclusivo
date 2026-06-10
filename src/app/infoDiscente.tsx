@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import Footer from "../../components/Footer";
 
 type Discente = {
   nome: string;
@@ -17,7 +18,7 @@ export default function InfoDiscente() {
     const buscarDados = async () => {
       try {
         // Altere o IP se necessário para o IP do seu servidor local
-        const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+        const response = await fetch(`http://172.20.10.4/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
         const json = await response.json();
         
         if (json.success) {
@@ -69,27 +70,30 @@ export default function InfoDiscente() {
       )}
 
       {/* Barra de Navegação */}
-      <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
-        
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
-
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
-
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
-      </View>
+      <Footer children={undefined} />
+                          <View style={styles.barraMenuGeral}>
+                          
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Início</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Diário</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Rotina</Text>
+                          </Pressable>
+                  
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                            <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Conf.</Text>
+                          </Pressable>
+                  
+                        </View>
     </View>
   );
 }
@@ -107,20 +111,37 @@ const styles = StyleSheet.create({
   logo: { width: 100, height: 100, alignSelf: "center" },
   botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1, height: 30 },
   tabLabel: { fontSize: 12, fontWeight: "500", color: "#2F1CA6", marginTop: 4 },
-  iconeCustom: { width: 40, height: 40, resizeMode: "contain" },
+  iconeCustom: {
+    width: 200,                     
+    height: 70,
+    resizeMode: "contain",         
+  },
   barraMenuGeral: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
     alignItems: "center",
-    backgroundColor: "#F5F2E8",
-    height: 90,
-    paddingBottom: 30,
-    position: "absolute",
+    backgroundColor: "#F5F2E8",    
+    height: 90,                    
+    paddingBottom: 30,             
+    borderTopWidth: 3,             
+    borderTopColor: "#F5F2E8",     
+    borderTopLeftRadius: 35,       
+    borderTopRightRadius: 35,      
+    position: "absolute",          // Fixa no rodapé
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#ddd"
+    elevation: 10,                 
+    shadowColor: "#000",
+    marginTop: 20   
+  },
+  botaoContainer:{
+    width: 250,
+    height: 55,
+    backgroundColor: "#2F1CA6",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 35
   },
 });

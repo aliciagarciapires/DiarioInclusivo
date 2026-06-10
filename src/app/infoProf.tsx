@@ -17,7 +17,7 @@ export default function InfoProf() {
 
     const fetchProf = async () => {
       try {
-        const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/getProfessor.php?idUsuario=${idUsuario}`);
+        const response = await fetch(`http://172.20.10.4/DiarioInclusivo/src/app/getProfessor.php?idUsuario=${idUsuario}`);
         const data = await response.json(); //o
         
         if (data.success) {

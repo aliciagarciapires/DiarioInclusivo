@@ -2,6 +2,7 @@ import {Text, View, StyleSheet, Image,Pressable,TouchableOpacity} from "react-na
 import {Link, router} from "expo-router"
 import { Button } from "../../components/Button"
 import Footer from "../../components/Footer"
+import React from "react"
 
 export default function Rotina(){
     return(

@@ -1,6 +1,7 @@
 import {Text, View, StyleSheet, Image,Pressable,TouchableOpacity} from "react-native"
 import {Link, router} from "expo-router"
 import { Button } from "../../components/Button"
+import React from "react"
 
 export default function Rotina(){
     return(

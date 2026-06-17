@@ -49,7 +49,7 @@ export default function CadDiscente() {
 
         // 3. Envio para o Backend
         try {
-            const response = await fetch('http://172.20.10.4/DiarioInclusivo/src/app/cadDiscente.php', {
+            const response = await fetch('http://172.20.10.2/DiarioInclusivo/src/app/cadDiscente.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 

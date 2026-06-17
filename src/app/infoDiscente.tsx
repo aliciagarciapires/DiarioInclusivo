@@ -18,7 +18,7 @@ export default function InfoDiscente() {
     const buscarDados = async () => {
       try {
         // Altere o IP se necessário para o IP do seu servidor local
-        const response = await fetch(`http://172.20.10.4/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+        const response = await fetch(`http://172.20.10.2/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
         const json = await response.json();
         
         if (json.success) {

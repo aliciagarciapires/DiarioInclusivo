@@ -9,7 +9,7 @@ export default function Discente() {
   // Função que busca do seu PHP
   const buscarDiscentes = async () => {
     try {
-      const response = await fetch('http://172.20.10.2/DiarioInclusivo/src/app/discente.php');
+      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/discente.php');
       const dados = await response.json();
       setListaDiscentes(dados); // Atualiza o estado com os dados do banco
     } catch (error) {
@@ -74,7 +74,7 @@ export default function Discente() {
                             <Text style={styles.tabLabel}>Início</Text>
                           </Pressable>
                   
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/diario")}>
                             <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
                             <Text style={styles.tabLabel}>Diário</Text>
                           </Pressable>

@@ -243,6 +243,23 @@ export default function Layout() {
           ),
         }} 
       />
+
+      <Stack.Screen 
+        name="diario" 
+        options={{ 
+          headerTitle: "DIÁRIO", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+          headerRight: () => <LogoDireita />
+        }} 
+      />
     </Stack>
   );
 }

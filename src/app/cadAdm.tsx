@@ -3,6 +3,7 @@ import { Image, ScrollView, StyleSheet, Text, View } from "react-native"
 import { Button } from "../../components/Button"
 import { Input } from "../../components/input"
 import Footer from "../../components/Footer"
+import React from "react"
 
 export default function CadAdm(){
     return(

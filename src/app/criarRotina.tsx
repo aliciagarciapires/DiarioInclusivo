@@ -68,7 +68,7 @@ export default function CriarRotina() {
     if (novoNomeAtividade.trim() === '') return; // Impede salvar em branco
 
     try {
-      const URL_API = 'http://172.20.10.2/DiarioInclusivo/src/app/cadProf.php';
+      const URL_API = 'http://192.168.0.106/DiarioInclusivo/src/app/cadProf.php';
 
       const resposta = await fetch(URL_API, {
         method: 'POST',

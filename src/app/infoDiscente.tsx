@@ -18,7 +18,7 @@ export default function InfoDiscente() {
     const buscarDados = async () => {
       try {
         // Altere o IP se necessário para o IP do seu servidor local
-        const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+        const response = await fetch(`http://192.168.0.101/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
         const json = await response.json();
         
         if (json.success) {
@@ -74,7 +74,7 @@ export default function InfoDiscente() {
                           <View style={styles.barraMenuGeral}>
                           
                           <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                            <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                            <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
                             <Text style={styles.tabLabel}>Início</Text>
                           </Pressable>
                   
@@ -112,9 +112,10 @@ const styles = StyleSheet.create({
   botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1, height: 30 },
   tabLabel: { fontSize: 12, fontWeight: "500", color: "#2F1CA6", marginTop: 4 },
   iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",        
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal

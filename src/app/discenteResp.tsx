@@ -24,76 +24,49 @@ export default function Discente() {
     }, [])
   );
 
-  // Criamos o array final combinando a lista do banco + o botão fixo
-  const itens = [...listaDiscentes, { id: "add", tipo: "botao" }];
-
   return (
     <>
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={styles.grid}>
-          {itens.map((item: any) => (
+          {listaDiscentes.map((item: any) => (
             <View key={item.id} style={styles.item}>
-              {item.tipo === "discente" ? (
-                <>
-                  <Pressable 
-                    style={styles.card} 
-                    onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
-                  >
-                    <Image 
-                      source={require("../../assets/images/discente.png")} 
-                      style={styles.imagem} 
-                      resizeMode="contain" 
-                    />
-                  </Pressable>
+              <Pressable 
+                style={styles.card} 
+                onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
+              >
+                <Image 
+                  source={require("../../assets/images/discente.png")} 
+                  style={styles.imagem} 
+                  resizeMode="contain" 
+                />
+              </Pressable>
 
-                  <Pressable 
-                    style={styles.botao} 
-                    onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
-                  >
-                    <Text style={styles.textoBotao}>{item.nome}</Text>
-                  </Pressable>
-                </>
-              ) : (
-                <Pressable 
-                  style={styles.cardAdicionar} 
-                  onPress={() => router.push("/cadDiscente")}
-                >
-                  <Text style={styles.mais}>+</Text>
-                </Pressable>
-              )}
+              <Pressable 
+                style={styles.botao} 
+                onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
+              >
+                <Text style={styles.textoBotao}>{item.nome}</Text>
+              </Pressable>
             </View>
           ))}
         </View>
       </ScrollView>
       
       <Footer children={undefined} />
-                          <View style={styles.barraMenuGeral}>
-                          
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                            <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Início</Text>
-                          </Pressable>
-                  
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/diario")}>
-                            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Diário</Text>
-                          </Pressable>
-                  
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Rotina</Text>
-                          </Pressable>
-                  
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                            <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Conf.</Text>
-                          </Pressable>
-                  
-                        </View>
+      <View style={styles.barraMenuGeral}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Início</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Conf.</Text>
+        </Pressable>
+      </View>
     </>
   );
 }
-// ... (Seus styles permanecem iguais)
 
 const styles = StyleSheet.create({
   container: {
@@ -102,13 +75,13 @@ const styles = StyleSheet.create({
     padding: 32
   },
   topo: {
-      justifyContent: "flex-start", //iniciar no inicio da flex
-      marginTop: 20,
-      color: "#2F1CA6",
-      fontWeight: "bold",
-      fontSize: 18,
-      textAlign: "center"
-    },
+    justifyContent: "flex-start", //iniciar no inicio da flex
+    marginTop: 20,
+    color: "#2F1CA6",
+    fontWeight: "bold",
+    fontSize: 18,
+    textAlign: "center"
+  },
   grid: {
     flexDirection: "row", 
     flexWrap: "wrap", 
@@ -143,7 +116,7 @@ const styles = StyleSheet.create({
     color: "#F5F2E8",
     fontWeight: "bold",
     fontSize: 14
-    },
+  },
   cardAdicionar: {
     width: 115,
     height: 155,
@@ -174,7 +147,7 @@ const styles = StyleSheet.create({
     width: 80, // Largura e altura iguais
   height: 80,
   borderRadius: 15, // Metade do tamanho
-  resizeMode: "cover",        
+  resizeMode: "cover",
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal
@@ -186,7 +159,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 3,             
     borderTopColor: "#F5F2E8",     
     borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
+    borderTopRightRadius: 35,       
     position: "absolute",          // Fixa no rodapé
     bottom: 0,
     left: 0,

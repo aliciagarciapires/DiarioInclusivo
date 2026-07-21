@@ -10,7 +10,7 @@ export default function Professores() {
 
   const buscarProfessores = async () => {
     try {
-      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/professores.php');
+      const response = await fetch('http://192.168.0.101/DiarioInclusivo/src/app/professores.php');
       const dados = await response.json();
       setListaProfessores(dados);
     } catch (error) {
@@ -61,7 +61,7 @@ export default function Professores() {
                                 <View style={styles.barraMenuGeral}>
                                 
                                 <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                                  <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
                                   <Text style={styles.tabLabel}>Início</Text>
                                 </Pressable>
                         
@@ -161,9 +161,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",        
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal

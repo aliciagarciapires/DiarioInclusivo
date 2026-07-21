@@ -15,12 +15,13 @@ export default function CadResp() {
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
 
-   const cadastrarResponsavel = async () => {
+  const cadastrarResponsavel = async () => {
   try {
-    const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/cadResp.php", {
+    const response = await fetch("http://192.168.0.101/DiarioInclusivo/src/app/cadResp.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        tipoConta: tipoConta,
         nome: nome,
         email: email,
         telefone: telefone,
@@ -29,14 +30,25 @@ export default function CadResp() {
       })
     });
 
-    const data = await response.json();
+    // 1. Recebe o texto cru retornado pelo servidor
+    const textoBruto = await response.text();
+    
+    // 2. Imprime no terminal do Expo para vermos a mensagem HTML exata
+    console.log("--- RESPOSTA DO PHP ---");
+    console.log(textoBruto);
+    console.log("-----------------------");
+
+    // 3. Tenta converter para JSON
+    const data = JSON.parse(textoBruto);
+
     Alert.alert("Aviso", data.mensagem);
     if (data.sucesso) {
-      router.push("/inicio");
+      router.push("/discenteResp");
     }
-    
+
   } catch (error) {
-    Alert.alert("Erro", "Falha na conexão.");
+    console.log("ERRO NO CATCH:", error);
+    Alert.alert("Erro", "Ocorreu um erro no servidor. Verifique o terminal.");
   }
 };
     return(

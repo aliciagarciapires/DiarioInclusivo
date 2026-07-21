@@ -14,7 +14,8 @@ if (empty($email) || empty($senha)) {
     exit();
 }
 
-$stmt = $mysqli->prepare("SELECT idUsuario, senha FROM usuario WHERE email = ?");
+// 1. Adicionamos 'tipo_de_usuario' no SELECT
+$stmt = $mysqli->prepare("SELECT idUsuario, senha, tipo_de_usuario FROM usuario WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $resultado = $stmt->get_result();
@@ -27,7 +28,8 @@ if ($resultado->num_rows > 0) {
         echo json_encode([
             "sucesso" => true, 
             "mensagem" => "Login realizado com sucesso!",
-            "userId" => $usuario['idUsuario']
+            "userId" => $usuario['idUsuario'],
+            "tipo_de_usuario" => (int)$usuario['tipo_de_usuario'] // 2. Retornamos o tipo para o React
         ]);
     } else {
         echo json_encode(["sucesso" => false, "mensagem" => "Senha incorreta."]);

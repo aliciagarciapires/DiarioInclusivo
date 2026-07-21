@@ -88,7 +88,7 @@ export default function Diario() {
         </View>
 
         <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+          <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Diário</Text>
         </View>
 
@@ -224,9 +224,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",         
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal

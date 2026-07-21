@@ -65,7 +65,7 @@ export default function Historico() {
         </View>
 
         <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+          <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Diário</Text>
         </View>
 
@@ -168,9 +168,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 32,
-    height: 32,
-    resizeMode: "contain",
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",
   },
   barraMenuGeral: {
     flexDirection: "row",

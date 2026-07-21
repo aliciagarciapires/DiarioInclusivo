@@ -104,7 +104,7 @@ export default function VisualizarRotina() {
                                   </Pressable>
                           
                                   <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                                    <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                                    <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
                                     <Text style={styles.tabLabel}>Rotina</Text>
                                   </Pressable>
                           
@@ -235,9 +235,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",       
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal

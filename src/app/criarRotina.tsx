@@ -68,7 +68,7 @@ export default function CriarRotina() {
     if (novoNomeAtividade.trim() === '') return; // Impede salvar em branco
 
     try {
-      const URL_API = 'http://192.168.0.106/DiarioInclusivo/src/app/cadProf.php';
+      const URL_API = 'http://192.168.0.101/DiarioInclusivo/src/app/cadProf.php';
 
       const resposta = await fetch(URL_API, {
         method: 'POST',
@@ -383,7 +383,7 @@ export default function CriarRotina() {
         </Pressable>
         
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+          <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Rotina</Text>
         </Pressable>
         
@@ -585,9 +585,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                    
-    height: 70,
-    resizeMode: "contain",         
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",      
   },
   barraMenuGeral: {
     flexDirection: "row",          

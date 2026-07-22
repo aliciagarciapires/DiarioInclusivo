@@ -68,7 +68,7 @@ export default function CriarRotina() {
     if (novoNomeAtividade.trim() === '') return; // Impede salvar em branco
 
     try {
-      const URL_API = 'http://192.168.0.106/DiarioInclusivo/src/app/cadProf.php';
+      const URL_API = 'http://192.168.0.103/DiarioInclusivo/src/app/cadProf.php';
 
       const resposta = await fetch(URL_API, {
         method: 'POST',
@@ -176,7 +176,7 @@ export default function CriarRotina() {
       }));
 
       // Rota corrigida com o caminho completo de pastas do servidor
-      const URL_SALVAR = 'http://192.168.0.106/DiarioInclusivo/src/app/salvar_rotina.php';
+      const URL_SALVAR = 'http://192.168.0.103/DiarioInclusivo/src/app/salvar_rotina.php';
 
       const resposta = await fetch(URL_SALVAR, {
         method: 'POST',

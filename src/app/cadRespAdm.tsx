@@ -28,7 +28,7 @@ const cadastrarResponsavel = async () => {
     }
 
     try {
-      const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/cadResp.php", {
+      const response = await fetch("http://192.168.0.103/DiarioInclusivo/src/app/cadResp.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

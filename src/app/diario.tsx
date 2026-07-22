@@ -1,6 +1,7 @@
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
+import { router } from "expo-router";
 
 export default function Diario() {
   return (
@@ -81,27 +82,27 @@ export default function Diario() {
 
       {/* Menu Inferior Estático */}
       <Footer children={undefined} />
-      <View style={styles.barraMenuGeral}>
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </View>
-      </View>
+            <View style={styles.barraMenuGeral}>
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                <Text style={styles.tabLabel}>Início</Text>
+              </Pressable>
+              
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/diario")}>
+                <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+                <Text style={styles.tabLabel}>Diário</Text>
+              </Pressable>
+              
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                <Text style={styles.tabLabel}>Rotina</Text>
+              </Pressable>
+              
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
+                <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                <Text style={styles.tabLabel}>Conf.</Text>
+              </Pressable>
+            </View>
 
     </View>
   );

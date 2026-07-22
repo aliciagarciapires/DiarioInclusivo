@@ -38,10 +38,45 @@ $email          = trim($dados['email'] ?? '');
 $telefone       = trim($dados['telefone'] ?? '');
 $senha          = $dados['senha'] ?? '';
 $confirmarSenha = $dados['confirmarSenha'] ?? '';
-// 1. Garante que $tipoConta nunca seja null (se não vier no JSON, assume 1)
+
+// Validação básica se o e-mail não veio vazio
+if (empty($email)) {
+    echo json_encode([
+        "sucesso" => false, 
+        "mensagem" => "O e-mail é obrigatório."
+    ]);
+    exit();
+}
+
+// =========================================================================
+// NOVO: 6. Checa se o e-mail já existe na tabela 'usuario'
+// =========================================================================
+$sqlCheck = "SELECT idUsuario FROM usuario WHERE email = ?";
+$stmtCheck = $mysqli->prepare($sqlCheck);
+
+if ($stmtCheck) {
+    $stmtCheck->bind_param("s", $email);
+    $stmtCheck->execute();
+    $stmtCheck->store_result();
+
+    // Se encontrou 1 ou mais linhas com esse e-mail, encerra avisando o React Native
+    if ($stmtCheck->num_rows > 0) {
+        echo json_encode([
+            "sucesso" => false, 
+            "mensagem" => "Este e-mail já está cadastrado."
+        ]);
+        $stmtCheck->close();
+        $mysqli->close();
+        exit();
+    }
+    $stmtCheck->close();
+}
+// =========================================================================
+
+// 7. Garante que $tipoConta nunca seja null (se não vier no JSON, assume 1)
 $tipoConta = isset($dados['tipoConta']) && !empty($dados['tipoConta']) ? (int)$dados['tipoConta'] : 1;
 
-// 2. Query com o nome correto da coluna
+// 8. Query com o nome correto da coluna para INSERT
 $sql = "INSERT INTO usuario (nome, email, telefone, senha, tipo_de_usuario) VALUES (?, ?, ?, ?, ?)";
 
 $stmt = $mysqli->prepare($sql);
@@ -54,7 +89,7 @@ if (!$stmt) {
     exit();
 }
 
-// 3. Garanta que a variável $tipoConta é o último parâmetro
+// Garanta que a variável $tipoConta é o último parâmetro
 $stmt->bind_param("ssssi", $nome, $email, $telefone, $senha, $tipoConta);
 
 if ($stmt->execute()) {
@@ -70,7 +105,6 @@ if ($stmt->execute()) {
         "mensagem" => "Erro no banco: " . $stmt->error
     ]);
 }
-
 
 // Fecha o statement e a conexão
 $stmt->close();

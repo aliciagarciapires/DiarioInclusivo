@@ -10,7 +10,7 @@ export default function Professores() {
 
   const buscarProfessores = async () => {
     try {
-      const response = await fetch('http://192.168.0.101/DiarioInclusivo/src/app/professores.php');
+      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/professores.php');
       const dados = await response.json();
       setListaProfessores(dados);
     } catch (error) {
@@ -60,14 +60,14 @@ export default function Professores() {
       <Footer children={undefined} />
                                 <View style={styles.barraMenuGeral}>
                                 
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Início</Text>
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+                                  <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Prof.</Text>
                                 </Pressable>
                         
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Diário</Text>
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                                  <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Discentes</Text>
                                 </Pressable>
                         
                                 <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
@@ -75,7 +75,7 @@ export default function Professores() {
                                   <Text style={styles.tabLabel}>Rotina</Text>
                                 </Pressable>
                         
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
                                   <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
                                   <Text style={styles.tabLabel}>Conf.</Text>
                                 </Pressable>

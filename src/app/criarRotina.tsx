@@ -68,7 +68,7 @@ export default function CriarRotina() {
     if (novoNomeAtividade.trim() === '') return; // Impede salvar em branco
 
     try {
-      const URL_API = 'http://192.168.0.101/DiarioInclusivo/src/app/cadProf.php';
+      const URL_API = 'http://192.168.0.106/DiarioInclusivo/src/app/cadProf.php';
 
       const resposta = await fetch(URL_API, {
         method: 'POST',
@@ -176,7 +176,7 @@ export default function CriarRotina() {
       }));
 
       // Rota corrigida com o caminho completo de pastas do servidor
-      const URL_SALVAR = 'http://172.20.10.2/DiarioInclusivo/src/app/salvar_rotina.php';
+      const URL_SALVAR = 'http://192.168.0.106/DiarioInclusivo/src/app/salvar_rotina.php';
 
       const resposta = await fetch(URL_SALVAR, {
         method: 'POST',
@@ -372,12 +372,12 @@ export default function CriarRotina() {
 
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
           <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Início</Text>
         </Pressable>
         
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diario")}>
           <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Diário</Text>
         </Pressable>
@@ -387,7 +387,7 @@ export default function CriarRotina() {
           <Text style={styles.tabLabel}>Rotina</Text>
         </Pressable>
         
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
           <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Conf.</Text>
         </Pressable>

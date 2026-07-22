@@ -13,39 +13,46 @@ export default function CadProf(){
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
 
-    const cadastrarProfessor = async () => {
-            // 1. Validação básica
-            if (!nome || !email || !senha || !confirmarSenha) {
-                Alert.alert('Erro', 'Preencha todos os campos');
-                return;
-            }
-    
-            if (senha !== confirmarSenha) {
-                Alert.alert('Erro', 'As senhas não coincidem');
-                return;
-            }
-    
-            // 2. Envio para o Backend
-            try {
-                const response = await fetch('http://192.168.0.101/DiarioInclusivo/src/app/cadProf.php', { // Ajuste a URL conforme seu servidor
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, email, senha, tipoConta })
-                });
-    
-                const textResponse = await response.text();
-    
-                if (response.ok) {
-                    Alert.alert('Sucesso', 'Cadastro realizado!');
-                    router.push("/professores"); // Só redireciona se o servidor confirmar o sucesso
-                } else {
-                    Alert.alert('Erro do Servidor', textResponse); 
-                    console.log("Erro bruto:", textResponse);
-                }
-            } catch (error) {
-                Alert.alert('Erro', 'Não foi possível conectar ao servidor');
-            }
-        };
+   const cadastrarProfessor = async () => {
+    // 1. Validação local dos campos
+    if (!nome.trim() || !email.trim() || !senha) {
+      Alert.alert("Aviso", "Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      Alert.alert("Aviso", "As senhas não coincidem.");
+      return;
+    }
+
+    // 2. Envio para o Backend PHP
+    try {
+      const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/cadProf.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: nome.trim(),
+          email: email.trim(),
+          senha: senha,
+          tipoConta: tipoConta,
+        }),
+      });
+
+      // Converte a resposta em JSON
+      const data = await response.json();
+
+      // 3. Exibe a mensagem enviada pelo PHP (Sucesso ou erro/e-mail cadastrado)
+      Alert.alert(data.success ? "Sucesso" : "Aviso", data.message || data.mensagem);
+
+      // Só redireciona se o servidor confirmar 'success: true'
+      if (data.success || data.sucesso) {
+        router.push("/professores");
+      }
+    } catch (error) {
+      console.log("Erro de conexão:", error);
+      Alert.alert("Erro", "Não foi possível conectar ao servidor. Verifique a rede.");
+    }
+  };
 
 
     return(

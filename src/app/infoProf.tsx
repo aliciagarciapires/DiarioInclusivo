@@ -17,7 +17,7 @@ export default function InfoProf() {
 
     const fetchProf = async () => {
       try {
-        const response = await fetch(`http://192.168.0.101/DiarioInclusivo/src/app/getProfessor.php?idUsuario=${idUsuario}`);
+        const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/getProfessor.php?idUsuario=${idUsuario}`);
         const data = await response.json(); //o
         
         if (data.success) {
@@ -58,15 +58,16 @@ export default function InfoProf() {
             <Footer children={undefined} />
                                 <View style={styles.barraMenuGeral}>
                                 
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Início</Text>
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+                                  <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Prof.</Text>
                                 </Pressable>
-                        
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Diário</Text>
-                                </Pressable>
+                                                        
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                                   <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+                                   <Text style={styles.tabLabel}>Discentes</Text>
+                               </Pressable>
+                                                        
                         
                                 <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
                                   <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
@@ -96,9 +97,10 @@ const styles = StyleSheet.create({
   botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1, height: 30 },
   tabLabel: { fontSize: 12, fontWeight: "500", color: "#2F1CA6", marginTop: 4 },
   iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",         
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal

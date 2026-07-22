@@ -93,12 +93,12 @@ export default function VisualizarRotina() {
               <Footer children={undefined} />
                                   <View style={styles.barraMenuGeral}>
                                   
-                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
                                     <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
                                     <Text style={styles.tabLabel}>Início</Text>
                                   </Pressable>
                           
-                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/diario")}>
                                     <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
                                     <Text style={styles.tabLabel}>Diário</Text>
                                   </Pressable>
@@ -108,7 +108,7 @@ export default function VisualizarRotina() {
                                     <Text style={styles.tabLabel}>Rotina</Text>
                                   </Pressable>
                           
-                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
                                     <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
                                     <Text style={styles.tabLabel}>Conf.</Text>
                                   </Pressable>

@@ -18,7 +18,7 @@ export default function InfoDiscente() {
     const buscarDados = async () => {
       try {
         // Altere o IP se necessário para o IP do seu servidor local
-        const response = await fetch(`http://192.168.0.101/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+        const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
         const json = await response.json();
         
         if (json.success) {
@@ -73,12 +73,12 @@ export default function InfoDiscente() {
       <Footer children={undefined} />
                           <View style={styles.barraMenuGeral}>
                           
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
                             <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
                             <Text style={styles.tabLabel}>Início</Text>
                           </Pressable>
                   
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/diario")}>
                             <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
                             <Text style={styles.tabLabel}>Diário</Text>
                           </Pressable>
@@ -88,7 +88,7 @@ export default function InfoDiscente() {
                             <Text style={styles.tabLabel}>Rotina</Text>
                           </Pressable>
                   
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
                             <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
                             <Text style={styles.tabLabel}>Conf.</Text>
                           </Pressable>

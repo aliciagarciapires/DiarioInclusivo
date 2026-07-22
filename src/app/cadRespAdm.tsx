@@ -15,42 +15,59 @@ export default function CadResp() {
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  const cadastrarResponsavel = async () => {
-  try {
-    const response = await fetch("http://192.168.0.101/DiarioInclusivo/src/app/cadResp.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tipoConta: tipoConta,
-        nome: nome,
-        email: email,
-        telefone: telefone,
-        senha: senha,
-        confirmarSenha: confirmarSenha
-      })
-    });
-
-    // 1. Recebe o texto cru retornado pelo servidor
-    const textoBruto = await response.text();
-    
-    // 2. Imprime no terminal do Expo para vermos a mensagem HTML exata
-    console.log("--- RESPOSTA DO PHP ---");
-    console.log(textoBruto);
-    console.log("-----------------------");
-
-    // 3. Tenta converter para JSON
-    const data = JSON.parse(textoBruto);
-
-    Alert.alert("Aviso", data.mensagem);
-    if (data.sucesso) {
-      router.push("/discenteResp");
+const cadastrarResponsavel = async () => {
+    // 1. Validações locais
+    if (!nome.trim() || !email.trim() || !senha) {
+      Alert.alert("Aviso", "Preencha todos os campos obrigatórios.");
+      return;
     }
 
-  } catch (error) {
-    console.log("ERRO NO CATCH:", error);
-    Alert.alert("Erro", "Ocorreu um erro no servidor. Verifique o terminal.");
-  }
-};
+    if (senha !== confirmarSenha) {
+      Alert.alert("Aviso", "As senhas não coincidem.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/cadResp.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipoConta: tipoConta,
+          nome: nome.trim(),
+          email: email.trim(),
+          telefone: telefone.trim(),
+          senha: senha,
+          confirmarSenha: confirmarSenha
+        })
+      });
+
+      // Pega o texto bruto retornado do PHP
+      const textoBruto = await response.text();
+      console.log("--- RESPOSTA BRUTA DO PHP ---");
+      console.log(textoBruto);
+      console.log("-----------------------------");
+
+      // Tenta converter para JSON com segurança
+      let data;
+      try {
+        data = JSON.parse(textoBruto);
+      } catch (e) {
+        // Se falhou o parse, o PHP mandou um erro de código / HTML!
+        Alert.alert("Erro no PHP", "O servidor respondeu com um erro textual:\n\n" + textoBruto.substring(0, 300));
+        return;
+      }
+
+      Alert.alert(data.sucesso ? "Sucesso" : "Aviso", data.mensagem);
+
+      if (data.sucesso) {
+        router.push("/discenteResp");
+      }
+
+    } catch (error) {
+      console.log("ERRO DE REDE:", error);
+      Alert.alert("Erro", "Falha de conexão com o servidor.");
+    }
+  };
     return(
         <View style={styles.containerPrincipal}>
             <ScrollView 

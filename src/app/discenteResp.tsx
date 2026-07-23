@@ -32,7 +32,7 @@ export default function Discente() {
             <View key={item.id} style={styles.item}>
               <Pressable 
                 style={styles.card} 
-                onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
+                onPress={() => router.push(`/diarioResp?id=${item.id}`)}
               >
                 <Image 
                   source={require("../../assets/images/discente.png")} 
@@ -43,7 +43,7 @@ export default function Discente() {
 
               <Pressable 
                 style={styles.botao} 
-                onPress={() => router.push(`/infoDiscente?id=${item.id}`)}
+                onPress={() => router.push(`/diarioResp?id=${item.id}`)}
               >
                 <Text style={styles.textoBotao}>{item.nome}</Text>
               </Pressable>

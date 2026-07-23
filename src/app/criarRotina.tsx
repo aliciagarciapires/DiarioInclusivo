@@ -377,7 +377,7 @@ export default function CriarRotina() {
           <Text style={styles.tabLabel}>Início</Text>
         </Pressable>
         
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diario")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
           <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Diário</Text>
         </Pressable>

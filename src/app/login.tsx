@@ -28,12 +28,10 @@ export default function Login() {
       const data = await response.json();
 
       if (data.sucesso) {
-        Alert.alert("Sucesso", data.mensagem);
-        
-        // Opcional: salva o ID do usuário localmente se precisar
         if (data.userId) {
-          await AsyncStorage.setItem('userIdUsuario', data.userId.toString());
+            await AsyncStorage.setItem("idUsuario", String(data.userId));
         }
+        Alert.alert("Sucesso", data.mensagem);
 
         // --- AQUI ENTRA O DIRECIONAMENTO POR TIPO DE USUÁRIO ---
         const tipo = Number(data.tipo_de_usuario);
@@ -41,10 +39,14 @@ export default function Login() {
         if (tipo === 1) {
           // Tipo 1: Responsável
           router.replace("/discenteResp");
-        } else if (tipo === 2 || tipo === 3) {
+        } else if (tipo === 2) {
           // Tipo 2 (Admin) ou Tipo 3 (Professor)
+          router.replace("/professores");
+        } else if (tipo === 3) {
+          // Tipo 3: Professor
           router.replace("/discente");
-        } else {
+        }
+        else {
           // Caso receba um tipo não mapeado, vai para a home padrão
           router.replace("/inicio");
         }

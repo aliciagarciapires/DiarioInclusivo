@@ -75,7 +75,7 @@ export default function Historico() {
                       <Text style={styles.tabLabel}>Rotina</Text>
                     </Pressable>
                     
-                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
                       <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
                       <Text style={styles.tabLabel}>Conf.</Text>
                     </Pressable>

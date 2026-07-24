@@ -71,10 +71,6 @@ export default function Diario() {
 
       {/* Botões Grandes Centrais */}
       <View style={styles.botoesAcaoContainer}>
-        <View style={[styles.botaoAcao, styles.botaoRoxo]}>
-          <Text style={styles.botaoAcaoTexto}>Nova Entrada</Text>
-        </View>
-
         <View style={[styles.botaoAcao, styles.botaoAzul]}>
           <Text style={styles.botaoAcaoTexto}>Histórico</Text>
         </View>
@@ -83,7 +79,7 @@ export default function Diario() {
       {/* Menu Inferior Estático */}
       <Footer children={undefined} />
             <View style={styles.barraMenuGeral}>
-              <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
                 <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
                 <Text style={styles.tabLabel}>Início</Text>
               </Pressable>
@@ -93,12 +89,7 @@ export default function Diario() {
                 <Text style={styles.tabLabel}>Diário</Text>
               </Pressable>
               
-              <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                <Text style={styles.tabLabel}>Rotina</Text>
-              </Pressable>
-              
-              <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
                 <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
                 <Text style={styles.tabLabel}>Conf.</Text>
               </Pressable>

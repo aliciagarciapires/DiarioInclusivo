@@ -264,6 +264,22 @@ export default function Layout() {
       />
 
       <Stack.Screen 
+        name="infoUsuario" 
+        options={{ 
+          headerTitle: "INFORMAÇÕES DO USUÁRIO", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+        }} 
+      />
+
+      <Stack.Screen 
         name="infoProf" 
         options={{ 
           headerTitle: "INFORMAÇÕES DO PROFESSOR", // <-- Deixa o centro do cabeçalho totalmente vazio
@@ -295,10 +311,12 @@ export default function Layout() {
         }} 
       />
 
+      
+
       <Stack.Screen 
-        name="diario" 
+        name="configuracoes" 
         options={{ 
-          headerTitle: "DIÁRIO", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerTitle: "CONFIG.", // <-- Deixa o centro do cabeçalho totalmente vazio
           headerBackVisible: false, 
           headerLeft: () => (
             <Pressable 

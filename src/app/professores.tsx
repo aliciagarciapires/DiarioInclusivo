@@ -1,13 +1,12 @@
 import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import Footer from "../../components/Footer";
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import React from "react";
+import React, { useState, useCallback } from "react";
 
 export default function Professores() {
   const [listaProfessores, setListaProfessores] = useState([]);
 
+  // Busca a lista de professores no PHP
   const buscarProfessores = async () => {
     try {
       const response = await fetch('http://192.168.0.103/DiarioInclusivo/src/app/professores.php');
@@ -18,17 +17,19 @@ export default function Professores() {
     }
   };
 
+  // Recarrega sempre que a tela ganha foco
   useFocusEffect(
     useCallback(() => {
       buscarProfessores();
     }, [])
   );
 
+  // Lista os professores do banco + card de adicionar
   const itens = [...listaProfessores, { id: "add", tipo: "botao" }];
 
   return (
     <>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={styles.grid}>
           {itens.map((item: any) => (
             <View key={item.id} style={styles.item}>
@@ -36,20 +37,27 @@ export default function Professores() {
                 <>
                   <Pressable 
                     style={styles.card} 
-                    onPress={() => router.push({ pathname: "/infoProf", params: { idUsuario: item.id } })}
+                    onPress={() => router.push(`/infoProf?idUsuario=${item.id}`)}
                   >
-                    <Image source={item.imagem} style={styles.imagem} resizeMode="contain" />
+                    <Image 
+                      source={require("../../assets/images/professor.png")} 
+                      style={styles.imagem} 
+                      resizeMode="contain" 
+                    />
                   </Pressable>
 
                   <Pressable 
                     style={styles.botao} 
-                    onPress={() => router.push({ pathname: "/infoProf", params: { idUsuario: item.id } })}
+                    onPress={() => router.push(`/infoProf?idUsuario=${item.id}`)}
                   >
                     <Text style={styles.textoBotao}>{item.nome}</Text>
                   </Pressable>
                 </>
               ) : (
-                <Pressable style={styles.cardAdicionar} onPress={() => router.push("/cadProf")}>
+                <Pressable 
+                  style={styles.cardAdicionar} 
+                  onPress={() => router.push("/cadProf")}
+                >
                   <Text style={styles.mais}>+</Text>
                 </Pressable>
               )}
@@ -57,61 +65,61 @@ export default function Professores() {
           ))}
         </View>
       </ScrollView>
+
       <Footer children={undefined} />
-                                <View style={styles.barraMenuGeral}>
-                                
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
-                                  <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Prof.</Text>
-                                </Pressable>
-                        
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-                                  <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Discentes</Text>
-                                </Pressable>
-                        
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                                  <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Rotina</Text>
-                                </Pressable>
-                        
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
-                                  <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Conf.</Text>
-                                </Pressable>
-                        
-                              </View>
+
+      <View style={styles.barraMenuGeral}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+          <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Prof.</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+          <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Discentes</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Rotina</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Conf.</Text>
+        </Pressable>
+      </View>
     </>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1, //scrollview ocupar a tela inteira
+    flex: 1,
     backgroundColor: "#F5F2E8",
     padding: 32
   },
   topo: {
-      justifyContent: "flex-start", //iniciar no inicio da flex
-      marginTop: 20,
-      color: "#2F1CA6",
-      fontWeight: "bold",
-      fontSize: 18,
-      textAlign: "center"
-    },
+    justifyContent: "flex-start",
+    marginTop: 20,
+    color: "#2F1CA6",
+    fontWeight: "bold",
+    fontSize: 18,
+    textAlign: "center"
+  },
   grid: {
     flexDirection: "row", 
     flexWrap: "wrap", 
-    justifyContent: "flex-start", // Mude de space-around para flex-start
+    justifyContent: "flex-start",
     paddingHorizontal: 20, 
-    marginTop: 40,
-    gap: 10 // Adicione um gap para dar respiro entre os itens
+    gap: 10
   },
   item: {
     alignItems: "center",
     marginBottom: 50,
-    width: "48%" //cada card ocupa metade da largura
+    width: "48%"
   },
-  card: { //define o tamanho e centraliza o card
+  card: {
     width: 140,
     height: 160,
     justifyContent: "center",
@@ -124,8 +132,8 @@ const styles = StyleSheet.create({
   botao: {
     backgroundColor: "#2F1CA6",
     borderRadius: 20,
-    paddingHorizontal: 25, // Aumenta a largura das laterais
-    paddingVertical: 12,  // Aumenta a altura do botão
+    paddingHorizontal: 25,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -133,7 +141,7 @@ const styles = StyleSheet.create({
     color: "#F5F2E8",
     fontWeight: "bold",
     fontSize: 14
-    },
+  },
   cardAdicionar: {
     width: 115,
     height: 155,
@@ -141,7 +149,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 0 // Ajustado para alinhar com o topo do card
+    marginTop: 0
   },
   mais: {
     color: "#F5F2E8",
@@ -155,35 +163,35 @@ const styles = StyleSheet.create({
     height: 30,
   },
   tabLabel: {
-    fontSize: 14,                  
+    fontSize: 14, 
     fontWeight: "500",
     color: "#2F1CA6",
     marginTop: 4,
   },
   iconeCustom: {
-    width: 80, // Largura e altura iguais
-  height: 80,
-  borderRadius: 15, // Metade do tamanho
-  resizeMode: "cover",        
+    width: 80,
+    height: 80,
+    borderRadius: 15,
+    resizeMode: "cover", 
   },
   barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    flexDirection: "row",
+    justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
+    backgroundColor: "#F5F2E8", 
+    height: 90, 
+    paddingBottom: 30, 
+    borderTopWidth: 3, 
+    borderTopColor: "#F5F2E8", 
+    borderTopLeftRadius: 35, 
+    borderTopRightRadius: 35, 
+    position: "absolute", 
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 10,                 
+    elevation: 10, 
     shadowColor: "#000",
-    marginTop: 20   
+    marginTop: 20 
   },
   botaoContainer:{
     width: 250,

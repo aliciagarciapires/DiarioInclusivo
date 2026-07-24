@@ -11,86 +11,77 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import Footer from "../../components/Footer";
 
-type Professor = {
+type Usuario = {
   idUsuario: number;
   nome: string;
   email: string;
+  telefone: string;
   senha?: string;
+  tipo_de_usuario?: number;
 };
 
-export default function InfoProf() {
+export default function InfoUsuario() {
   const params = useLocalSearchParams();
-  // Captura tanto `id` quanto `idUsuario` enviante via rota
-  const idRaw = params.id || params.idUsuario;
-  const idFinal = Array.isArray(idRaw) ? idRaw[0] : idRaw;
-
-  const [prof, setProf] = useState<Professor | null>(null);
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
-  const [tipoUsuarioLogado, setTipoUsuarioLogado] = useState<number | null>(null);
 
-  // Estados para modo de edição e campos
+  // Estados do formulário / edição
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
   useEffect(() => {
-    const carregarDados = async () => {
+    const buscarDadosContaLogada = async () => {
       try {
-        // 1. Identifica o perfil do usuário logado
-        const idLogado = await AsyncStorage.getItem("idUsuario");
-        if (idLogado) {
-          const respLogado = await fetch(
-            `http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
-          );
-          const jsonLogado = await respLogado.json();
-          if (jsonLogado.success && jsonLogado.dados?.tipo_de_usuario) {
-            setTipoUsuarioLogado(Number(jsonLogado.dados.tipo_de_usuario));
-          }
+        const rawId = params.id || params.idUsuario;
+        let idFinal: string | null = Array.isArray(rawId) ? rawId[0] : rawId;
+
+        if (!idFinal) {
+          idFinal = await AsyncStorage.getItem("idUsuario");
         }
 
-        // 2. Valida o ID do professor recebido
         if (!idFinal) {
-          Alert.alert("Erro", "ID do professor não informado.");
+          Alert.alert("Aviso", "Nenhum usuário logado encontrado.");
           setLoading(false);
           return;
         }
 
-        // 3. Busca no banco
-        const response = await fetch(
-          `http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
-        );
+        const response = await fetch(`http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
         const json = await response.json();
 
         if (json.success) {
-          setProf(json.dados);
+          setUsuario(json.dados);
+          // Preenche os campos com os dados carregados
           setNome(json.dados.nome || "");
           setEmail(json.dados.email || "");
+          setTelefone(json.dados.telefone || "");
           setSenha(json.dados.senha || "");
         } else {
-          Alert.alert("Erro", json.message || "Professor não encontrado.");
+          Alert.alert("Erro", json.message);
         }
       } catch (error) {
-        Alert.alert("Erro", "Falha de conexão ao carregar dados do professor.");
+        Alert.alert("Erro", "Não foi possível carregar as informações do servidor.");
       } finally {
         setLoading(false);
       }
     };
 
-    carregarDados();
-  }, [idFinal]);
+    buscarDadosContaLogada();
+  }, [params.id, params.idUsuario]);
 
   const salvarEdicao = async () => {
-    if (!prof) return;
+    if (!usuario) return;
 
     if (!nome.trim() || !email.trim()) {
-      Alert.alert("Aviso", "Nome e E-mail não podem ficar vazios.");
+      Alert.alert("Aviso", "Nome e E-mail não podem ficar em branco.");
       return;
     }
 
@@ -100,9 +91,10 @@ export default function InfoProf() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          idUsuario: prof.idUsuario,
+          idUsuario: usuario.idUsuario,
           nome,
           email,
+          telefone,
           senha
         })
       });
@@ -110,14 +102,14 @@ export default function InfoProf() {
       const json = await response.json();
 
       if (json.success) {
-        Alert.alert("Sucesso", "Informações do professor atualizadas!");
-        setProf({ ...prof, nome, email, senha });
+        Alert.alert("Sucesso", "Informações atualizadas com sucesso!");
+        setUsuario({ ...usuario, nome, email, telefone, senha });
         setEditando(false);
       } else {
-        Alert.alert("Erro", json.message || "Não foi possível salvar os dados.");
+        Alert.alert("Erro", json.message || "Erro ao salvar alterações.");
       }
     } catch (error) {
-      Alert.alert("Erro", "Erro ao conectar ao servidor.");
+      Alert.alert("Erro", "Não foi possível salvar as alterações no servidor.");
     } finally {
       setSalvando(false);
     }
@@ -126,34 +118,47 @@ export default function InfoProf() {
   const confirmarExclusao = () => {
     Alert.alert(
       "Confirmar Exclusão",
-      "Tem certeza que deseja apagar o registro deste professor?",
+      "Tem certeza que deseja apagar a sua conta?",
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Excluir", style: "destructive", onPress: apagarProfessor },
+        { text: "Excluir", style: "destructive", onPress: apagarUsuario }
       ]
     );
   };
 
-  const apagarProfessor = async () => {
+  const apagarUsuario = async () => {
     try {
-      if (!prof?.idUsuario) return;
       setLoading(true);
+      let idParaDeletar = usuario?.idUsuario;
+
+      if (!idParaDeletar) {
+        const idSalvo = await AsyncStorage.getItem("idUsuario");
+        idParaDeletar = idSalvo ? Number(idSalvo) : undefined;
+      }
+
+      if (!idParaDeletar) {
+        Alert.alert("Erro", "Não foi possível identificar o ID do usuário.");
+        setLoading(false);
+        return;
+      }
 
       const response = await fetch(
-        `http://192.168.0.103/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
+        `http://192.168.0.103/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
         { method: "GET" }
       );
+
       const json = await response.json();
 
       if (json.success) {
-        Alert.alert("Sucesso", json.message || "Professor excluído com sucesso!", [
-          { text: "OK", onPress: () => router.back() },
+        await AsyncStorage.removeItem("idUsuario");
+        Alert.alert("Sucesso", json.message || "Conta excluída com sucesso!", [
+          { text: "OK", onPress: () => router.replace("/login") }
         ]);
       } else {
-        Alert.alert("Erro", json.message || "Não foi possível excluir o professor.");
+        Alert.alert("Erro", json.message || "Não foi possível excluir a conta.");
       }
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível conectar ao servidor.");
+      Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
     } finally {
       setLoading(false);
     }
@@ -167,28 +172,28 @@ export default function InfoProf() {
     );
   }
 
+  const tipoUsuario = usuario?.tipo_de_usuario;
+
   return (
     <View style={styles.container}>
-
+      
       <View style={styles.itens}>
         <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
       </View>
 
-      {prof ? (
+      {usuario ? (
         <View style={styles.card}>
-          {/* Cabeçalho do Card */}
+          {/* Cabeçalho no padrão Discente/Professor */}
           <View style={styles.cardHeader}>
-            
-
             {editando ? (
               <TextInput
                 style={[styles.input, styles.inputTitulo]}
                 value={nome}
                 onChangeText={setNome}
-                placeholder="Nome do professor"
+                placeholder="Nome do usuário"
               />
             ) : (
-              <Text style={styles.titulo}>{prof.nome}</Text>
+              <Text style={styles.tituloHeader}>{usuario.nome}</Text>
             )}
 
             <View style={styles.acoesHeader}>
@@ -222,7 +227,24 @@ export default function InfoProf() {
                 autoCapitalize="none"
               />
             ) : (
-              <Text style={styles.value}>{prof.email}</Text>
+              <Text style={styles.value}>{usuario.email}</Text>
+            )}
+          </View>
+
+          {/* CAMPO TELEFONE */}
+          <View style={styles.infoRow}>
+            <View style={styles.labelContainer}>
+              <Text style={styles.label}>Telefone:</Text>
+            </View>
+            {editando ? (
+              <TextInput
+                style={styles.input}
+                value={telefone}
+                onChangeText={setTelefone}
+                keyboardType="phone-pad"
+              />
+            ) : (
+              <Text style={styles.value}>{usuario.telefone || "Não informado"}</Text>
             )}
           </View>
 
@@ -241,23 +263,23 @@ export default function InfoProf() {
                 />
               ) : (
                 <Text style={styles.value}>
-                  {mostrarSenha ? (prof.senha || "Sem senha") : "••••••••"}
+                  {mostrarSenha ? usuario.senha : "••••••••"}
                 </Text>
               )}
-              <TouchableOpacity
+              <TouchableOpacity 
                 onPress={() => setMostrarSenha(!mostrarSenha)}
                 style={styles.botaoOlho}
               >
-                <Ionicons
-                  name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
-                  size={20}
-                  color="#2F1CA6"
+                <Ionicons 
+                  name={mostrarSenha ? "eye-off-outline" : "eye-outline"} 
+                  size={20} 
+                  color="#2F1CA6" 
                 />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* BOTÃO SALVAR */}
+          {/* BOTÃO SALVAR (Exibido apenas quando estiver editando) */}
           {editando && (
             <TouchableOpacity 
               style={styles.botaoSalvar} 
@@ -274,26 +296,33 @@ export default function InfoProf() {
 
         </View>
       ) : (
-        <Text style={styles.erro}>Dados do professor indisponíveis.</Text>
+        <Text style={styles.erro}>Dados do usuário indisponíveis.</Text>
       )}
 
       {/* Menu Inferior */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
-          <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Prof.</Text>
+        <Pressable 
+          style={styles.botaoMenu} 
+          onPress={() => router.push(tipoUsuario === 1 ? "/discenteResp" : "/discente")}
+        >
+          <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Início</Text>
         </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-          <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Discentes</Text>
-        </Pressable>
+        {(tipoUsuario === 2 || tipoUsuario === 3) && (
+          <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+            <Text style={styles.tabLabel}>Diário</Text>
+          </Pressable>
+        )}
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
+        {(tipoUsuario === 2 || tipoUsuario === 3) && (
+          <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+            <Text style={styles.tabLabel}>Rotina</Text>
+          </Pressable>
+        )}
 
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
           <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
@@ -306,17 +335,16 @@ export default function InfoProf() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F5F2E8", paddingHorizontal: 20, paddingTop: 5 },
-  card: { backgroundColor: "#F5F2E8", borderRadius: 20, padding: 25, elevation: 5, borderWidth: 1, borderColor: "#2F1CA6", marginTop: 15 },
+  card: { backgroundColor: "#F5F2E8", borderRadius: 20, padding: 20, elevation: 5, borderWidth: 1, borderColor: "#2F1CA6", marginTop: 15 },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  fotoProfessor: { width: 45, height: 45, borderRadius: 22.5, marginRight: 10 },
-  titulo: { fontSize: 20, fontWeight: "bold", color: "#2F1CA6", flex: 1, textAlign: "left" },
+  tituloHeader: { fontSize: 20, fontWeight: "bold", color: "#2F1CA6", flex: 1, textAlign: "left" },
   acoesHeader: { flexDirection: "row", alignItems: "center" },
   botaoAcao: { padding: 5, marginLeft: 8 },
-  divider: { height: 2, backgroundColor: "#2F1CA6", marginVertical: 15, borderRadius: 1 },
-  infoRow: { marginBottom: 15 },
+  divider: { height: 2, backgroundColor: "#2F1CA6", marginVertical: 12, borderRadius: 1 },
+  infoRow: { marginBottom: 12 },
   labelContainer: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 2 },
   label: { fontSize: 12, color: "#2F1CA6", fontWeight: "bold", textTransform: "uppercase" },
-  value: { fontSize: 16, color: "#0b8cbf90", marginTop: 2 },
+  value: { fontSize: 16, color: "#0b8cbf90" },
   input: {
     borderWidth: 1,
     borderColor: "#2F1CA6",
@@ -344,9 +372,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: "center",
-    marginTop: 15
+    marginTop: 10
   },
-  textoSalvar: { color: "#FFF", fontWeight: "bold", fontSize: 16 },
+  textoSalvar: { color: "#FFF", fontWeight: "bold", fontSize: 15 },
   erro: { textAlign: "center", fontSize: 16, color: "red", marginTop: 20 },
   itens: { justifyContent: "flex-start", width: "100%", marginTop: -15 },
   logo: { width: 90, height: 90, alignSelf: "center" },

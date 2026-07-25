@@ -63,12 +63,16 @@ export default function CriarRotina() {
     setModalVisivel(false);
   };
 
-  // Salva a atividade que o usuário digitou manualmente
+  // Salva a atividade que o usuário digitou manualmente (CORRIGIDO)
   const salvarAtividadePersonalizada = async () => {
-    if (novoNomeAtividade.trim() === '') return; // Impede salvar em branco
+    if (novoNomeAtividade.trim() === '') {
+      Alert.alert("Aviso", "Por favor, digite o nome da atividade.");
+      return; // Impede salvar em branco
+    }
 
     try {
-      const URL_API = 'http://172.20.10.2/DiarioInclusivo/src/app/cadProf.php';
+      // Ajustado para a mesma faixa de IP e arquivo de criação de atividade correto
+      const URL_API = 'http://192.168.1.59/DiarioInclusivo/src/app/criar_atividade.php';
 
       const resposta = await fetch(URL_API, {
         method: 'POST',
@@ -90,20 +94,20 @@ export default function CriarRotina() {
           fim: new Date(),
         };
 
-        setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
+        setAtividadesSelecionadas(prevAtividades => [...prevAtividades, novaAtiv]);
         
         setNovoNomeAtividade('');
         setCriandoPersonalizada(false);
         setModalVisivel(false);
         
-        Alert.alert("Sucesso", "Atividade salva!");
+        Alert.alert("Sucesso", "Atividade cadastrada e adicionada com sucesso!");
       } else {
-        Alert.alert("Erro", resultado.mensagem);
+        Alert.alert("Erro", resultado.mensagem || "Erro ao cadastrar atividade.");
       }
 
     } catch (error: any) {
       console.error("Erro detalhado:", error);
-      Alert.alert("Erro de Rede/Conexão", error.message || String(error));
+      Alert.alert("Erro de Rede/Conexão", error.message || "Não foi possível se conectar ao servidor.");
     }
   };
 
@@ -154,7 +158,6 @@ export default function CriarRotina() {
     }
   };
 
-  // FUNÇÃO ATUALIZADA: Envia os dados completos e corrige o erro 404/chave estrangeira
   const finalizarRotina = async () => {
     if (nomeRotina.trim() === '') {
       Alert.alert("Aviso", "Por favor, digite um nome para a rotina.");
@@ -166,7 +169,6 @@ export default function CriarRotina() {
     }
 
     try {
-      // PROVISÓRIO: Usuário simulado até sua amiga passar o código do Login
       const idUsuarioLogado = 1;
 
       const atividadesFormatadas = atividadesSelecionadas.map(ativ => ({
@@ -175,8 +177,7 @@ export default function CriarRotina() {
         horaFinal: ativ.fim.toLocaleTimeString([], { hour12: false })      
       }));
 
-      // Rota corrigida com o caminho completo de pastas do servidor
-      const URL_SALVAR = 'http://172.20.10.2/DiarioInclusivo/src/app/salvar_rotina.php';
+      const URL_SALVAR = 'http://192.168.1.59/DiarioInclusivo/src/app/salvar_rotina.php';
 
       const resposta = await fetch(URL_SALVAR, {
         method: 'POST',
@@ -185,7 +186,7 @@ export default function CriarRotina() {
         },
         body: JSON.stringify({
           nomeRotina: nomeRotina,
-          idUsuario: idUsuarioLogado, // Passando o ID do usuário na requisição
+          idUsuario: idUsuarioLogado, 
           atividades: atividadesFormatadas
         }),
       });
@@ -240,7 +241,7 @@ export default function CriarRotina() {
         </TouchableOpacity>
 
         {atividadesSelecionadas.map((item, index) => (
-          <View key={item.id} style={styles.cardAtividade}>
+          <View key={`${item.id}-${index}`} style={styles.cardAtividade}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <Text style={styles.nomeAtividade}>{item.nome}</Text>
               
@@ -353,13 +354,12 @@ export default function CriarRotina() {
                 }
                 mode="time"
                 is24Hour={true}
-                display="spinner" // Usa o rolinho clássico dentro do modal
+                display="spinner"
                 onChange={aoMudarHora}
-                textColor="#2F1CA6" // Deixa os números roxos combinando com seu app
+                textColor="#2F1CA6"
               />
             )}
 
-            {/* Botão para o usuário confirmar que terminou de escolher a hora */}
             <TouchableOpacity 
               style={styles.botaoConfirmarHora} 
               onPress={() => setShowPicker(false)}
@@ -608,16 +608,15 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     marginTop: 20   
   },
-  // Copie e cole estes estilos dentro do seu StyleSheet.create:
   modalOverlayRelogio: { 
     flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.6)', // Escurece o fundo do app
+    backgroundColor: 'rgba(0,0,0,0.6)', 
     justifyContent: 'center', 
     alignItems: 'center' 
   },
   modalContentRelogio: { 
     width: '80%', 
-    backgroundColor: '#F5F2E8', // Usa o fundo bege padrão do seu app
+    backgroundColor: '#F5F2E8', 
     borderRadius: 20, 
     padding: 20, 
     alignItems: 'center',
@@ -637,7 +636,7 @@ const styles = StyleSheet.create({
     textAlign: 'center' 
   },
   botaoConfirmarHora: {
-    backgroundColor: '#2F1CA6', // Roxo padrão do seu botão salvar
+    backgroundColor: '#2F1CA6', 
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 25,

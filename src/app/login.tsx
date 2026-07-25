@@ -24,21 +24,53 @@ export default function Login() {
         senha: senha  // state da sua senha
       })
     });
+=======
+    try {
+      const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/login.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          senha: senha
+        })
+      });
+>>>>>>> dd70b8126e40fbd8ad7dc83fea47b9a4f070ee61
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.sucesso) {
-      Alert.alert("Sucesso", data.mensagem);
-      // Aqui você pode salvar o ID do usuário para usar no app
-      //await AsyncStorage.setItem('userIdUsuario', data.userIdUsuario.toString());
-      router.replace("/inicio");
-    } else {
-      Alert.alert("Erro", data.mensagem);
+      if (data.sucesso) {
+        if (data.userId) {
+            await AsyncStorage.setItem("idUsuario", String(data.userId));
+        }
+        Alert.alert("Sucesso", data.mensagem);
+
+        // --- AQUI ENTRA O DIRECIONAMENTO POR TIPO DE USUÁRIO ---
+        const tipo = Number(data.tipo_de_usuario);
+
+        if (tipo === 1) {
+          // Tipo 1: Responsável
+          router.replace("/discenteResp");
+        } else if (tipo === 2) {
+          // Tipo 2 (Admin) ou Tipo 3 (Professor)
+          router.replace("/professores");
+        } else if (tipo === 3) {
+          // Tipo 3: Professor
+          router.replace("/discente");
+        }
+        else {
+          // Caso receba um tipo não mapeado, vai para a home padrão
+          router.replace("/inicio");
+        }
+
+      } else {
+        Alert.alert("Erro", data.mensagem);
+      }
+    } catch (error) {
+      Alert.alert("Erro", "Falha na conexão com o servidor.");
     }
-  } catch (error) {
-    Alert.alert("Erro", "Falha na conexão com o servidor.");
-  }
-};
+  };
 
     return (
         <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>

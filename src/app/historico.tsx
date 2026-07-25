@@ -1,6 +1,7 @@
 import React from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
+import { router } from "expo-router";
 
 export default function Historico() {
   // Array simples para repetir os blocos de histórico
@@ -58,27 +59,27 @@ export default function Historico() {
 
       {/* Menu Inferior Estático */}
       <Footer children={undefined} />
-      <View style={styles.barraMenuGeral}>
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </View>
-      </View>
+                  <View style={styles.barraMenuGeral}>
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                      <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                      <Text style={styles.tabLabel}>Início</Text>
+                    </Pressable>
+                    
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+                      <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+                      <Text style={styles.tabLabel}>Diário</Text>
+                    </Pressable>
+                    
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                      <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                      <Text style={styles.tabLabel}>Rotina</Text>
+                    </Pressable>
+                    
+                    <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+                      <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                      <Text style={styles.tabLabel}>Conf.</Text>
+                    </Pressable>
+                  </View>
 
     </View>
   );
@@ -168,9 +169,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 32,
-    height: 32,
-    resizeMode: "contain",
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",
   },
   barraMenuGeral: {
     flexDirection: "row",

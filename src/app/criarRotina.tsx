@@ -372,22 +372,22 @@ export default function CriarRotina() {
 
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
           <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Início</Text>
         </Pressable>
         
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
           <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Diário</Text>
         </Pressable>
         
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+          <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Rotina</Text>
         </Pressable>
         
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
           <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Conf.</Text>
         </Pressable>
@@ -585,9 +585,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                    
-    height: 70,
-    resizeMode: "contain",         
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",      
   },
   barraMenuGeral: {
     flexDirection: "row",          

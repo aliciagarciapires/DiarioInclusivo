@@ -1,6 +1,7 @@
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
+import { router } from "expo-router";
 
 export default function Diario() {
   return (
@@ -9,13 +10,13 @@ export default function Diario() {
       {/* Topo com botão voltar e Título */}
     <View style={styles.header}>
     <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text> 
-    <Text style={styles.tituloPagina}>Diário</Text>
+    <Text style={styles.mesTexto}>ABRIL DE 2026</Text>
     <View style={{ width: 24 }} />
     </View>
 
       {/* Seção do Calendário */}
       <View style={styles.calendarioContainer}>
-        <Text style={styles.mesTexto}>ABRIL DE 2026</Text>
+        
         
         {/* Dias da Semana */}
         <View style={styles.semanaContainer}>
@@ -81,27 +82,27 @@ export default function Diario() {
 
       {/* Menu Inferior Estático */}
       <Footer children={undefined} />
-      <View style={styles.barraMenuGeral}>
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </View>
-
-        <View style={styles.botaoMenu}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </View>
-      </View>
+            <View style={styles.barraMenuGeral}>
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                <Text style={styles.tabLabel}>Início</Text>
+              </Pressable>
+              
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+                <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+                <Text style={styles.tabLabel}>Diário</Text>
+              </Pressable>
+              
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                <Text style={styles.tabLabel}>Rotina</Text>
+              </Pressable>
+              
+              <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+                <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                <Text style={styles.tabLabel}>Conf.</Text>
+              </Pressable>
+            </View>
 
     </View>
   );
@@ -136,8 +137,8 @@ const styles = StyleSheet.create({
   mesTexto: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 20,
+    color: "#2F1CA6",
+    
   },
   semanaContainer: {
     flexDirection: "row",
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
   diaTexto: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#000000",
+    color: "#2F1CA6",
     width: 40,
     height: 40,
     textAlign: "center",
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
     lineHeight: 40, // Centraliza o texto no Android
   },
   diaCinza: {
-    color: "#9C9C9C",
+    color: "#1796cd5c",
   },
   diaSelecionado: {
     backgroundColor: "#1797CD",
@@ -215,32 +216,46 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
+    height: 30,
   },
   tabLabel: {
-    fontSize: 14,
+    fontSize: 14,                  
     fontWeight: "500",
     color: "#2F1CA6",
     marginTop: 4,
   },
   iconeCustom: {
-    width: 32,
-    height: 32,
-    resizeMode: "contain",
+    width: 80, // Largura e altura iguais
+  height: 80,
+  borderRadius: 15, // Metade do tamanho
+  resizeMode: "cover",         
   },
   barraMenuGeral: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
     alignItems: "center",
-    backgroundColor: "#F5F2E8",
-    height: 90,
-    paddingBottom: 25,
-    borderTopWidth: 3,
-    borderTopColor: "#F5F2E8",
-    borderTopLeftRadius: 35,
-    borderTopRightRadius: 35,
-    position: "absolute",
+    backgroundColor: "#F5F2E8",    
+    height: 90,                    
+    paddingBottom: 30,             
+    borderTopWidth: 3,             
+    borderTopColor: "#F5F2E8",     
+    borderTopLeftRadius: 35,       
+    borderTopRightRadius: 35,      
+    position: "absolute",          // Fixa no rodapé
     bottom: 0,
     left: 0,
     right: 0,
+    elevation: 10,                 
+    shadowColor: "#000",
+    marginTop: 20   
+  },
+  botaoContainer:{
+    width: 250,
+    height: 55,
+    backgroundColor: "#2F1CA6",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 35
   },
 });

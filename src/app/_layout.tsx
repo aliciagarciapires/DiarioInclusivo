@@ -97,6 +97,23 @@ export default function Layout() {
       />
 
       <Stack.Screen 
+        name="discenteResp" 
+        options={{ 
+          headerTitle: "DISCENTE", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+          headerRight: () => <LogoDireita />
+        }} 
+      />
+
+      <Stack.Screen 
         name="cadDiscente" 
         options={{ 
           headerTitle: "CADASTRO", // <-- Deixa o centro do cabeçalho totalmente vazio
@@ -179,6 +196,40 @@ export default function Layout() {
       />
 
       <Stack.Screen 
+        name="diarioProf" 
+        options={{ 
+          headerTitle: "DIÁRIO", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+          headerRight: () => <LogoDireita />
+        }} 
+      />
+
+      <Stack.Screen 
+        name="diarioResp" 
+        options={{ 
+          headerTitle: "DIÁRIO", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+          headerRight: () => <LogoDireita />
+        }} 
+      />
+
+      <Stack.Screen 
         name="professores" 
         options={{ 
           headerTitle: "PROFESSORES", // <-- Deixa o centro do cabeçalho totalmente vazio
@@ -200,6 +251,22 @@ export default function Layout() {
         name="rotina" 
         options={{ 
           headerTitle: "ROTINA", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+        }} 
+      />
+
+      <Stack.Screen 
+        name="infoUsuario" 
+        options={{ 
+          headerTitle: "INFORMAÇÕES DO USUÁRIO", // <-- Deixa o centro do cabeçalho totalmente vazio
           headerBackVisible: false, 
           headerLeft: () => (
             <Pressable 
@@ -241,6 +308,25 @@ export default function Layout() {
               <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
             </Pressable>
           ),
+        }} 
+      />
+
+      
+
+      <Stack.Screen 
+        name="configuracoes" 
+        options={{ 
+          headerTitle: "CONFIG.", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+          headerRight: () => <LogoDireita />
         }} 
       />
     </Stack>

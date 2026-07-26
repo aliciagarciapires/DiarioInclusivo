@@ -54,7 +54,7 @@ export default function InfoUsuario() {
           return;
         }
 
-        const response = await fetch(`http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
+        const response = await fetch(`http://192.168.1.59/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
         const json = await response.json();
 
         if (json.success) {

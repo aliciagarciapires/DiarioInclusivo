@@ -1,262 +1,394 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Pressable, Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; 
-import {Link, router} from "expo-router"
+import { Ionicons } from "@expo/vector-icons";
+import { Link, router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import Footer from "../../components/Footer";
 
-// Captura a largura da tela do celular para garantir o ajuste perfeito
-const { width } = Dimensions.get("window"); 
+const { width } = Dimensions.get("window");
 
-interface TarefaRotina {
-  id: string;
+interface Atividade {
+  id: number;
   nome: string;
-  horaInicio: string;
-  horaFim: string;
+  inicio: string;
+  fim: string;
+}
+
+interface Rotina {
+  idRotina: number;
+  nome: string;
+  atividades: Atividade[];
 }
 
 export default function VisualizarRotina() {
-  const [rotina, setRotina] = useState<TarefaRotina[]>([
-    { id: "1", nome: "Atividades sensoriais", horaInicio: "8:00", horaFim: "9:00" },
-    { id: "2", nome: "Educação física", horaInicio: "9:00", horaFim: "9:50" },
-    { id: "3", nome: "Atividades matemática", horaInicio: "9:50", horaFim: "10:40" },
-    { id: "4", nome: "Intervalo", horaInicio: "10:40", horaFim: "11:00" },
-  ]);
+  const [rotinas, setRotinas] = useState<Rotina[]>([]);
+  const [carregando, setCarregando] = useState<boolean>(true);
+  const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
 
-  const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]); //lista começa vazia e só aceita letras
+  // Atualize com o IP atual da sua máquina
+  const IP_SERVIDOR = "192.168.1.59";
 
-  const alternarCheck = (id: string) => {
-    if (tarefasConcluidas.includes(id)) {
-      setTarefasConcluidas(tarefasConcluidas.filter((tarefaId) => tarefaId !== id)); //caso já esteja selecionado o ID e o usuário clica nele dnv, desmarca
+  const carregarRotinasDoBanco = async () => {
+    try {
+      setCarregando(true);
+      const idUsuario = 1;
+      const URL_API = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_rotinas.php?idUsuario=${idUsuario}&t=${new Date().getTime()}`;
+
+      const resposta = await fetch(URL_API);
+      const resultado = await resposta.json();
+
+      if (resultado.sucesso && Array.isArray(resultado.dados)) {
+        setRotinas(resultado.dados);
+      } else {
+        setRotinas([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar rotinas:", error);
+      Alert.alert("Erro", "Não foi possível carregar as rotinas do servidor.");
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  const confirmarExclusaoRotina = (idRotina: number) => {
+    Alert.alert(
+      "Excluir Rotina",
+      "Tem certeza que deseja apagar esta rotina?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const resposta = await fetch(
+                `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/deletar_rotina.php`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ idRotina: idRotina }),
+                }
+              );
+
+              const resultado = await resposta.json();
+
+              if (resultado.sucesso) {
+                Alert.alert("Sucesso", "Rotina excluída com sucesso!");
+                carregarRotinasDoBanco();
+              } else {
+                Alert.alert("Erro", resultado.mensagem || "Erro ao excluir rotina.");
+              }
+            } catch (error) {
+              Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarRotinasDoBanco();
+    }, [])
+  );
+
+  const alternarCheck = (idUnico: string) => {
+    if (tarefasConcluidas.includes(idUnico)) {
+      setTarefasConcluidas(tarefasConcluidas.filter((item) => item !== idUnico));
     } else {
-      setTarefasConcluidas([...tarefasConcluidas, id]); //se der falso, não estava marcada e ai marcará
+      setTarefasConcluidas([...tarefasConcluidas, idUnico]);
     }
   };
 
   return (
     <View style={styles.container}>
-      
-      {/* TOPO CORRIGIDO (Ocupando a largura correta) */}
+      {/* TOPO */}
       <View style={styles.areaCriarTopo}>
-        <View style={styles.blocoTextoTopo}>
-          <Text style={styles.subtitulo}>Minhas rotinas</Text>
-        </View>
+        <Text style={styles.subtitulo}>Minhas rotinas</Text>
       </View>
 
-     <Text style={styles.nomeRotina}>Rotina do Miguel</Text>
-
-      {/* LISTA CORRIGIDA (Com tamanho definido para não bugar no meio) */}
-      <FlatList
-        data={rotina} // ele pega todas as infrmações que estão dentro do array rotina
-        keyExtractor={(item) => item.id} // esse comando pega o id de cada tarefa e o usa como uma "placa de identificação única".
-        style={styles.lista}
-        contentContainerStyle={styles.listaContainer}
-        renderItem={({ item }) => { //array rotina e passar item por item por dentro desse bloco para desenhar o layout na tela
-          const isMarcada = tarefasConcluidas.includes(item.id); //sensor, verifica se a atividade está marcada ou não
-
-          return (
-            <TouchableOpacity
-              style={styles.itemContainer} 
-              onPress={() => alternarCheck(item.id)} 
-              activeOpacity={0.8}
-            >
-              {/* BLOCO DA ESQUERDA (Checkbox + Nome) */}
-              <View style={styles.blocoEsquerdo}>
-                <View style={styles.checkbox}>
-                  {isMarcada && (
-                    <Ionicons name="checkmark" size={16} color="#2F1CA6" />
-                  )}
-                </View>
+      {carregando ? (
+        <View style={styles.centerLoading}>
+          <ActivityIndicator size="large" color="#2F1CA6" />
+          <Text style={{ marginTop: 10, color: "#2F1CA6" }}>Buscando rotinas...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={rotinas}
+          keyExtractor={(item) => item.idRotina.toString()}
+          style={styles.lista}
+          contentContainerStyle={{ paddingBottom: 120 }}
+          ListEmptyComponent={
+            <Text style={styles.textoVazio}>
+              Nenhuma rotina encontrada. Crie uma nova rotina abaixo!
+            </Text>
+          }
+          renderItem={({ item: rotinaItem }) => (
+            <View style={styles.cardRotina}>
+              {/* CABEÇALHO DA ROTINA (NOME + AÇÕES) */}
+              <View style={styles.headerCard}>
+                <Text style={styles.nomeRotina}>{rotinaItem.nome}</Text>
                 
-                <Text style={[styles.textoNome, isMarcada && styles.textoRiscado]}>
-                  {item.nome}
-                </Text>
+                <View style={styles.acoesContainer}>
+                 {/* Botão Editar (Abre a tela de edição passando o ID) */}
+                  <TouchableOpacity
+                    onPress={() => router.push(`/editarRotina?idRotina=${rotinaItem.idRotina}` as any)}
+                    style={styles.iconeAcao}
+                  >
+                    <Ionicons name="pencil-outline" size={20} color="#0B8CBF" />
+                  </TouchableOpacity>
+
+                  {/* Botão Apagar */}
+                  <TouchableOpacity
+                    onPress={() => confirmarExclusaoRotina(rotinaItem.idRotina)}
+                    style={styles.iconeAcao}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#FF4444" />
+                  </TouchableOpacity>
+                </View>
               </View>
 
-              {/* BLOCO DA DIREITA (Horários) */}
-              <Text style={[styles.textoHora, isMarcada && styles.textoRiscado]}>
-                {item.horaInicio} - {item.horaFim}
-              </Text>
+              {/* ATIVIDADES */}
+              {rotinaItem.atividades && rotinaItem.atividades.length > 0 ? (
+                rotinaItem.atividades.map((atividade, idx) => {
+                  const idUnicoTask = `${rotinaItem.idRotina}-${atividade.id}-${idx}`;
+                  const isMarcada = tarefasConcluidas.includes(idUnicoTask);
 
-            </TouchableOpacity>
-             );
-            
-        }}      
-      />
-                <View style={styles.botaoAdicionar}>
-                <Link href="/criarRotina">
-                 <Text style={styles.adicionar}>
-                    Adicionar mais atividades +
-                </Text>
-                </Link>
-              </View>   
-              
-              <Footer children={undefined} />
-                                  <View style={styles.barraMenuGeral}>
-                                  
-                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-                                    <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                                    <Text style={styles.tabLabel}>Início</Text>
-                                  </Pressable>
-                          
-                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/diario")}>
-                                    <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                                    <Text style={styles.tabLabel}>Diário</Text>
-                                  </Pressable>
-                          
-                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                                    <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
-                                    <Text style={styles.tabLabel}>Rotina</Text>
-                                  </Pressable>
-                          
-                                  <Pressable style={styles.botaoMenu} onPress={() => router.push("/conf")}>
-                                    <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                                    <Text style={styles.tabLabel}>Conf.</Text>
-                                  </Pressable>
-                          
-                                </View>
-                  </View>  
+                  return (
+                    <TouchableOpacity
+                      key={idUnicoTask}
+                      style={styles.itemContainer}
+                      onPress={() => alternarCheck(idUnicoTask)}
+                      activeOpacity={0.8}
+                    >
+                      <View style={styles.blocoEsquerdo}>
+                        <View style={styles.checkbox}>
+                          {isMarcada && (
+                            <Ionicons name="checkmark" size={14} color="#2F1CA6" />
+                          )}
+                        </View>
+                        <Text style={[styles.textoNome, isMarcada && styles.textoRiscado]}>
+                          {atividade.nome}
+                        </Text>
+                      </View>
 
+                      <Text style={[styles.textoHora, isMarcada && styles.textoRiscado]}>
+                        {atividade.inicio ? atividade.inicio.substring(0, 5) : "00:00"} -{" "}
+                        {atividade.fim ? atividade.fim.substring(0, 5) : "00:00"}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              ) : (
+                <Text style={styles.semAtividades}>Sem atividades nesta rotina.</Text>
+              )}
+            </View>
+          )}
+        />
+      )}
+
+      {/* BOTÃO ADICIONAR ROTINA */}
+      <View style={styles.botaoAdicionarContainer}>
+        <TouchableOpacity
+          style={styles.botaoAdicionar}
+          onPress={() => router.push("/criarRotina")}
+        >
+          <Text style={styles.adicionar}>Adicionar nova rotina +</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Footer children={undefined} />
+
+      {/* MENU NAVEGAÇÃO */}
+      <View style={styles.barraMenuGeral}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Início</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Diário</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+          <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Rotina</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Conf.</Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Seus estilos originais de fontes e cores mantidos
   container: {
     flex: 1,
     alignItems: "center",
     backgroundColor: "#F5F2E8",
-    paddingTop: 32,
-    paddingHorizontal: 24
+    paddingTop: 40,
+    paddingHorizontal: 20,
   },
-  topo: {
-    marginTop: 20,
-    color: "#2F1CA6",
-    fontWeight: "bold",
-    fontSize: 18
+  areaCriarTopo: {
+    alignItems: "center",
+    marginBottom: 15,
   },
   subtitulo: {
     color: "#0477BF",
     fontWeight: "bold",
-    fontSize: 16
+    fontSize: 20,
   },
-
-  // Ajuste de largura do Topo
-  areaCriarTopo: {
-    flexDirection: "row",
-    width: width - 48, // Desconta o padding das laterais
-    alignItems: "center",
-    marginBottom: 30,
-    position: "relative",
-  },
-  botaoVoltar: {
-    position: "absolute",
-    left: 0,
-    top: 16,
-    zIndex: 10,
-    padding: 4,
-  },
-  blocoTextoTopo: {
+  centerLoading: {
     flex: 1,
+    justifyContent: "center",
     alignItems: "center",
   },
-
-  // CORREÇÃO DO BUG DA LISTA: Forçando o tamanho para alinhar as pontas
   lista: {
-    width: width - 48, // Garante que a lista use o espaço total disponível
+    width: width - 40,
   },
-  listaContainer: {
-    paddingTop: 10,
+  textoVazio: {
+    textAlign: "center",
+    color: "#0B8CBF",
+    marginTop: 40,
+    fontSize: 16,
+  },
+  cardRotina: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  headerCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
+    paddingBottom: 10,
+    marginBottom: 10,
+  },
+  nomeRotina: {
+    color: "#2F1CA6",
+    fontWeight: "bold",
+    fontSize: 18,
+    flex: 1,
+  },
+  acoesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconeAcao: {
+    padding: 6,
+    marginLeft: 8,
   },
   itemContainer: {
     flexDirection: "row",
-    justifyContent: "space-between", // Empurra o nome para a esquerda e hora para a direita
+    justifyContent: "space-between",
     alignItems: "center",
-    width: "100%", // Obriga o container a usar toda a largura da lista
-    paddingVertical: 16,
+    paddingVertical: 8,
   },
   blocoEsquerdo: {
     flexDirection: "row",
     alignItems: "center",
   },
   checkbox: {
-    width: 22,
-    height: 22,
+    width: 20,
+    height: 20,
     borderWidth: 2,
     borderColor: "#2F1CA6",
-    borderRadius: 6,
+    borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 14,
-    backgroundColor: "transparent",
+    marginRight: 10,
   },
   textoNome: {
-    fontSize: 18,
-    color: "#0B8CBF", 
+    fontSize: 16,
+    color: "#0B8CBF",
     fontWeight: "500",
   },
   textoHora: {
-    fontSize: 15,
+    fontSize: 14,
     color: "#0B8CBF",
   },
   textoRiscado: {
-    color: '#7CBF17',                 
+    color: "#7CBF17",
+    textDecorationLine: "line-through",
+  },
+  semAtividades: {
+    fontSize: 14,
+    color: "#888888",
+    fontStyle: "italic",
+    marginVertical: 6,
+  },
+  botaoAdicionarContainer: {
+    position: "absolute",
+    bottom: 95,
+    alignSelf: "center",
+    zIndex: 10,
   },
   botaoAdicionar: {
-    width: 300,
+    width: 260,
     height: 45,
-    marginBottom: 100,
     backgroundColor: "#2F1CA6",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 30
+    borderRadius: 30,
   },
   adicionar: {
-    marginTop: 5,
     color: "#F5F2E8",
     fontWeight: "bold",
-    fontSize: 19
+    fontSize: 16,
   },
-  nomeRotina: {
-      marginTop: 10,
-    color: "#2F1CA6",
-    fontWeight: "bold",
-    fontSize: 16
+  barraMenuGeral: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "#F5F2E8",
+    height: 85,
+    paddingBottom: 20,
+    borderTopWidth: 2,
+    borderTopColor: "#E0E0E0",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,
   },
   botaoMenu: {
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    height: 30,
   },
   tabLabel: {
-    fontSize: 14,                  
+    fontSize: 12,
     fontWeight: "500",
     color: "#2F1CA6",
-    marginTop: 4,
+    marginTop: 2,
   },
   iconeCustom: {
-    width: 80, // Largura e altura iguais
-  height: 80,
-  borderRadius: 15, // Metade do tamanho
-  resizeMode: "cover",       
-  },
-  barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
-    alignItems: "center",
-    backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 10,                 
-    shadowColor: "#000",
-    marginTop: 20   
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
   },
 });

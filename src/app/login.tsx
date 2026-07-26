@@ -1,116 +1,116 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
-    // Estado para controlar qual tipo de conta está selecionada (padrão: responsavel)
-    //Define uma variável de memória chamada 'tipoConta' e uma função 'setTipoConta' para alterá-la.
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
 
     const handleLogin = async () => {
-  try {
-    const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/login.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: email.trim(), // state do seu e-mail
-        senha: senha  // state da sua senha
-      })
-    });
-=======
-    try {
-      const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/login.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          senha: senha
-        })
-      });
->>>>>>> dd70b8126e40fbd8ad7dc83fea47b9a4f070ee61
+        try {
+            const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/login.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email.trim(),
+                    senha: senha
+                })
+            });
 
-      const data = await response.json();
+            const data = await response.json();
 
-      if (data.sucesso) {
-        if (data.userId) {
-            await AsyncStorage.setItem("idUsuario", String(data.userId));
+            if (data.sucesso) {
+                if (data.userId) {
+                    await AsyncStorage.setItem("idUsuario", String(data.userId));
+                }
+                Alert.alert("Sucesso", data.mensagem);
+
+                // --- AQUI ENTRA O DIRECIONAMENTO POR TIPO DE USUÁRIO ---
+                const tipo = Number(data.tipo_de_usuario);
+
+                if (tipo === 1) {
+                    // Tipo 1: Responsável
+                    router.replace("/discenteResp");
+                } else if (tipo === 2) {
+                    // Tipo 2: Admin/Professor
+                    router.replace("/professores");
+                } else if (tipo === 3) {
+                    // Tipo 3: Professor
+                    router.replace("/discente");
+                } else {
+                    // Caso receba um tipo não mapeado
+                    router.replace("/inicio");
+                }
+
+            } else {
+                Alert.alert("Erro", data.mensagem);
+            }
+        } catch (error) {
+            Alert.alert("Erro", "Falha na conexão com o servidor.");
         }
-        Alert.alert("Sucesso", data.mensagem);
-
-        // --- AQUI ENTRA O DIRECIONAMENTO POR TIPO DE USUÁRIO ---
-        const tipo = Number(data.tipo_de_usuario);
-
-        if (tipo === 1) {
-          // Tipo 1: Responsável
-          router.replace("/discenteResp");
-        } else if (tipo === 2) {
-          // Tipo 2 (Admin) ou Tipo 3 (Professor)
-          router.replace("/professores");
-        } else if (tipo === 3) {
-          // Tipo 3: Professor
-          router.replace("/discente");
-        }
-        else {
-          // Caso receba um tipo não mapeado, vai para a home padrão
-          router.replace("/inicio");
-        }
-
-      } else {
-        Alert.alert("Erro", data.mensagem);
-      }
-    } catch (error) {
-      Alert.alert("Erro", "Falha na conexão com o servidor.");
-    }
-  };
+    };
 
     return (
-        <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={styles.container}>
-                <View style={styles.itens}>
-                    <Image
-                        source={require("../../assets/images/logo.png")}
-                        style={styles.logo} />
+        <>
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={styles.container}>
+                    <View style={styles.itens}>
+                        <Image
+                            source={require("../../assets/images/logo.png")}
+                            style={styles.logo} 
+                        />
 
-                    <View style={styles.form} >
+                        <View style={styles.form}>
                             <Text style={styles.textoInput}>E-mail:</Text>
-                            <Input placeholder="usuario@email.com" placeholderTextColor="#0b8cbfd1" keyboardType="email-address" value={email} onChangeText={setEmail} />
+                            <Input 
+                                placeholder="usuario@email.com" 
+                                placeholderTextColor="#0b8cbfd1" 
+                                keyboardType="email-address" 
+                                value={email} 
+                                onChangeText={setEmail} 
+                            />
 
                             <Text style={styles.textoInput}>Senha:</Text>
-                            <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry value={senha} onChangeText={setSenha} />
+                            <Input 
+                                placeholder="**********" 
+                                placeholderTextColor="#0b8cbfd1" 
+                                secureTextEntry 
+                                value={senha} 
+                                onChangeText={setSenha} 
+                            />
 
                             <View style={styles.botaoContainer}>
-                                <Button onPress={handleLogin}
-                                    label="Entrar" />
+                                <Button onPress={handleLogin} label="Entrar" />
                             </View>
-                    </View>
+                        </View>
 
-                    {/* BOTÃO | LINK: ESQUECER A SENHA */}
+                        {/* BOTÃO | LINK: ESQUECER A SENHA */}
                         <Pressable 
                             style={styles.esqueceuSenhaBotao} 
-                            onPress={() => router.push("/inicio")} // na prática vai para a configuraçao, que ainda n existe
+                            onPress={() => router.push("/inicio")}
                         >
                             <Text style={styles.esqueceuSenhaTexto}>
                                 Esqueceu sua senha? Clique aqui para recuperar
                             </Text>
                         </Pressable>
 
+                    </View>
                 </View>
-            </View>
-        </ScrollView><Footer>
+            </ScrollView>
+
+            <Footer>
                 <Text style={styles.textoRodape}>
                     Diário Inclusivo.
                 </Text>
-            </Footer></>
-    )
+            </Footer>
+        </>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -121,17 +121,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 32,
     },
     itens: {
-        justifyContent: "flex-start", // Garante que tudo fique no topo
+        justifyContent: "flex-start",
         width: "100%",
-        marginTop: -10, // Sobe a logo e os botões para o topo
+        marginTop: -10,
     },
-    logo:{
+    logo: {
         width: 150, 
         height: 160,
         alignSelf: "center",
-        
     },
-    
     form: {
         marginTop: 60,
         gap: 5
@@ -157,7 +155,7 @@ const styles = StyleSheet.create({
         color: "#2F1CA6",
         fontSize: 13,
         fontWeight: "600",
-        textDecorationLine: "underline", // Dá o efeito de link sublinhado
+        textDecorationLine: "underline",
         textAlign: "center",
     },
     textoRodape: {
@@ -165,5 +163,4 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: "500",
     }
-
-})
+});

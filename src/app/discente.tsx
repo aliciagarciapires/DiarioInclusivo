@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
 import { router, useFocusEffect } from "expo-router"; // Importamos useFocusEffect
+import React, { useCallback, useState } from "react";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
-import React, { useState, useCallback } from "react";
 
 export default function Discente() {
   const [listaDiscentes, setListaDiscentes] = useState([]);
@@ -9,7 +9,7 @@ export default function Discente() {
   // Função que busca do seu PHP
   const buscarDiscentes = async () => {
     try {
-      const response = await fetch('http://192.168.1.59/DiarioInclusivo/src/app/discente.php');
+      const response = await fetch('http://10.0.0.100/DiarioInclusivo/src/app/discente.php');
       const dados = await response.json();
       setListaDiscentes(dados); // Atualiza o estado com os dados do banco
     } catch (error) {

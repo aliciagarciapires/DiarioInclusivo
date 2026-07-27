@@ -4,9 +4,22 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
+// Desativa exibição de erros do PHP na resposta para evitar sujar o JSON
+ini_set('display_errors', 0);
+error_reporting(0);
+
 include_once "conexao.php";
 
 if (ob_get_length()) ob_clean();
+
+// Garante que se $mysqli falhar, devolve um JSON válido
+if (!isset($mysqli) || $mysqli->connect_error) {
+    echo json_encode([
+        "sucesso" => false,
+        "mensagem" => "Erro de conexão com o banco de dados."
+    ]);
+    exit;
+}
 
 $idUsuario = isset($_GET['idUsuario']) ? intval($_GET['idUsuario']) : 1;
 

@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Link, router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -36,13 +36,13 @@ export default function VisualizarRotina() {
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
 
   // Atualize com o IP atual da sua máquina
-  const IP_SERVIDOR = "192.168.1.59";
+  const IP_SERVIDOR = "10.0.0.100";
 
   const carregarRotinasDoBanco = async () => {
     try {
       setCarregando(true);
       const idUsuario = 1;
-      const URL_API = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_rotinas.php?idUsuario=${idUsuario}&t=${new Date().getTime()}`;
+      const URL_API = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}&t=${new Date().getTime()}`;
 
       const resposta = await fetch(URL_API);
       const resultado = await resposta.json();

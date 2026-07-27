@@ -1,11 +1,10 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "../../components/Button";
-import { Input } from "../../components/input";
 import Footer from "../../components/Footer";
-import React from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Input } from "../../components/input";
 
 export default function CadDiscente() {
 
@@ -49,7 +48,7 @@ export default function CadDiscente() {
 
         // 3. Envio para o Backend
         try {
-            const response = await fetch('http://192.168.1.59/DiarioInclusivo/src/app/cadDiscente.php', {
+            const response = await fetch('http://10.0.0.100/DiarioInclusivo/src/app/cadDiscente.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 

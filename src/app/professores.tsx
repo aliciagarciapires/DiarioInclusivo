@@ -1,16 +1,14 @@
-import { View, Text, StyleSheet, Image, Pressable, ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import React from "react";
 
 export default function Professores() {
   const [listaProfessores, setListaProfessores] = useState([]);
 
   const buscarProfessores = async () => {
     try {
-      const response = await fetch('http://192.168.1.59/DiarioInclusivo/src/app/professores.php');
+      const response = await fetch('http://10.0.0.100/DiarioInclusivo/src/app/professores.php');
       const dados = await response.json();
       setListaProfessores(dados);
     } catch (error) {

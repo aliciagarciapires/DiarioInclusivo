@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -17,7 +16,7 @@ export default function InfoProf() {
 
     const fetchProf = async () => {
       try {
-        const response = await fetch(`http://192.168.1.59/DiarioInclusivo/src/app/getProfessor.php?idUsuario=${idUsuario}`);
+        const response = await fetch(`http://10.0.0.100/DiarioInclusivo/src/app/getProfessor.php?idUsuario=${idUsuario}`);
         const data = await response.json(); //o
         
         if (data.success) {

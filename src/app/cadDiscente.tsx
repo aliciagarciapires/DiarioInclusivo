@@ -26,6 +26,21 @@ export default function CadDiscente() {
   const [listaResponsaveis, setListaResponsaveis] = useState<Responsavel[]>([]);
   const [busca, setBusca] = useState("");
 
+  // Função para aplicar a máscara no formato DD/MM/AAAA
+  const aplicarMascaraData = (text: string) => {
+    // Remove tudo o que não for número
+    const limpo = text.replace(/\D/g, "");
+    
+    let formatado = limpo;
+    if (limpo.length > 2 && limpo.length <= 4) {
+      formatado = `${limpo.slice(0, 2)}/${limpo.slice(2)}`;
+    } else if (limpo.length > 4) {
+      formatado = `${limpo.slice(0, 2)}/${limpo.slice(2, 4)}/${limpo.slice(4, 8)}`;
+    }
+
+    setDataNasc(formatado);
+  };
+
   // Busca a lista de responsáveis no banco
   useEffect(() => {
     const buscarResponsaveis = async () => {
@@ -52,10 +67,8 @@ export default function CadDiscente() {
     const jaSelecionado = responsaveisSelecionados.some((r) => r.id === item.id);
 
     if (jaSelecionado) {
-      // Remove da seleção
       setResponsaveisSelecionados(responsaveisSelecionados.filter((r) => r.id !== item.id));
     } else {
-      // Adiciona à seleção
       setResponsaveisSelecionados([...responsaveisSelecionados, item]);
     }
   };
@@ -68,8 +81,13 @@ export default function CadDiscente() {
   });
 
   const cadastrarDiscente = async () => {
-    if (!nome || !dataNasc || grau === "Selecione o grau de suporte") {
+    if (!nome.trim() || !dataNasc.trim() || grau === "Selecione o grau de suporte") {
       Alert.alert('Erro', 'Por favor, preencha todos os campos corretamente.');
+      return;
+    }
+
+    if (dataNasc.length < 10) {
+      Alert.alert('Erro', 'Digite a data completa no formato DD/MM/AAAA.');
       return;
     }
 
@@ -89,7 +107,7 @@ export default function CadDiscente() {
       }
     }
 
-    // Extrai apenas os IDs dos responsáveis selecionados (ex: [1, 4, 7])
+    // Extrai apenas os IDs dos responsáveis selecionados
     const idsResponsaveis = responsaveisSelecionados.map((r) => r.id);
 
     try {
@@ -100,7 +118,7 @@ export default function CadDiscente() {
           nome: nome, 
           dataNasc: dataFormatada, 
           grau: grau,
-          idsResponsaveis: idsResponsaveis // Enviando um Array de IDs para o backend
+          idsResponsaveis: idsResponsaveis 
         })
       });
 
@@ -203,12 +221,15 @@ export default function CadDiscente() {
               </View>
             )}
 
+            {/* CAMPO DATA DE NASCIMENTO (COM MÁSCARA AUTOMÁTICA) */}
             <Text style={styles.textoInput}>Data de Nascimento:</Text>
             <Input 
-              placeholder="00/00/0000" 
+              placeholder="DD/MM/AAAA" 
               placeholderTextColor="#0b8cbfd1" 
               value={dataNasc} 
-              onChangeText={setDataNasc} 
+              onChangeText={aplicarMascaraData} 
+              keyboardType="numeric"
+              maxLength={10}
             />
 
             {/* CAMPO GRAU DE SUPORTE */}

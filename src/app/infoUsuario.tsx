@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -38,50 +38,99 @@ export default function InfoUsuario() {
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
-  useEffect(() => {
-    const buscarDadosContaLogada = async () => {
-      try {
-        const rawId = params.id || params.idUsuario;
-        let idFinal: string | null = Array.isArray(rawId) ? rawId[0] : rawId;
+  // --- VALIDAÇÕES E MÁSCARAS ---
+  const tratarEmail = (text: string) => {
+    const emailTratado = text.trim().toLowerCase();
+    setEmail(emailTratado);
+  };
 
-        if (!idFinal) {
-          idFinal = await AsyncStorage.getItem("idUsuario");
-        }
+  const validarEmail = (emailParaTestar: string) => {
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regexEmail.test(emailParaTestar);
+  };
 
-        if (!idFinal) {
-          Alert.alert("Aviso", "Nenhum usuário logado encontrado.");
+  const aplicarMascaraTelefone = (text: string) => {
+    const limpo = text.replace(/\D/g, "");
+    let formatado = limpo;
+
+    if (limpo.length <= 2) {
+      formatado = limpo.length > 0 ? `(${limpo}` : "";
+    } else if (limpo.length <= 6) {
+      formatado = `(${limpo.slice(0, 2)}) ${limpo.slice(2)}`;
+    } else if (limpo.length <= 10) {
+      formatado = `(${limpo.slice(0, 2)}) ${limpo.slice(2, 6)}-${limpo.slice(6)}`;
+    } else {
+      formatado = `(${limpo.slice(0, 2)}) ${limpo.slice(2, 7)}-${limpo.slice(7, 11)}`;
+    }
+
+    setTelefone(formatado);
+  };
+
+  // 💡 EXECUTA TODA VEZ QUE A TELA RECEBE FOCO
+  useFocusEffect(
+    useCallback(() => {
+      const buscarDadosContaLogada = async () => {
+        try {
+          setLoading(true);
+          const rawId = params.id || params.idUsuario;
+          let idFinal: string | null = Array.isArray(rawId) ? rawId[0] : rawId;
+
+          if (!idFinal) {
+            idFinal = await AsyncStorage.getItem("idUsuario");
+          }
+
+          if (!idFinal) {
+            Alert.alert("Aviso", "Nenhum usuário logado encontrado.");
+            setLoading(false);
+            return;
+          }
+
+          const response = await fetch(`http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
+          const json = await response.json();
+
+          if (json.success) {
+            setUsuario(json.dados);
+            // Preenche os campos com os dados carregados
+            setNome(json.dados.nome || "");
+            setEmail(json.dados.email || "");
+            setTelefone(json.dados.telefone || "");
+            setSenha(json.dados.senha || "");
+          } else {
+            Alert.alert("Erro", json.message);
+          }
+        } catch (error) {
+          Alert.alert("Erro", "Não foi possível carregar as informações do servidor.");
+        } finally {
           setLoading(false);
-          return;
         }
+      };
 
-        const response = await fetch(`http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
-        const json = await response.json();
-
-        if (json.success) {
-          setUsuario(json.dados);
-          // Preenche os campos com os dados carregados
-          setNome(json.dados.nome || "");
-          setEmail(json.dados.email || "");
-          setTelefone(json.dados.telefone || "");
-          setSenha(json.dados.senha || "");
-        } else {
-          Alert.alert("Erro", json.message);
-        }
-      } catch (error) {
-        Alert.alert("Erro", "Não foi possível carregar as informações do servidor.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    buscarDadosContaLogada();
-  }, [params.id, params.idUsuario]);
+      buscarDadosContaLogada();
+    }, [params.id, params.idUsuario])
+  );
 
   const salvarEdicao = async () => {
     if (!usuario) return;
 
-    if (!nome.trim() || !email.trim()) {
-      Alert.alert("Aviso", "Nome e E-mail não podem ficar em branco.");
+    // --- VERIFICAÇÃO DE CAMPOS ---
+    if (!nome.trim()) {
+      Alert.alert("Aviso", "O nome não pode ficar em branco.");
+      return;
+    }
+
+    if (!email.trim()) {
+      Alert.alert("Aviso", "O e-mail não pode ficar em branco.");
+      return;
+    }
+
+    if (!validarEmail(email)) {
+      Alert.alert("Aviso", "Por favor, insira um e-mail válido.");
+      return;
+    }
+
+    const telefoneLimpo = telefone.replace(/\D/g, "");
+    if (telefoneLimpo && (telefoneLimpo.length < 10 || telefoneLimpo.length > 11)) {
+      Alert.alert("Aviso", "Por favor, insira um número de telefone/celular válido com DDD.");
       return;
     }
 
@@ -92,10 +141,10 @@ export default function InfoUsuario() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           idUsuario: usuario.idUsuario,
-          nome,
-          email,
-          telefone,
-          senha
+          nome: nome.trim(),
+          email: email,
+          telefone: telefone,
+          senha: senha
         })
       });
 
@@ -103,7 +152,7 @@ export default function InfoUsuario() {
 
       if (json.success) {
         Alert.alert("Sucesso", "Informações atualizadas com sucesso!");
-        setUsuario({ ...usuario, nome, email, telefone, senha });
+        setUsuario({ ...usuario, nome: nome.trim(), email, telefone, senha });
         setEditando(false);
       } else {
         Alert.alert("Erro", json.message || "Erro ao salvar alterações.");
@@ -222,9 +271,10 @@ export default function InfoUsuario() {
               <TextInput
                 style={styles.input}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={tratarEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoCorrect={false}
               />
             ) : (
               <Text style={styles.value}>{usuario.email}</Text>
@@ -240,8 +290,9 @@ export default function InfoUsuario() {
               <TextInput
                 style={styles.input}
                 value={telefone}
-                onChangeText={setTelefone}
-                keyboardType="phone-pad"
+                onChangeText={aplicarMascaraTelefone}
+                keyboardType="numeric"
+                maxLength={15}
               />
             ) : (
               <Text style={styles.value}>{usuario.telefone || "Não informado"}</Text>

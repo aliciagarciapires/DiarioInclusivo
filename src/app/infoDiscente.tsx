@@ -58,7 +58,7 @@ export default function InfoDiscente() {
     try {
       setLoading(true);
 
-      // 1. Busca todos os responsáveis disponíveis
+      // 1. Busca todos os responsáveis disponíveis na base
       const resResp = await fetch("http://192.168.0.103/DiarioInclusivo/src/app/buscar_responsaveis.php");
       const dadosResp = await resResp.json();
       const listaCompleta: Responsavel[] = Array.isArray(dadosResp) ? dadosResp : [];
@@ -72,7 +72,19 @@ export default function InfoDiscente() {
         const d = json.dados;
         setDiscente(d);
         setNome(d.nome || "");
-        setDataNasc(d.data_nascimento || "");
+        
+        // Formata a data recebida do banco (caso venha no formato YYYY-MM-DD) para DD/MM/AAAA
+        if (d.data_nascimento && d.data_nascimento.includes("-")) {
+          const partes = d.data_nascimento.split("-");
+          if (partes.length === 3) {
+            setDataNasc(`${partes[2]}/${partes[1]}/${partes[0]}`);
+          } else {
+            setDataNasc(d.data_nascimento);
+          }
+        } else {
+          setDataNasc(d.data_nascimento || "");
+        }
+
         setGrau(d.grau_de_suporte ? String(d.grau_de_suporte) : "Selecione o grau de suporte");
 
         // Associa os IDs já cadastrados aos objetos da lista de responsáveis
@@ -90,7 +102,21 @@ export default function InfoDiscente() {
     }
   };
 
-  // Alternar seleção de responsáveis
+  // Função para aplicar a máscara DD/MM/AAAA
+  const aplicarMascaraData = (text: string) => {
+    const limpo = text.replace(/\D/g, "");
+    let formatado = limpo;
+
+    if (limpo.length > 2 && limpo.length <= 4) {
+      formatado = `${limpo.slice(0, 2)}/${limpo.slice(2)}`;
+    } else if (limpo.length > 4) {
+      formatado = `${limpo.slice(0, 2)}/${limpo.slice(2, 4)}/${limpo.slice(4, 8)}`;
+    }
+
+    setDataNasc(formatado);
+  };
+
+  // Alterna a seleção de um responsável
   const alternarSelecao = (item: Responsavel) => {
     const jaSelecionado = responsaveisSelecionados.some((r) => r.id === item.id);
     if (jaSelecionado) {
@@ -100,7 +126,7 @@ export default function InfoDiscente() {
     }
   };
 
-  // Filtro de busca
+  // Filtro de busca de responsáveis
   const listaSegura = Array.isArray(listaResponsaveis) ? listaResponsaveis : [];
   const filtrados = listaSegura.filter((r) => {
     if (!busca || busca.trim() === "") return true;
@@ -111,6 +137,11 @@ export default function InfoDiscente() {
   const salvarAlteracoes = async () => {
     if (!nome.trim() || !dataNasc.trim() || grau === "Selecione o grau de suporte") {
       Alert.alert("Erro", "Por favor, preencha todos os campos corretamente.");
+      return;
+    }
+
+    if (dataNasc.length < 10) {
+      Alert.alert("Erro", "Digite a data completa no formato DD/MM/AAAA.");
       return;
     }
 
@@ -192,6 +223,11 @@ export default function InfoDiscente() {
     }
   };
 
+  // Formata os nomes dos responsáveis selecionados como texto separado por vírgulas
+  const nomesEscritos = responsaveisSelecionados.length > 0
+    ? responsaveisSelecionados.map((r) => r.nome).join(", ")
+    : discente?.nomes_responsaveis || "Nenhum responsável vinculado";
+
   if (loading) {
     return (
       <View style={[styles.container, { justifyContent: "center" }]}>
@@ -250,29 +286,19 @@ export default function InfoDiscente() {
             <View style={styles.infoRow}>
               <Text style={styles.label}>Responsável(is):</Text>
 
-              {/* Tags dos Selecionados (Mostra SEMPRE, em modo leitura ou edição) */}
-              <View style={styles.containerTags}>
-                {responsaveisSelecionados.length > 0 ? (
-                  responsaveisSelecionados.map((item) => (
-                    <View key={item.id} style={styles.tag}>
-                      <Text style={styles.tagTexto}>{item.nome}</Text>
-                      {editando && (
+              {editando ? (
+                <>
+                  <View style={styles.containerTags}>
+                    {responsaveisSelecionados.map((item) => (
+                      <View key={item.id} style={styles.tag}>
+                        <Text style={styles.tagTexto}>{item.nome}</Text>
                         <Pressable onPress={() => alternarSelecao(item)}>
                           <Text style={styles.tagFechar}> ✕</Text>
                         </Pressable>
-                      )}
-                    </View>
-                  ))
-                ) : (
-                  <Text style={styles.value}>
-                    {discente.nomes_responsaveis || "Nenhum responsável vinculado"}
-                  </Text>
-                )}
-              </View>
+                      </View>
+                    ))}
+                  </View>
 
-              {/* Opções extras visíveis APENAS no modo de Edição */}
-              {editando && (
-                <>
                   {editandoResponsaveis ? (
                     <Input
                       placeholder="Digite para buscar responsável..."
@@ -289,7 +315,7 @@ export default function InfoDiscente() {
                     </Pressable>
                   )}
 
-                  {/* Lista de busca e seleção */}
+                  {/* Lista com scroll para busca */}
                   {editandoResponsaveis && (
                     <View style={styles.lista}>
                       <ScrollView style={{ maxHeight: 180 }} nestedScrollEnabled={true}>
@@ -329,6 +355,8 @@ export default function InfoDiscente() {
                     </View>
                   )}
                 </>
+              ) : (
+                <Text style={styles.value}>{nomesEscritos}</Text>
               )}
             </View>
 
@@ -339,11 +367,14 @@ export default function InfoDiscente() {
                 <TextInput
                   style={styles.input}
                   value={dataNasc}
-                  onChangeText={setDataNasc}
+                  onChangeText={aplicarMascaraData}
                   placeholder="DD/MM/AAAA"
+                  placeholderTextColor="#0b8cbf7f"
+                  keyboardType="numeric"
+                  maxLength={10}
                 />
               ) : (
-                <Text style={styles.value}>{discente.data_nascimento}</Text>
+                <Text style={styles.value}>{dataNasc || discente.data_nascimento}</Text>
               )}
             </View>
 

@@ -1,7 +1,19 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
@@ -9,8 +21,39 @@ import { Input } from "../../components/input";
 export default function Login() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
+    
+    // Estado para controlar a visibilidade da senha
+    const [mostrarSenha, setMostrarSenha] = useState(false);
+
+    // Tratamento para o campo de e-mail (remove espaços e força minúsculas)
+    const tratarEmail = (text: string) => {
+        const emailTratado = text.trim().toLowerCase();
+        setEmail(emailTratado);
+    };
+
+    // Validação de formato de e-mail usando Regex simples
+    const validarEmail = (emailParaTestar: string) => {
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regexEmail.test(emailParaTestar);
+    };
 
     const handleLogin = async () => {
+        // --- VERIFICAÇÃO DE E-MAIL E CAMPOS VAZIOS ---
+        if (!email) {
+            Alert.alert("Aviso", "Por favor, preencha o campo de e-mail.");
+            return;
+        }
+
+        if (!validarEmail(email)) {
+            Alert.alert("Aviso", "Por favor, insira um e-mail válido.");
+            return;
+        }
+
+        if (!senha) {
+            Alert.alert("Aviso", "Por favor, preencha a sua senha.");
+            return;
+        }
+
         try {
             const response = await fetch("http://192.168.0.103/DiarioInclusivo/src/app/login.php", {
                 method: "POST",
@@ -18,7 +61,7 @@ export default function Login() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    email: email.trim(),
+                    email: email,
                     senha: senha
                 })
             });
@@ -31,7 +74,7 @@ export default function Login() {
                 }
                 Alert.alert("Sucesso", data.mensagem);
 
-                // --- AQUI ENTRA O DIRECIONAMENTO POR TIPO DE USUÁRIO ---
+                // --- DIRECIONAMENTO POR TIPO DE USUÁRIO ---
                 const tipo = Number(data.tipo_de_usuario);
 
                 if (tipo === 1) {
@@ -57,50 +100,71 @@ export default function Login() {
     };
 
     return (
-        <>
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <View style={styles.container}>
-                    <View style={styles.itens}>
-                        <Image
-                            source={require("../../assets/images/logo.png")}
-                            style={styles.logo} 
+        <KeyboardAvoidingView
+            style={styles.containerPrincipal}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        >
+            <ScrollView 
+                contentContainerStyle={styles.scrollContent} 
+                bounces={false}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View style={styles.itens}>
+                    <Image
+                        source={require("../../assets/images/logo.png")}
+                        style={styles.logo} 
+                    />
+
+                    <View style={styles.form}>
+                        <Text style={styles.textoInput}>E-mail:</Text>
+                        <Input 
+                            placeholder="usuario@email.com" 
+                            placeholderTextColor="#0b8cbfd1" 
+                            keyboardType="email-address" 
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            value={email} 
+                            onChangeText={tratarEmail} 
                         />
 
-                        <View style={styles.form}>
-                            <Text style={styles.textoInput}>E-mail:</Text>
-                            <Input 
-                                placeholder="usuario@email.com" 
-                                placeholderTextColor="#0b8cbfd1" 
-                                keyboardType="email-address" 
-                                value={email} 
-                                onChangeText={setEmail} 
-                            />
-
-                            <Text style={styles.textoInput}>Senha:</Text>
+                        <Text style={styles.textoInput}>Senha:</Text>
+                        <View style={styles.senhaWrapper}>
                             <Input 
                                 placeholder="**********" 
                                 placeholderTextColor="#0b8cbfd1" 
-                                secureTextEntry 
+                                secureTextEntry={!mostrarSenha} 
                                 value={senha} 
                                 onChangeText={setSenha} 
                             />
-
-                            <View style={styles.botaoContainer}>
-                                <Button onPress={handleLogin} label="Entrar" />
-                            </View>
+                            <TouchableOpacity 
+                                style={styles.iconeOlho} 
+                                onPress={() => setMostrarSenha(!mostrarSenha)}
+                            >
+                                <Ionicons 
+                                    name={mostrarSenha ? "eye-off-outline" : "eye-outline"} 
+                                    size={22} 
+                                    color="#0B8CBF" 
+                                />
+                            </TouchableOpacity>
                         </View>
 
-                        {/* BOTÃO | LINK: ESQUECER A SENHA */}
-                        <Pressable 
-                            style={styles.esqueceuSenhaBotao} 
-                            onPress={() => router.push("/inicio")}
-                        >
-                            <Text style={styles.esqueceuSenhaTexto}>
-                                Esqueceu sua senha? Clique aqui para recuperar
-                            </Text>
-                        </Pressable>
-
+                        <View style={styles.botaoContainer}>
+                            <Button onPress={handleLogin} label="Entrar" />
+                        </View>
                     </View>
+
+                    {/* BOTÃO | LINK: ESQUECER A SENHA */}
+                    <Pressable 
+                        style={styles.esqueceuSenhaBotao} 
+                        onPress={() => router.push("/inicio")}
+                    >
+                        <Text style={styles.esqueceuSenhaTexto}>
+                            Esqueceu sua senha? Clique aqui para recuperar
+                        </Text>
+                    </Pressable>
+
                 </View>
             </ScrollView>
 
@@ -109,16 +173,19 @@ export default function Login() {
                     Diário Inclusivo.
                 </Text>
             </Footer>
-        </>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    containerPrincipal: {
         flex: 1,
-        alignItems: "center",
         backgroundColor: "#F5F2E8",
+    },
+    scrollContent: {
         paddingHorizontal: 32,
+        paddingBottom: 40,
+        flexGrow: 1,
     },
     itens: {
         justifyContent: "flex-start",
@@ -131,7 +198,7 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     },
     form: {
-        marginTop: 60,
+        marginTop: 40,
         gap: 5
     },
     textoInput: {
@@ -141,10 +208,21 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         marginTop: 8
     },
+    senhaWrapper: {
+        position: "relative",
+        justifyContent: "center",
+    },
+    iconeOlho: {
+        position: "absolute",
+        right: 15,
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1,
+    },
     botaoContainer: {
         alignItems: "center",
         marginTop: 40,
-        fontSize: 10,
     },
     esqueceuSenhaBotao: {
         alignSelf: "center",

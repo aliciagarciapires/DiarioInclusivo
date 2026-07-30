@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
 
 export default function Configuracoes() {
@@ -30,9 +30,33 @@ export default function Configuracoes() {
     carregarTipoUsuario();
   }, []);
 
-  const handleSair = async () => {
-    await AsyncStorage.removeItem("idUsuario");
-    router.replace("/inicio");
+  // 💡 LÓGICA DE LOGOUT
+  const handleSair = () => {
+    Alert.alert(
+      "Sair da Conta",
+      "Tem certeza que deseja sair?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Sair", 
+          style: "destructive", 
+          onPress: async () => {
+            try {
+              // 1. Apaga a chave do usuário logado
+              await AsyncStorage.removeItem("idUsuario");
+              
+              // Se quiser garantir que TODAS as chaves locais sejam apagadas, use:
+              // await AsyncStorage.clear();
+
+              // 2. Redireciona para a tela inicial / login substituindo o histórico
+              router.replace("/cadRespAdm"); 
+            } catch (error) {
+              Alert.alert("Erro", "Não foi possível encerrar a sessão.");
+            }
+          } 
+        }
+      ]
+    );
   };
 
   if (loading) {
@@ -62,11 +86,12 @@ export default function Configuracoes() {
           <Text style={styles.opcaoTexto}>Alteração de senha</Text>
         </Pressable>
 
+        {/* BOTÃO DE SAIR / LOGOUT */}
         <Pressable 
           style={styles.opcaoItem} 
           onPress={handleSair}
         >
-          <Text style={styles.opcaoTexto}>Sair</Text>
+          <Text style={[styles.opcaoTexto, { color: "#FF4444" }]}>Sair</Text>
         </Pressable>
       </View>
 

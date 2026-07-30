@@ -17,7 +17,7 @@ export default function CadResp() {
 
    const cadastrarResponsavel = async () => {
   try {
-    const response = await fetch("http://10.0.0.100/DiarioInclusivo/src/app/cadResp.php", {
+    const response = await fetch("http://192.168.0.103/DiarioInclusivo/src/app/cadResp.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -32,7 +32,7 @@ export default function CadResp() {
     const data = await response.json();
     Alert.alert("Aviso", data.mensagem);
     if (data.sucesso) {
-      router.push("/inicio");
+      router.push("/discenteResp");
     }
     
   } catch (error) {

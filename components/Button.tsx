@@ -1,13 +1,14 @@
-import {Text, StyleSheet, TouchableOpacity, TouchableOpacityProps} from "react-native"
-import {router} from "expo-router"
+import { Text, StyleSheet, TouchableOpacity, TouchableOpacityProps } from "react-native"
+import React from "react"
 
-type ButtonProps = TouchableOpacityProps & { //representa todas as propriedades que o botao pode receber; terá todas e MAIS a label, obrigatoriamente
+type ButtonProps = TouchableOpacityProps & {
     label: string
 }
 
 export function Button ({label, ...rest}: ButtonProps){
     return(
-        <TouchableOpacity style={styles.container} activeOpacity={0.5} {...rest}> {/**cria o botão clicável e define o tempo que a cor fica mais clara quando é clicado */}
+        /* Cria o botão clicável e define a opacidade ao clicar */
+        <TouchableOpacity style={styles.container} activeOpacity={0.5} {...rest}>
             <Text style={styles.label}>
                 {label}
             </Text>

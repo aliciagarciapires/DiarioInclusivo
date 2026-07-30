@@ -9,7 +9,7 @@ export default function Discente() {
   // Função que busca do seu PHP
   const buscarDiscentes = async () => {
     try {
-      const response = await fetch('http://10.0.0.100/DiarioInclusivo/src/app/discente.php');
+      const response = await fetch('http://192.168.0.103/DiarioInclusivo/src/app/discente.php');
       const dados = await response.json();
       setListaDiscentes(dados); // Atualiza o estado com os dados do banco
     } catch (error) {
@@ -67,61 +67,58 @@ export default function Discente() {
       </ScrollView>
       
       <Footer children={undefined} />
-                          <View style={styles.barraMenuGeral}>
-                          
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                            <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Início</Text>
-                          </Pressable>
-                  
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Diário</Text>
-                          </Pressable>
-                  
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Rotina</Text>
-                          </Pressable>
-                  
-                          <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                            <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Conf.</Text>
-                          </Pressable>
-                  
-                        </View>
+      <View style={styles.barraMenuGeral}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+          <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Início</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Diário</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Rotina</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Conf.</Text>
+        </Pressable>
+      </View>
     </>
   );
 }
-// ... (Seus styles permanecem iguais)
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, //scrollview ocupar a tela inteira
+    flex: 1, // scrollview ocupar a tela inteira
     backgroundColor: "#F5F2E8",
     padding: 32
   },
   topo: {
-      justifyContent: "flex-start", //iniciar no inicio da flex
-      marginTop: 20,
-      color: "#2F1CA6",
-      fontWeight: "bold",
-      fontSize: 18,
-      textAlign: "center"
-    },
+    justifyContent: "flex-start", // iniciar no inicio da flex
+    marginTop: 20,
+    color: "#2F1CA6",
+    fontWeight: "bold",
+    fontSize: 18,
+    textAlign: "center"
+  },
   grid: {
     flexDirection: "row", 
     flexWrap: "wrap", 
-    justifyContent: "flex-start", // Mude de space-around para flex-start
+    justifyContent: "flex-start",
     paddingHorizontal: 20, 
-    gap: 10 // Adicione um gap para dar respiro entre os itens
+    gap: 10
   },
   item: {
     alignItems: "center",
     marginBottom: 50,
-    width: "48%" //cada card ocupa metade da largura
+    width: "48%" // cada card ocupa metade da largura
   },
-  card: { //define o tamanho e centraliza o card
+  card: {
     width: 140,
     height: 160,
     justifyContent: "center",
@@ -134,8 +131,8 @@ const styles = StyleSheet.create({
   botao: {
     backgroundColor: "#2F1CA6",
     borderRadius: 20,
-    paddingHorizontal: 25, // Aumenta a largura das laterais
-    paddingVertical: 12,  // Aumenta a altura do botão
+    paddingHorizontal: 25,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -143,7 +140,7 @@ const styles = StyleSheet.create({
     color: "#F5F2E8",
     fontWeight: "bold",
     fontSize: 14
-    },
+  },
   cardAdicionar: {
     width: 115,
     height: 155,
@@ -151,7 +148,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 0 // Ajustado para alinhar com o topo do card
+    marginTop: 0
   },
   mais: {
     color: "#F5F2E8",
@@ -165,34 +162,35 @@ const styles = StyleSheet.create({
     height: 30,
   },
   tabLabel: {
-    fontSize: 14,                  
+    fontSize: 14,
     fontWeight: "500",
     color: "#2F1CA6",
     marginTop: 4,
   },
   iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
+    width: 80,
+    height: 80,
+    borderRadius: 15,
+    resizeMode: "cover",
   },
   barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    flexDirection: "row",
+    justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
+    backgroundColor: "#F5F2E8",
+    height: 90,
+    paddingBottom: 30,
+    borderTopWidth: 3,
+    borderTopColor: "#F5F2E8",
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 10,                 
+    elevation: 10,
     shadowColor: "#000",
-    marginTop: 20   
+    marginTop: 20
   },
   botaoContainer:{
     width: 250,

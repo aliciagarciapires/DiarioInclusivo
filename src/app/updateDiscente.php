@@ -4,7 +4,6 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json; charset=UTF-8");
 
-// Trata a requisição PREFLIGHT do navegador/Mobile
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -12,31 +11,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 include_once "conexao.php";
 
+$db = $mysqli ?? $conn ?? $conexao ?? null;
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!empty($data['id']) && !empty($data['nome']) && !empty($data['data_nascimento']) && !empty($data['grau_de_suporte'])) {
-    
-    // Prepara a query MySQLi com Prepared Statements
-    $stmt = $mysqli->prepare("UPDATE discente SET nome = ?, data_nascimento = ?, grau_de_suporte = ? WHERE id = ?");
+$id = $data['id'] ?? null;
+$nome = $data['nome'] ?? '';
+$dataNasc = $data['dataNasc'] ?? $data['data_nascimento'] ?? '';
+$grau = $data['grau'] ?? $data['grau_de_suporte'] ?? '';
+$idsResponsaveis = $data['idsResponsaveis'] ?? $data['responsaveis'] ?? [];
 
-    if ($stmt) {
-        // "sssi" -> string, string, string/int, integer
-        $stmt->bind_param("sssi", $data['nome'], $data['data_nascimento'], $data['grau_de_suporte'], $data['id']);
+if (!empty($id) && !empty($nome) && !empty($dataNasc) && !empty($grau)) {
 
-        if ($stmt->execute()) {
-            echo json_encode(["success" => true, "message" => "Discente atualizado com sucesso!"]);
-        } else {
-            echo json_encode(["success" => false, "message" => "Erro ao executar atualização: " . $stmt->error]);
+    try {
+        // 1. Atualiza dados principais do discente
+        $stmt = $db->prepare("UPDATE discente SET nome = ?, data_nascimento = ?, grau_de_suporte = ? WHERE id = ?");
+        $stmt->bind_param("sssi", $nome, $dataNasc, $grau, $id);
+        $stmt->execute();
+        $stmt->close();
+
+        // 2. Limpa vínculos antigos
+        $stmtDel = $db->prepare("DELETE FROM usuario_possui_discente WHERE idDiscente = ?");
+        $stmtDel->bind_param("i", $id);
+        $stmtDel->execute();
+        $stmtDel->close();
+
+        // 3. Insere os novos vínculos
+        if (!empty($idsResponsaveis) && is_array($idsResponsaveis)) {
+            $stmtIns = $db->prepare("INSERT INTO usuario_possui_discente (idUsuario, idDiscente) VALUES (?, ?)");
+            foreach ($idsResponsaveis as $idUsuario) {
+                $idUserInt = (int)$idUsuario;
+                $stmtIns->bind_param("ii", $idUserInt, $id);
+                $stmtIns->execute();
+            }
+            $stmtIns->close();
         }
 
-        $stmt->close();
-    } else {
-        echo json_encode(["success" => false, "message" => "Erro no prepare da SQL: " . $mysqli->error]);
+        echo json_encode(["success" => true, "message" => "Discente e responsáveis atualizados com sucesso!"]);
+
+    } catch (Exception $e) {
+        echo json_encode(["success" => false, "message" => "Erro no banco de dados: " . $e->getMessage()]);
     }
 
 } else {
     echo json_encode(["success" => false, "message" => "Dados incompletos recebidos pelo PHP."]);
 }
 
-$mysqli->close();
+if ($db) {
+    $db->close();
+}
 ?>

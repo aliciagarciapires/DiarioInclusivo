@@ -11,7 +11,7 @@ try {
     $query = "SELECT idAtividades, nome FROM ATIVIDADES";
     $result = $mysqli->query($query);
 
-    if (!$result) {
+    if (!$result) { //caso não consiga executar a busca gera a msg de erro
         throw new Exception($mysqli->error);
     }
     
@@ -24,7 +24,7 @@ try {
         "dados" => $atividades
     ]);
 
-} catch (Exception $e) {
+} catch (Exception $e) { //se der erro no try, devolve a msg de erro em JSON
     echo json_encode([
         "sucesso" => false, 
         "mensagem" => "Erro ao buscar: " . $e->getMessage()

@@ -8,7 +8,7 @@ include_once "conexao.php";
 
 $dados = json_decode(file_get_contents("php://input"), true);
 
-if (!empty($dados['idAtividades'])) {
+if (!empty($dados['idAtividades'])) {  //Verifica se o aplicativo enviou o parâmetro idAtividades e se ele não está vazio
     $idAtividade = intval($dados['idAtividades']);
     
     // Remove também dos vínculos com as rotinas se necessário
@@ -20,7 +20,7 @@ if (!empty($dados['idAtividades'])) {
     } else {
         echo json_encode(["sucesso" => false, "mensagem" => "Erro: " . $mysqli->error]);
     }
-} else {
+} else { //caso não tenha id
     echo json_encode(["sucesso" => false, "mensagem" => "ID não informado."]);
 }
 ?>

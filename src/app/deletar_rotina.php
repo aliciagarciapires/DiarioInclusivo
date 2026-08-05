@@ -21,7 +21,7 @@ if (!empty($dados['idRotina'])) {
     } else {
         echo json_encode(["sucesso" => false, "mensagem" => "Erro: " . $mysqli->error]);
     }
-} else {
+} else { //caso não tenha id
     echo json_encode(["sucesso" => false, "mensagem" => "ID da rotina não enviado."]);
 }
 ?>

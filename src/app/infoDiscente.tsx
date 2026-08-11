@@ -59,13 +59,13 @@ export default function InfoDiscente() {
       setLoading(true);
 
       // 1. Busca todos os responsáveis disponíveis na base
-      const resResp = await fetch("http://200.18.141.88/DiarioInclusivo/src/app/buscar_responsaveis.php");
+      const resResp = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/buscar_responsaveis.php");
       const dadosResp = await resResp.json();
       const listaCompleta: Responsavel[] = Array.isArray(dadosResp) ? dadosResp : [];
       setListaResponsaveis(listaCompleta);
 
       // 2. Busca dados do discente
-      const response = await fetch(`http://200.18.141.88/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+      const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
       const json = await response.json();
 
       if (json.success) {
@@ -116,6 +116,48 @@ export default function InfoDiscente() {
     setDataNasc(formatado);
   };
 
+  // Função para validar se a data de nascimento é real e válida
+  const validarDataNascimento = (dataString: string): { valida: boolean; mensagem?: string } => {
+    if (dataString.length < 10) {
+      return { valida: false, mensagem: 'Digite a data completa no formato DD/MM/AAAA.' };
+    }
+
+    const partes = dataString.split('/');
+    if (partes.length !== 3) {
+      return { valida: false, mensagem: 'Formato de data inválido.' };
+    }
+
+    const dia = parseInt(partes[0], 10);
+    const mes = parseInt(partes[1], 10);
+    const ano = parseInt(partes[2], 10);
+
+    if (mes < 1 || mes > 12) {
+      return { valida: false, mensagem: 'Mês inválido.' };
+    }
+
+    const dataObjeto = new Date(ano, mes - 1, dia);
+
+    if (
+      dataObjeto.getFullYear() !== ano ||
+      dataObjeto.getMonth() !== mes - 1 ||
+      dataObjeto.getDate() !== dia
+    ) {
+      return { valida: false, mensagem: 'Data inexistente (verifique o dia, mês e se o ano é bissexto).' };
+    }
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    if (dataObjeto > hoje) {
+      return { valida: false, mensagem: 'A data de nascimento não pode ser no futuro.' };
+    }
+
+    if (ano < 1900) {
+      return { valida: false, mensagem: 'Ano de nascimento inválido.' };
+    }
+
+    return { valida: true };
+  };
+
   // Alterna a seleção de um responsável
   const alternarSelecao = (item: Responsavel) => {
     const jaSelecionado = responsaveisSelecionados.some((r) => r.id === item.id);
@@ -140,8 +182,10 @@ export default function InfoDiscente() {
       return;
     }
 
-    if (dataNasc.length < 10) {
-      Alert.alert("Erro", "Digite a data completa no formato DD/MM/AAAA.");
+    // Validação avançada de data
+    const validacaoData = validarDataNascimento(dataNasc);
+    if (!validacaoData.valida) {
+      Alert.alert('Data Inválida', validacaoData.mensagem);
       return;
     }
 
@@ -150,19 +194,17 @@ export default function InfoDiscente() {
       return;
     }
 
-    let dataFormatada = dataNasc;
-    if (dataNasc.includes("/")) {
-      const partes = dataNasc.split("/");
-      if (partes.length === 3) {
-        dataFormatada = `${partes[2]}-${partes[1].padStart(2, "0")}-${partes[0].padStart(2, "0")}`;
-      }
-    }
+    const partes = dataNasc.split('/');
+    const dia = partes[0].padStart(2, '0');
+    const mes = partes[1].padStart(2, '0');
+    const ano = partes[2];
+    const dataFormatada = `${ano}-${mes}-${dia}`;
 
     const idsResponsaveis = responsaveisSelecionados.map((r) => r.id);
 
     try {
       setLoading(true);
-      const response = await fetch("http://200.18.141.88/DiarioInclusivo/src/app/updateDiscente.php", {
+      const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/updateDiscente.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -206,7 +248,7 @@ export default function InfoDiscente() {
   const deletarDiscente = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://200.18.141.88/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}`, {
+      const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}`, {
         method: "DELETE",
       });
       const json = await response.json();

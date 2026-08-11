@@ -28,7 +28,6 @@ export default function CadDiscente() {
 
   // Função para aplicar a máscara no formato DD/MM/AAAA
   const aplicarMascaraData = (text: string) => {
-    // Remove tudo o que não for número
     const limpo = text.replace(/\D/g, "");
     
     let formatado = limpo;
@@ -41,11 +40,58 @@ export default function CadDiscente() {
     setDataNasc(formatado);
   };
 
+  // Função para validar se a data de nascimento é real e válida
+  const validarDataNascimento = (dataString: string): { valida: boolean; mensagem?: string } => {
+    if (dataString.length < 10) {
+      return { valida: false, mensagem: 'Digite a data completa no formato DD/MM/AAAA.' };
+    }
+
+    const partes = dataString.split('/');
+    if (partes.length !== 3) {
+      return { valida: false, mensagem: 'Formato de data inválido.' };
+    }
+
+    const dia = parseInt(partes[0], 10);
+    const mes = parseInt(partes[1], 10);
+    const ano = parseInt(partes[2], 10);
+
+    // Validação do intervalo do mês
+    if (mes < 1 || mes > 12) {
+      return { valida: false, mensagem: 'Mês inválido.' };
+    }
+
+    // Cria o objeto Date (o mês em JS vai de 0 a 11)
+    const dataObjeto = new Date(ano, mes - 1, dia);
+
+    // Se o JS auto-corrigiu a data (ex: 31/04 virou 01/05 ou 29/02/2023 virou 01/03), a data é inválida
+    if (
+      dataObjeto.getFullYear() !== ano ||
+      dataObjeto.getMonth() !== mes - 1 ||
+      dataObjeto.getDate() !== dia
+    ) {
+      return { valida: false, mensagem: 'Data inexistente (verifique o dia, mês e se o ano é bissexto).' };
+    }
+
+    // Validação de data no futuro
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0); // Zera hora para comparar apenas a data
+    if (dataObjeto > hoje) {
+      return { valida: false, mensagem: 'A data de nascimento não pode ser no futuro.' };
+    }
+
+    // Validação de ano muito antigo
+    if (ano < 1900) {
+      return { valida: false, mensagem: 'Ano de nascimento inválido.' };
+    }
+
+    return { valida: true };
+  };
+
   // Busca a lista de responsáveis no banco
   useEffect(() => {
     const buscarResponsaveis = async () => {
       try {
-        const response = await fetch('http://200.18.141.88/DiarioInclusivo/src/app/buscar_responsaveis.php');
+        const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/buscar_responsaveis.php');
         const dados = await response.json();
 
         if (Array.isArray(dados)) {
@@ -73,7 +119,6 @@ export default function CadDiscente() {
     }
   };
 
-  // Garante lista segura e aplica o filtro da busca
   const listaSegura = Array.isArray(listaResponsaveis) ? listaResponsaveis : [];
   const filtrados = listaSegura.filter((r) => {
     if (!busca || busca.trim() === "") return true;
@@ -86,8 +131,10 @@ export default function CadDiscente() {
       return;
     }
 
-    if (dataNasc.length < 10) {
-      Alert.alert('Erro', 'Digite a data completa no formato DD/MM/AAAA.');
+    // Validação avançada de data
+    const validacaoData = validarDataNascimento(dataNasc);
+    if (!validacaoData.valida) {
+      Alert.alert('Data Inválida', validacaoData.mensagem);
       return;
     }
 
@@ -96,22 +143,17 @@ export default function CadDiscente() {
       return;
     }
 
-    let dataFormatada = dataNasc;
-    if (dataNasc.includes('/')) {
-      const partes = dataNasc.split('/');
-      if (partes.length === 3) {
-        const dia = partes[0].padStart(2, '0');
-        const mes = partes[1].padStart(2, '0');
-        const ano = partes[2];
-        dataFormatada = `${ano}-${mes}-${dia}`;
-      }
-    }
+    // Formatação para YYYY-MM-DD
+    const partes = dataNasc.split('/');
+    const dia = partes[0].padStart(2, '0');
+    const mes = partes[1].padStart(2, '0');
+    const ano = partes[2];
+    const dataFormatada = `${ano}-${mes}-${dia}`;
 
-    // Extrai apenas os IDs dos responsáveis selecionados
     const idsResponsaveis = responsaveisSelecionados.map((r) => r.id);
 
     try {
-      const response = await fetch('http://200.18.141.88/DiarioInclusivo/src/app/cadDiscente.php', {
+      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/cadDiscente.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -158,10 +200,9 @@ export default function CadDiscente() {
               onChangeText={setNome} 
             />
 
-            {/* CAMPO RESPONSÁVEIS (MÚLTIPLA SELEÇÃO) */}
+            {/* CAMPO RESPONSÁVEIS */}
             <Text style={styles.textoInput}>Responsáveis:</Text>
             
-            {/* Tags dos Responsáveis Selecionados */}
             <View style={styles.containerTags}>
               {responsaveisSelecionados.map((item) => (
                 <View key={item.id} style={styles.tag}>
@@ -173,7 +214,6 @@ export default function CadDiscente() {
               ))}
             </View>
 
-            {/* Campo para abrir/buscar */}
             {editando ? (
               <Input 
                 placeholder="Digite para buscar..." 
@@ -192,7 +232,6 @@ export default function CadDiscente() {
               </Pressable>
             )}
 
-            {/* Lista com os responsáveis e opção de marcar/desmarcar */}
             {editando && ( 
               <View style={styles.lista}>
                 <ScrollView style={{ maxHeight: 180 }} nestedScrollEnabled={true}>
@@ -221,7 +260,7 @@ export default function CadDiscente() {
               </View>
             )}
 
-            {/* CAMPO DATA DE NASCIMENTO (COM MÁSCARA AUTOMÁTICA) */}
+            {/* CAMPO DATA DE NASCIMENTO */}
             <Text style={styles.textoInput}>Data de Nascimento:</Text>
             <Input 
               placeholder="DD/MM/AAAA" 

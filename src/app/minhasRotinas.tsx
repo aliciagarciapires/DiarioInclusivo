@@ -36,7 +36,7 @@ export default function VisualizarRotina() {
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
 
   // Atualize com o IP atual da sua máquina
-  const IP_SERVIDOR = "200.18.141.88";
+  const IP_SERVIDOR = "192.168.0.106";
 
   const carregarRotinasDoBanco = async () => {
     try {

@@ -36,7 +36,7 @@ export default function VisualizarRotina() {
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
 
   // Atualize com o IP atual da sua máquina
-  const IP_SERVIDOR = "192.168.0.103";
+  const IP_SERVIDOR = "200.18.141.88";
 
   const carregarRotinasDoBanco = async () => {
     try {
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   cardRotina: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F5F2E8",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,

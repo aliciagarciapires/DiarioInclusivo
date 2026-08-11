@@ -3,17 +3,17 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  FlatList,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    FlatList,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import Footer from '../../components/Footer';
 
@@ -72,7 +72,7 @@ export default function CriarRotina() {
 
     try {
       // Ajustado para a mesma faixa de IP e arquivo de criação de atividade correto
-      const URL_API = 'http://192.168.0.103/DiarioInclusivo/src/app/criar_atividade.php';
+      const URL_API = 'http://200.18.141.88/DiarioInclusivo/src/app/criar_atividade.php';
 
       const resposta = await fetch(URL_API, {
         method: 'POST',
@@ -177,7 +177,7 @@ export default function CriarRotina() {
         horaFinal: ativ.fim.toLocaleTimeString([], { hour12: false })      
       }));
 
-      const URL_SALVAR = 'http://192.168.0.103/DiarioInclusivo/src/app/salvar_rotina.php';
+      const URL_SALVAR = 'http://200.18.141.88/DiarioInclusivo/src/app/salvar_rotina.php';
 
       const resposta = await fetch(URL_SALVAR, {
         method: 'POST',

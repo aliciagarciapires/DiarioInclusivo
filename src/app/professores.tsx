@@ -6,10 +6,10 @@ import Footer from "../../components/Footer";
 export default function Professores() {
   const [listaProfessores, setListaProfessores] = useState([]);
 
-  const buscarProfessores = async () => {
-    try {
-      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/professores.php');
-      const dados = await response.json();
+    const buscarProfessores = async () => {
+      try {
+    const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/professores.php');
+    const dados = await response.json();
       setListaProfessores(dados);
     } catch (error) {
       console.error("Erro ao buscar professores:", error);

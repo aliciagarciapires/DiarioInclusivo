@@ -124,7 +124,7 @@ export default function InfoProf() {
 
     try {
       setSalvando(true);
-      const response = await fetch(
+            const response = await fetch(
         "http://192.168.0.106/DiarioInclusivo/src/app/updateUsuario.php",
         {
           method: "POST",
@@ -170,10 +170,10 @@ export default function InfoProf() {
       if (!prof?.idUsuario) return;
       setLoading(true);
 
-      const response = await fetch(
+            const response = await fetch(
         `http://192.168.0.106/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
         { method: "GET" }
-      );
+            );
       const json = await response.json();
 
       if (json.success) {

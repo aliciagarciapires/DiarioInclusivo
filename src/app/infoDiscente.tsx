@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -50,6 +51,15 @@ export default function InfoDiscente() {
   // Estado do Dropdown de Grau
   const [abertoGrau, setAbertoGrau] = useState(false);
 
+  // Função auxiliar para recuperar o ID do usuário logado
+  const obterIdUsuarioLogado = async () => {
+    let idUser = await AsyncStorage.getItem("idUsuario");
+    if (!idUser) {
+      idUser = await AsyncStorage.getItem("id");
+    }
+    return idUser;
+  };
+
   useEffect(() => {
     if (id) carregarDados();
   }, [id]);
@@ -73,7 +83,7 @@ export default function InfoDiscente() {
         setDiscente(d);
         setNome(d.nome || "");
         
-        // Formata a data recebida do banco (caso venha no formato YYYY-MM-DD) para DD/MM/AAAA
+        // Formata a data recebida do banco (YYYY-MM-DD para DD/MM/AAAA)
         if (d.data_nascimento && d.data_nascimento.includes("-")) {
           const partes = d.data_nascimento.split("-");
           if (partes.length === 3) {
@@ -93,7 +103,7 @@ export default function InfoDiscente() {
           setResponsaveisSelecionados(vinculados);
         }
       } else {
-        Alert.alert("Erro", json.message);
+        Alert.alert("Erro", json.message || "Discente não encontrado.");
       }
     } catch (error) {
       Alert.alert("Erro", "Não foi possível conectar ao servidor.");
@@ -102,7 +112,7 @@ export default function InfoDiscente() {
     }
   };
 
-  // Função para aplicar a máscara DD/MM/AAAA
+  // Aplica máscara de data DD/MM/AAAA
   const aplicarMascaraData = (text: string) => {
     const limpo = text.replace(/\D/g, "");
     let formatado = limpo;
@@ -116,7 +126,7 @@ export default function InfoDiscente() {
     setDataNasc(formatado);
   };
 
-  // Função para validar se a data de nascimento é real e válida
+  // Validação de data real
   const validarDataNascimento = (dataString: string): { valida: boolean; mensagem?: string } => {
     if (dataString.length < 10) {
       return { valida: false, mensagem: 'Digite a data completa no formato DD/MM/AAAA.' };
@@ -158,7 +168,7 @@ export default function InfoDiscente() {
     return { valida: true };
   };
 
-  // Alterna a seleção de um responsável
+  // Alterna seleção do responsável
   const alternarSelecao = (item: Responsavel) => {
     const jaSelecionado = responsaveisSelecionados.some((r) => r.id === item.id);
     if (jaSelecionado) {
@@ -168,21 +178,20 @@ export default function InfoDiscente() {
     }
   };
 
-  // Filtro de busca de responsáveis
+  // Filtro de busca dos responsáveis
   const listaSegura = Array.isArray(listaResponsaveis) ? listaResponsaveis : [];
   const filtrados = listaSegura.filter((r) => {
     if (!busca || busca.trim() === "") return true;
     return r.nome ? r.nome.toLowerCase().includes(busca.toLowerCase()) : false;
   });
 
-  // Salvar edições
+  // Salvar alterações
   const salvarAlteracoes = async () => {
     if (!nome.trim() || !dataNasc.trim() || grau === "Selecione o grau de suporte") {
       Alert.alert("Erro", "Por favor, preencha todos os campos corretamente.");
       return;
     }
 
-    // Validação avançada de data
     const validacaoData = validarDataNascimento(dataNasc);
     if (!validacaoData.valida) {
       Alert.alert('Data Inválida', validacaoData.mensagem);
@@ -204,6 +213,15 @@ export default function InfoDiscente() {
 
     try {
       setLoading(true);
+
+      const idUsuarioLogado = await obterIdUsuarioLogado();
+
+      if (!idUsuarioLogado) {
+        Alert.alert("Erro de Autenticação", "Sessão expirada ou não encontrada. Faça login novamente.");
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/updateDiscente.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -212,6 +230,7 @@ export default function InfoDiscente() {
           nome: nome,
           dataNasc: dataFormatada,
           grau: grau,
+          idUsuarioLogado: idUsuarioLogado,
           idsResponsaveis: idsResponsaveis,
         }),
       });
@@ -248,24 +267,29 @@ export default function InfoDiscente() {
   const deletarDiscente = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}`, {
-        method: "DELETE",
-      });
+
+      const idUsuarioLogado = await obterIdUsuarioLogado();
+
+      const response = await fetch(
+        `http://192.168.0.106/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
+        { method: "DELETE" }
+      );
       const json = await response.json();
 
       if (json.success) {
-        Alert.alert("Sucesso", json.message, [{ text: "OK", onPress: () => router.push("/discente") }]);
+        Alert.alert("Sucesso", json.message || "Discente excluído com sucesso!", [
+          { text: "OK", onPress: () => router.push("/discente") },
+        ]);
       } else {
-        Alert.alert("Erro", json.message);
+        Alert.alert("Erro", json.message || "Erro ao excluir discente.");
       }
     } catch (error) {
-      Alert.alert("Erro", "Erro ao excluir discente.");
+      Alert.alert("Erro", "Erro ao conectar ao servidor para excluir discente.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Formata os nomes dos responsáveis selecionados como texto separado por vírgulas
   const nomesEscritos = responsaveisSelecionados.length > 0
     ? responsaveisSelecionados.map((r) => r.nome).join(", ")
     : discente?.nomes_responsaveis || "Nenhum responsável vinculado";
@@ -357,7 +381,6 @@ export default function InfoDiscente() {
                     </Pressable>
                   )}
 
-                  {/* Lista com scroll para busca */}
                   {editandoResponsaveis && (
                     <View style={styles.lista}>
                       <ScrollView style={{ maxHeight: 180 }} nestedScrollEnabled={true}>
@@ -465,7 +488,7 @@ export default function InfoDiscente() {
         )}
       </ScrollView>
 
-      {/* RODAPÉ E MENU */}
+      {/* RODAPÉ E MENU GERAL */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
@@ -473,7 +496,7 @@ export default function InfoDiscente() {
           <Text style={styles.tabLabel}>Início</Text>
         </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
           <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Diário</Text>
         </Pressable>
@@ -483,7 +506,7 @@ export default function InfoDiscente() {
           <Text style={styles.tabLabel}>Rotina</Text>
         </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
           <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Conf.</Text>
         </Pressable>

@@ -6,7 +6,6 @@ import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
 
-// Interface para estruturar o Responsável
 interface Responsavel {
   id: number;
   nome: string;
@@ -16,91 +15,61 @@ export default function CadDiscente() {
   const [nome, setNome] = useState("");
   const [dataNasc, setDataNasc] = useState("");
   
-  // Estados para Grau de Suporte
   const [aberto, setAberto] = useState(false);
   const [grau, setGrau] = useState("Selecione o grau de suporte");
 
-  // Estados para Múltiplos Responsáveis
   const [editando, setEditando] = useState(false);
   const [responsaveisSelecionados, setResponsaveisSelecionados] = useState<Responsavel[]>([]);
   const [listaResponsaveis, setListaResponsaveis] = useState<Responsavel[]>([]);
   const [busca, setBusca] = useState("");
 
-  // Função para aplicar a máscara no formato DD/MM/AAAA
   const aplicarMascaraData = (text: string) => {
     const limpo = text.replace(/\D/g, "");
-    
     let formatado = limpo;
     if (limpo.length > 2 && limpo.length <= 4) {
       formatado = `${limpo.slice(0, 2)}/${limpo.slice(2)}`;
     } else if (limpo.length > 4) {
       formatado = `${limpo.slice(0, 2)}/${limpo.slice(2, 4)}/${limpo.slice(4, 8)}`;
     }
-
     setDataNasc(formatado);
   };
 
-  // Função para validar se a data de nascimento é real e válida
-  const validarDataNascimento = (dataString: string): { valida: boolean; mensagem?: string } => {
-    if (dataString.length < 10) {
-      return { valida: false, mensagem: 'Digite a data completa no formato DD/MM/AAAA.' };
-    }
-
+  const validarDataNascimento = (dataString: string) => {
+    if (dataString.length < 10) return { valida: false, mensagem: 'Digite a data completa (DD/MM/AAAA).' };
     const partes = dataString.split('/');
-    if (partes.length !== 3) {
-      return { valida: false, mensagem: 'Formato de data inválido.' };
-    }
+    if (partes.length !== 3) return { valida: false, mensagem: 'Formato de data inválido.' };
 
     const dia = parseInt(partes[0], 10);
     const mes = parseInt(partes[1], 10);
     const ano = parseInt(partes[2], 10);
 
-    // Validação do intervalo do mês
-    if (mes < 1 || mes > 12) {
-      return { valida: false, mensagem: 'Mês inválido.' };
-    }
+    if (mes < 1 || mes > 12) return { valida: false, mensagem: 'Mês inválido.' };
 
-    // Cria o objeto Date (o mês em JS vai de 0 a 11)
     const dataObjeto = new Date(ano, mes - 1, dia);
-
-    // Se o JS auto-corrigiu a data (ex: 31/04 virou 01/05 ou 29/02/2023 virou 01/03), a data é inválida
-    if (
-      dataObjeto.getFullYear() !== ano ||
-      dataObjeto.getMonth() !== mes - 1 ||
-      dataObjeto.getDate() !== dia
-    ) {
-      return { valida: false, mensagem: 'Data inexistente (verifique o dia, mês e se o ano é bissexto).' };
+    if (dataObjeto.getFullYear() !== ano || dataObjeto.getMonth() !== mes - 1 || dataObjeto.getDate() !== dia) {
+      return { valida: false, mensagem: 'Data inexistente.' };
     }
 
-    // Validação de data no futuro
     const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0); // Zera hora para comparar apenas a data
-    if (dataObjeto > hoje) {
-      return { valida: false, mensagem: 'A data de nascimento não pode ser no futuro.' };
-    }
-
-    // Validação de ano muito antigo
-    if (ano < 1900) {
-      return { valida: false, mensagem: 'Ano de nascimento inválido.' };
-    }
+    hoje.setHours(0, 0, 0, 0);
+    if (dataObjeto > hoje) return { valida: false, mensagem: 'Data não pode ser no futuro.' };
+    if (ano < 1900) return { valida: false, mensagem: 'Ano inválido.' };
 
     return { valida: true };
   };
 
-  // Busca a lista de responsáveis no banco
   useEffect(() => {
     const buscarResponsaveis = async () => {
       try {
         const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/buscar_responsaveis.php');
         const dados = await response.json();
-
         if (Array.isArray(dados)) {
           setListaResponsaveis(dados);
         } else {
           setListaResponsaveis([]);
         }
       } catch (error) {
-        console.error("Erro na busca:", error);
+        console.error("Erro na busca de responsáveis:", error);
         setListaResponsaveis([]);
       }
     };
@@ -108,10 +77,8 @@ export default function CadDiscente() {
     buscarResponsaveis();
   }, []);
 
-  // Adiciona ou remove um responsável da lista de selecionados
   const alternarSelecao = (item: Responsavel) => {
     const jaSelecionado = responsaveisSelecionados.some((r) => r.id === item.id);
-
     if (jaSelecionado) {
       setResponsaveisSelecionados(responsaveisSelecionados.filter((r) => r.id !== item.id));
     } else {
@@ -125,62 +92,61 @@ export default function CadDiscente() {
     return r.nome ? r.nome.toLowerCase().includes(busca.toLowerCase()) : false;
   });
 
-  const cadastrarDiscente = async () => {
-    if (!nome.trim() || !dataNasc.trim() || grau === "Selecione o grau de suporte") {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos corretamente.');
-      return;
+ const cadastrarDiscente = async () => {
+  if (!nome.trim() || !dataNasc.trim() || grau === "Selecione o grau de suporte") {
+    Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
+    return;
+  }
+
+  const validacaoData = validarDataNascimento(dataNasc);
+  if (!validacaoData.valida) {
+    Alert.alert('Data Inválida', validacaoData.mensagem);
+    return;
+  }
+
+  if (responsaveisSelecionados.length === 0) {
+    Alert.alert('Erro', 'Selecione pelo menos um responsável.');
+    return;
+  }
+
+  // CHAVE CORRIGIDA PARA "idUsuario"
+  const idUsuarioLogado = await AsyncStorage.getItem("idUsuario");
+
+  if (!idUsuarioLogado) {
+    Alert.alert('Erro de Autenticação', 'Sessão expirada ou não encontrada. Faça login novamente.');
+    return;
+  }
+
+  const partes = dataNasc.split('/');
+  const dataFormatada = `${partes[2]}-${partes[1].padStart(2, '0')}-${partes[0].padStart(2, '0')}`;
+  const idsResponsaveis = responsaveisSelecionados.map((r) => r.id);
+
+  try {
+    const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/cadDiscente.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        nome: nome, 
+        dataNasc: dataFormatada, 
+        grau: grau,
+        idUsuarioLogado: idUsuarioLogado, // Envia o idUsuario correto do login
+        idsResponsaveis: idsResponsaveis 
+      })
+    });
+
+    const resultado = await response.json();
+
+    if (resultado.success) {
+      Alert.alert('Sucesso', 'Discente cadastrado com sucesso!');
+      router.push("/discente");
+    } else {
+      Alert.alert('Erro', resultado.message || 'Não foi possível realizar o cadastro.');
     }
-
-    // Validação avançada de data
-    const validacaoData = validarDataNascimento(dataNasc);
-    if (!validacaoData.valida) {
-      Alert.alert('Data Inválida', validacaoData.mensagem);
-      return;
-    }
-
-    if (responsaveisSelecionados.length === 0) {
-      Alert.alert('Erro', 'Selecione pelo menos um responsável.');
-      return;
-    }
-
-    // Formatação para YYYY-MM-DD
-    const partes = dataNasc.split('/');
-    const dia = partes[0].padStart(2, '0');
-    const mes = partes[1].padStart(2, '0');
-    const ano = partes[2];
-    const dataFormatada = `${ano}-${mes}-${dia}`;
-
-    const idsResponsaveis = responsaveisSelecionados.map((r) => r.id);
-
-    try {
-      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/cadDiscente.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          nome: nome, 
-          dataNasc: dataFormatada, 
-          grau: grau,
-          idsResponsaveis: idsResponsaveis 
-        })
-      });
-
-      const resultado = await response.json();
-
-      if (resultado.success) {
-        if (resultado.idUsuario) {
-          await AsyncStorage.setItem('@id_usuario_logado', resultado.idUsuario.toString());
-        }
-        Alert.alert('Sucesso', 'Discente cadastrado com sucesso!');
-        router.push("/discente");
-      } else {
-        Alert.alert('Erro', resultado.message || 'Não foi possível realizar o cadastro.');
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
-    }
-  };
-
+  } catch (error) {
+    console.error(error);
+    Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
+  }
+};
   return (
     <>
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 110 }}>
@@ -200,7 +166,6 @@ export default function CadDiscente() {
               onChangeText={setNome} 
             />
 
-            {/* CAMPO RESPONSÁVEIS */}
             <Text style={styles.textoInput}>Responsáveis:</Text>
             
             <View style={styles.containerTags}>
@@ -260,7 +225,6 @@ export default function CadDiscente() {
               </View>
             )}
 
-            {/* CAMPO DATA DE NASCIMENTO */}
             <Text style={styles.textoInput}>Data de Nascimento:</Text>
             <Input 
               placeholder="DD/MM/AAAA" 
@@ -271,7 +235,6 @@ export default function CadDiscente() {
               maxLength={10}
             />
 
-            {/* CAMPO GRAU DE SUPORTE */}
             <Text style={styles.textoInput}>Grau de Suporte:</Text>
             <Pressable style={styles.select} onPress={() => setAberto(!aberto)}>
               <Text style={styles.selectTexto}>
@@ -304,7 +267,6 @@ export default function CadDiscente() {
         <Text style={styles.textoRodape}>Diário Inclusivo.</Text>
       </Footer>
 
-      {/* BARRA DE NAVEGAÇÃO INFERIOR */}
       <View style={styles.barraMenuGeral}>
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
           <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />

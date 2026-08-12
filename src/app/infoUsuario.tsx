@@ -191,10 +191,10 @@ export default function InfoUsuario() {
         return;
       }
 
-      const response = await fetch(
+            const response = await fetch(
         `http://192.168.0.106/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
         { method: "GET" }
-      );
+            );
 
       const json = await response.json();
 

@@ -1,30 +1,55 @@
-import { router, useFocusEffect } from "expo-router"; // Importamos useFocusEffect
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
 
 export default function Discente() {
-  const [listaDiscentes, setListaDiscentes] = useState([]);
+  const [listaDiscentes, setListaDiscentes] = useState<any[]>([]);
 
-  // Função que busca do seu PHP
+  // Função para buscar discentes criados pelo usuário logado
   const buscarDiscentes = async () => {
     try {
-      const response = await fetch('http://192.168.0.106/DiarioInclusivo/src/app/discente.php');
+      // 1. Tenta pegar o ID da chave "idUsuario" ou "id" salva no login
+      let idUsuarioLogado = await AsyncStorage.getItem("idUsuario");
+      if (!idUsuarioLogado) {
+        idUsuarioLogado = await AsyncStorage.getItem("id");
+      }
+
+      if (!idUsuarioLogado) {
+        console.error("Usuário não autenticado no AsyncStorage.");
+        setListaDiscentes([]);
+        return;
+      }
+
+      // 2. Envia o idUsuario via parâmetro GET para a API
+      const response = await fetch(
+        `http://192.168.0.106/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`
+      );
       const dados = await response.json();
-      setListaDiscentes(dados); // Atualiza o estado com os dados do banco
+
+      if (Array.isArray(dados)) {
+        // Mapeia os dados garantindo a propriedade tipo="discente" para cada item
+        const discentesMapeados = dados.map((d: any) => ({
+          ...d,
+          tipo: "discente",
+        }));
+        setListaDiscentes(discentesMapeados);
+      } else {
+        setListaDiscentes([]);
+      }
     } catch (error) {
       console.error("Erro ao buscar discentes:", error);
     }
   };
 
-  // Sempre que a tela ganhar foco, ele busca os dados novamente
   useFocusEffect(
     useCallback(() => {
       buscarDiscentes();
     }, [])
   );
 
-  // Criamos o array final combinando a lista do banco + o botão fixo
+  // Combina a lista do banco com o card fixo de adicionar (+)
   const itens = [...listaDiscentes, { id: "add", tipo: "botao" }];
 
   return (
@@ -32,7 +57,7 @@ export default function Discente() {
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={styles.grid}>
           {itens.map((item: any) => (
-            <View key={item.id} style={styles.item}>
+            <View key={String(item.id)} style={styles.item}>
               {item.tipo === "discente" ? (
                 <>
                   <Pressable 
@@ -67,6 +92,7 @@ export default function Discente() {
       </ScrollView>
       
       <Footer children={undefined} />
+
       <View style={styles.barraMenuGeral}>
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
           <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
@@ -94,17 +120,9 @@ export default function Discente() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // scrollview ocupar a tela inteira
+    flex: 1,
     backgroundColor: "#F5F2E8",
     padding: 32
-  },
-  topo: {
-    justifyContent: "flex-start", // iniciar no inicio da flex
-    marginTop: 20,
-    color: "#2F1CA6",
-    fontWeight: "bold",
-    fontSize: 18,
-    textAlign: "center"
   },
   grid: {
     flexDirection: "row", 
@@ -116,7 +134,7 @@ const styles = StyleSheet.create({
   item: {
     alignItems: "center",
     marginBottom: 50,
-    width: "48%" // cada card ocupa metade da largura
+    width: "48%"
   },
   card: {
     width: 140,
@@ -190,15 +208,5 @@ const styles = StyleSheet.create({
     right: 0,
     elevation: 10,
     shadowColor: "#000",
-    marginTop: 20
-  },
-  botaoContainer:{
-    width: 250,
-    height: 55,
-    backgroundColor: "#2F1CA6",
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 35
   },
 });

@@ -45,18 +45,15 @@ export default function VisualizarRotina() {
   const [carregando, setCarregando] = useState<boolean>(true);
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
 
-  const IP_SERVIDOR = "192.168.1.59";
+  const IP_SERVIDOR = "200.18.141.137";
 
-  // Controle de Modal e Abas ('editar' ou 'selecionar')
   const [modalVisivel, setModalVisivel] = useState(false);
   const [abaModal, setAbaModal] = useState<'editar' | 'selecionar'>('editar');
 
-  // Dados em edição
   const [rotinaEditandoId, setRotinaEditandoId] = useState<number | null>(null);
   const [nomeRotinaEdit, setNomeRotinaEdit] = useState('');
   const [atividadesEdit, setAtividadesEdit] = useState<{ id: string; nome: string; inicio: Date; fim: Date }[]>([]);
 
-  // Lista master de atividades
   const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]);
 
   // Relógio
@@ -64,7 +61,6 @@ export default function VisualizarRotina() {
   const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio');
   const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null);
 
-  // Buscar lista de rotinas do usuário
   const carregarRotinasDoBanco = async () => {
     try {
       setCarregando(true);
@@ -86,7 +82,6 @@ export default function VisualizarRotina() {
     }
   };
 
-  // Buscar atividades master cadastradadas
   const carregarAtividadesMaster = async () => {
     try {
       const URL_MASTER = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php?t=${new Date().getTime()}`;
@@ -108,7 +103,6 @@ export default function VisualizarRotina() {
     }, [])
   );
 
-  // Deletar Rotina
   const confirmarExclusaoRotina = (idRotina: number) => {
     Alert.alert(
       "Excluir Rotina",
@@ -146,7 +140,6 @@ export default function VisualizarRotina() {
     );
   };
 
-  // Abrir Modal de Edição
   const abrirModalEditar = (rotina: Rotina) => {
     setRotinaEditandoId(rotina.idRotina);
     setNomeRotinaEdit(rotina.nome || '');
@@ -178,7 +171,6 @@ export default function VisualizarRotina() {
     setModalVisivel(true);
   };
 
-  // Adicionar atividade
   const adicionarAtividadeEdit = (atividade: AtividadeMaster) => {
     const novaAtiv = {
       id: String(atividade.idAtividades),
@@ -190,12 +182,10 @@ export default function VisualizarRotina() {
     setAbaModal('editar');
   };
 
-  // Remover atividade
   const removerAtividadeEdit = (index: number) => {
     setAtividadesEdit(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Funções do relógio
   const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
     setIndexSendoEditado(index);
     setPickerMode(modo);
@@ -220,7 +210,7 @@ export default function VisualizarRotina() {
     return `${h}:${m}:00`;
   };
 
-  // Salvar Alterações no Banco
+  // Salvar Alterações
   const salvarEdicaoRotina = async () => {
     if (!nomeRotinaEdit.trim()) {
       Alert.alert("Aviso", "Digite o nome da rotina.");
@@ -239,20 +229,33 @@ export default function VisualizarRotina() {
         horaFinal: formatarHoraString(ativ.fim),
       }));
 
+      const payload = {
+        idRotina: rotinaEditandoId,
+        nomeRotina: nomeRotinaEdit,
+        idUsuario: 1,
+        atividades: atividadesFormatadas,
+      };
+
+      console.log("Enviando para o PHP:", JSON.stringify(payload));
+
       const URL_UPDATE = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/updateRotina.php`;
 
       const resposta = await fetch(URL_UPDATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          idRotina: rotinaEditandoId,
-          nomeRotina: nomeRotinaEdit,
-          idUsuario: 1,
-          atividades: atividadesFormatadas,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const resultado = await resposta.json();
+      const textoResposta = await resposta.text();
+      console.log("Resposta bruta do PHP:", textoResposta);
+
+      let resultado;
+      try {
+        resultado = JSON.parse(textoResposta);
+      } catch (e) {
+        Alert.alert("Erro no Servidor", "O PHP retornou uma resposta inválida. Verifique o console.");
+        return;
+      }
 
       if (resultado.sucesso) {
         Alert.alert("Sucesso", "Rotina atualizada com sucesso!");
@@ -262,6 +265,7 @@ export default function VisualizarRotina() {
         Alert.alert("Erro ao Salvar", resultado.mensagem || "Não foi possível atualizar.");
       }
     } catch (error) {
+      console.error("Erro na requisição:", error);
       Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
     }
   };
@@ -276,7 +280,6 @@ export default function VisualizarRotina() {
 
   return (
     <View style={styles.container}>
-      {/* TOPO */}
       <View style={styles.areaCriarTopo}>
         <Text style={styles.subtitulo}>Minhas rotinas</Text>
       </View>
@@ -296,7 +299,6 @@ export default function VisualizarRotina() {
           }
           renderItem={({ item: rotinaItem }) => (
             <View style={styles.cardRotina}>
-              {/* CABEÇALHO DO CARD COM LÁPIS E LIXEIRA */}
               <View style={styles.headerCard}>
                 <Text style={styles.nomeRotina}>{rotinaItem.nome}</Text>
 
@@ -317,7 +319,6 @@ export default function VisualizarRotina() {
                 </View>
               </View>
 
-              {/* ATIVIDADES */}
               {rotinaItem.atividades && rotinaItem.atividades.length > 0 ? (
                 rotinaItem.atividades.map((atividade, idx) => {
                   const idUnicoTask = `${rotinaItem.idRotina}-${atividade.id}-${idx}`;
@@ -356,7 +357,6 @@ export default function VisualizarRotina() {
         />
       )}
 
-      {/* BOTÃO ADICIONAR NOVA ROTINA */}
       <View style={styles.botaoAdicionarContainer}>
         <TouchableOpacity
           style={styles.botaoAdicionar}
@@ -366,7 +366,7 @@ export default function VisualizarRotina() {
         </TouchableOpacity>
       </View>
 
-      {/* MODAL EDIÇÃO E SELEÇÃO */}
+      {/* MODAL */}
       <Modal visible={modalVisivel} animationType="slide" transparent={true} onRequestClose={() => setModalVisivel(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -448,6 +448,7 @@ export default function VisualizarRotina() {
               </>
             )}
 
+            {/* SELETOR NATIVO DE HORA (COM TEMA CLARO FORÇADO) */}
             {showPicker && indexSendoEditado !== null && (
               <DateTimePicker
                 value={
@@ -457,7 +458,8 @@ export default function VisualizarRotina() {
                 }
                 mode="time"
                 is24Hour={true}
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                display={Platform.OS === 'android' ? 'spinner' : 'spinner'}
+                themeVariant="light"
                 onChange={aoMudarHora}
               />
             )}
@@ -466,10 +468,8 @@ export default function VisualizarRotina() {
         </View>
       </Modal>
 
-      {/* FOOTER NATIVO */}
       <Footer children={undefined} />
 
-      {/* BARRA DE NAVEGAÇÃO INFERIOR */}
       <View style={styles.barraMenuGeral}>
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
           <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   cardRotina: {
-    backgroundColor: "#F5F2E8",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
   },
   semAtividades: {
     fontSize: 14,
-    color: "#888888",
+    color: "#fff7f7",
     fontStyle: "italic",
     marginVertical: 6,
   },
@@ -645,8 +645,6 @@ const styles = StyleSheet.create({
     height: 50,
     resizeMode: "contain",
   },
-
-  /* MODAL */
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -710,15 +708,14 @@ const styles = StyleSheet.create({
     color: '#2F1CA6',
   },
   btnHoraModal: {
-    backgroundColor: '#EBEBEB',
+    backgroundColor: '#ffffff',
     padding: 8,
     borderRadius: 8,
     flex: 0.48,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#2F1CA6',
   },
-  /* COR DA HORA AJUSTADA PARA PRETO ESCURO SÓLIDO */
   txtHoraModal: {
     fontSize: 13,
     color: '#000000',

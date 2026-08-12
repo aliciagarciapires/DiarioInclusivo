@@ -62,7 +62,7 @@ export default function InfoProf() {
         const idLogado = await AsyncStorage.getItem("idUsuario");
         if (idLogado) {
           const respLogado = await fetch(
-            `http://192.168.1.59/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
+            `http://200.18.141.137/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
           );
           const jsonLogado = await respLogado.json();
           if (jsonLogado.success && jsonLogado.dados?.tipo_de_usuario) {
@@ -79,7 +79,7 @@ export default function InfoProf() {
 
         // 3. Busca os dados do professor selecionado
         const response = await fetch(
-          `http://192.168.1.59/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
+          `http://200.18.141.137/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
         );
         const json = await response.json();
 
@@ -125,7 +125,7 @@ export default function InfoProf() {
     try {
       setSalvando(true);
       const response = await fetch(
-        "http://192.168.1.59/DiarioInclusivo/src/app/updateUsuario.php",
+        "http://200.18.141.137/DiarioInclusivo/src/app/updateUsuario.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -171,7 +171,7 @@ export default function InfoProf() {
       setLoading(true);
 
       const response = await fetch(
-        `http://192.168.1.59/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
+        `http://200.18.141.137/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
         { method: "GET" }
       );
       const json = await response.json();

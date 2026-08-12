@@ -1,24 +1,18 @@
 <?php
+ini_set('display_errors', 0);
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json"); //conexão com o banco
+header("Content-Type: application/json; charset=UTF-8");
 
-include_once "conexao.php";
-
-$dados = json_decode(file_get_contents("php://input"), true);
+include_once "conexao.php"; 
+$db = isset($mysqli) ? $mysqli : (isset($conn) ? $conn : null);
 
 $sql = "SELECT idAtividades, nome FROM atividades";
-$result = $mysqli->query($sql);
+$resultado = $db->query($sql);
 
-$atividades = array();
-
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $atividades[] = array(
-            "idAtividades" => $row["idAtividades"],
-            "nome" => $row["nome"]
-        );
+$atividades = [];
+if ($resultado) {
+    while ($linha = $resultado->fetch_assoc()) {
+        $atividades[] = $linha;
     }
 }
 

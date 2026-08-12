@@ -59,13 +59,13 @@ export default function InfoDiscente() {
       setLoading(true);
 
       // 1. Busca todos os responsáveis disponíveis na base
-      const resResp = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/buscar_responsaveis.php");
+      const resResp = await fetch("http://200.18.141.137/DiarioInclusivo/src/app/buscar_responsaveis.php");
       const dadosResp = await resResp.json();
       const listaCompleta: Responsavel[] = Array.isArray(dadosResp) ? dadosResp : [];
       setListaResponsaveis(listaCompleta);
 
       // 2. Busca dados do discente
-      const response = await fetch(`http://192.168.1.59/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+      const response = await fetch(`http://200.18.141.137/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
       const json = await response.json();
 
       if (json.success) {
@@ -204,7 +204,7 @@ export default function InfoDiscente() {
 
     try {
       setLoading(true);
-      const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/updateDiscente.php", {
+      const response = await fetch("http://200.18.141.137/DiarioInclusivo/src/app/updateDiscente.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -248,7 +248,7 @@ export default function InfoDiscente() {
   const deletarDiscente = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://192.168.1.59/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}`, {
+      const response = await fetch(`http://200.18.141.137/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}`, {
         method: "DELETE",
       });
       const json = await response.json();

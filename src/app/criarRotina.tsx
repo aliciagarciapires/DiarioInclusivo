@@ -33,7 +33,7 @@ export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "192.168.1.59";
+  const IP_SERVIDOR = "200.18.141.137";
 
   // Estados da Rotina
   const [nome, setNome] = useState('');

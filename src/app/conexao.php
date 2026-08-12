@@ -13,5 +13,5 @@ if ($mysqli->connect_error) {
     echo json_encode(["sucesso" => false, "mensagem" => "Falha na conexão: " . $mysqli->connect_error]);
     exit();
 }
-// APAGAMOS o 'echo "Conexão bem-sucedida!"' daqui de baixo!
+
 ?>

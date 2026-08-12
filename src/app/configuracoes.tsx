@@ -13,7 +13,7 @@ export default function Configuracoes() {
       try {
         const idSalvo = await AsyncStorage.getItem("idUsuario");
         if (idSalvo) {
-          const response = await fetch(`http://192.168.1.59/DiarioInclusivo/src/app/getUsuario.php?id=${idSalvo}`);
+          const response = await fetch(`http://192.168.0.106/DiarioInclusivo/src/app/getUsuario.php?id=${idSalvo}`);
           const json = await response.json();
           
           if (json.success && json.dados?.tipo_de_usuario) {

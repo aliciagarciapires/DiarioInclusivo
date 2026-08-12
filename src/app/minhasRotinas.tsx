@@ -45,7 +45,7 @@ export default function VisualizarRotina() {
   const [carregando, setCarregando] = useState<boolean>(true);
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
 
-  const IP_SERVIDOR = "192.168.1.59";
+  const IP_SERVIDOR = "192.168.0.106";
 
   // Controle de Modal e Abas ('editar' ou 'selecionar')
   const [modalVisivel, setModalVisivel] = useState(false);

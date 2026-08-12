@@ -7,28 +7,29 @@ require_once 'conexao.php';
 $db = $conn ?? $conexao ?? $mysqli ?? null;
 
 if (!$db) {
-    echo json_encode(["erro" => "Erro na conexão com o banco."]);
+    echo json_encode(["erro" => "Falha na conexão com o banco de dados."]);
     exit;
 }
 
-// Aceita idUsuario ou id no parâmetro GET
-$idUsuario = $_GET['idUsuario'] ?? $_GET['id'] ?? null;
+$idResp = $_GET['idResp'] ?? $_GET['idUsuario'] ?? null;
 
-if (!$idUsuario) {
-    echo json_encode(["erro" => "ID do usuário não fornecido."]);
+if (!$idResp) {
+    echo json_encode(["erro" => "ID do responsável não foi fornecido."]);
     exit;
 }
 
 try {
-    // Busca discentes vinculados ao ID do usuário informado
+    $idRespInt = (int)$idResp;
+
+    // Busca o discente onde o idResp é o usuário logado
+    // (Adicionado CAST para evitar problemas de comparação int/string no MySQL)
     $query = "SELECT DISTINCT d.id, d.nome, d.data_nascimento, d.grau_de_suporte 
               FROM discente d
               INNER JOIN usuario_possui_discente upd ON d.id = upd.idDiscente
-              WHERE upd.idUsuario = ?";
+              WHERE upd.idResp = ?";
 
     $stmt = $db->prepare($query);
-    $idUsuarioInt = (int)$idUsuario;
-    $stmt->bind_param("i", $idUsuarioInt);
+    $stmt->bind_param("i", $idRespInt);
     $stmt->execute();
 
     $result = $stmt->get_result();
@@ -38,9 +39,11 @@ try {
         $discentes[] = $row;
     }
 
+    // Retorna a lista encontrada (ou array vazio [])
     echo json_encode($discentes);
+
     $stmt->close();
 } catch (Exception $e) {
-    echo json_encode(["erro" => "Erro na consulta: " . $e->getMessage()]);
+    echo json_encode(["erro" => "Erro na consulta SQL: " . $e->getMessage()]);
 }
 ?>

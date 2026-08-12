@@ -19,34 +19,38 @@ $nome = $data['nome'] ?? '';
 $dataNasc = $data['dataNasc'] ?? $data['data_nascimento'] ?? '';
 $grau = $data['grau'] ?? $data['grau_de_suporte'] ?? '';
 $idsResponsaveis = $data['idsResponsaveis'] ?? $data['responsaveis'] ?? [];
+$idUsuarioLogado = $data['idUsuarioLogado'] ?? $data['idUsuario'] ?? null;
 
-if (!empty($id) && !empty($nome) && !empty($dataNasc) && !empty($grau)) {
+if (!empty($id) && !empty($nome) && !empty($dataNasc) && !empty($grau) && !empty($idUsuarioLogado)) {
 
     try {
-        // 1. Atualiza dados principais do discente
+        // 1. Atualiza os dados cadastrais do discente
         $stmt = $db->prepare("UPDATE discente SET nome = ?, data_nascimento = ?, grau_de_suporte = ? WHERE id = ?");
         $stmt->bind_param("sssi", $nome, $dataNasc, $grau, $id);
         $stmt->execute();
         $stmt->close();
 
-        // 2. Limpa vínculos antigos
+        // 2. Remove os relacionamentos antigos desse discente
         $stmtDel = $db->prepare("DELETE FROM usuario_possui_discente WHERE idDiscente = ?");
         $stmtDel->bind_param("i", $id);
         $stmtDel->execute();
         $stmtDel->close();
 
-        // 3. Insere os novos vínculos
+        // 3. Insere os novos vínculos preservando o idUsuario (criador/professor) e o idResp (responsável)
         if (!empty($idsResponsaveis) && is_array($idsResponsaveis)) {
-            $stmtIns = $db->prepare("INSERT INTO usuario_possui_discente (idUsuario, idDiscente) VALUES (?, ?)");
-            foreach ($idsResponsaveis as $idUsuario) {
-                $idUserInt = (int)$idUsuario;
-                $stmtIns->bind_param("ii", $idUserInt, $id);
+            $stmtIns = $db->prepare("INSERT INTO usuario_possui_discente (idUsuario, idResp, idDiscente) VALUES (?, ?, ?)");
+            $idUsuarioInt = (int)$idUsuarioLogado;
+            $idDiscenteInt = (int)$id;
+
+            foreach ($idsResponsaveis as $idResp) {
+                $idRespInt = (int)$idResp;
+                $stmtIns->bind_param("iii", $idUsuarioInt, $idRespInt, $idDiscenteInt);
                 $stmtIns->execute();
             }
             $stmtIns->close();
         }
 
-        echo json_encode(["success" => true, "message" => "Discente e responsáveis atualizados com sucesso!"]);
+        echo json_encode(["success" => true, "message" => "Discente atualizado com sucesso!"]);
 
     } catch (Exception $e) {
         echo json_encode(["success" => false, "message" => "Erro no banco de dados: " . $e->getMessage()]);

@@ -30,7 +30,7 @@ try {
     $stmtResp = $db->prepare("
         SELECT u.nome 
         FROM usuario_possui_discente upd 
-        JOIN usuario u ON upd.idUsuario = u.idUsuario 
+        JOIN usuario u ON upd.idResp = u.idUsuario
         WHERE upd.idDiscente = ?
     ");
     

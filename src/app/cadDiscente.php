@@ -7,37 +7,40 @@ require_once 'conexao.php';
 
 $db = $conn ?? $conexao ?? $mysqli ?? null;
 
-// Recebe os dados JSON enviados pelo React Native
+if (!$db) {
+    echo json_encode(["success" => false, "message" => "Erro de conexão com o banco."]);
+    exit;
+}
+
 $dados = json_decode(file_get_contents("php://input"), true);
 
 $nome = $dados['nome'] ?? '';
 $dataNasc = $dados['dataNasc'] ?? '';
 $grau = $dados['grau'] ?? '';
-// Recebe a lista de IDs dos responsáveis selecionados
+$idUsuarioLogado = $dados['idUsuarioLogado'] ?? null;
 $idsResponsaveis = $dados['idsResponsaveis'] ?? []; 
 
-if (empty($nome) || empty($dataNasc) || empty($grau)) {
+if (empty($nome) || empty($dataNasc) || empty($grau) || empty($idUsuarioLogado)) {
     echo json_encode(["success" => false, "message" => "Preencha todos os campos obrigatórios."]);
     exit;
 }
 
 try {
-    // 1. Cadastra o Discente na tabela discentes
-    // (Ajuste os nomes das colunas e da tabela se forem diferentes no seu banco)
+    // 1. Cadastra o Discente na tabela
     $stmt = $db->prepare("INSERT INTO discente (nome, data_nascimento, grau_de_suporte) VALUES (?, ?, ?)");
     $stmt->bind_param("sss", $nome, $dataNasc, $grau);
     
     if ($stmt->execute()) {
-        // Pega o ID do Discente recém-criado
         $idDiscente = $db->insert_id;
 
-        // 2. Insere os vínculos na tabela usuario_possui_discente
+        // 2. Salva a relação com idUsuario (quem cadastrou) e idResp (responsável selecionado)
         if (!empty($idsResponsaveis) && is_array($idsResponsaveis)) {
-            $stmtRelacao = $db->prepare("INSERT INTO usuario_possui_discente (idUsuario, idDiscente) VALUES (?, ?)");
+            $stmtRelacao = $db->prepare("INSERT INTO usuario_possui_discente (idUsuario, idResp, idDiscente) VALUES (?, ?, ?)");
+            $idUsuarioInt = (int)$idUsuarioLogado;
 
-            foreach ($idsResponsaveis as $idUsuario) {
-                $idUsuarioInt = (int)$idUsuario;
-                $stmtRelacao->bind_param("ii", $idUsuarioInt, $idDiscente);
+            foreach ($idsResponsaveis as $idResp) {
+                $idRespInt = (int)$idResp;
+                $stmtRelacao->bind_param("iii", $idUsuarioInt, $idRespInt, $idDiscente);
                 $stmtRelacao->execute();
             }
             $stmtRelacao->close();

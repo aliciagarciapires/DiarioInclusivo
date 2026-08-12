@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     FlatList,
@@ -17,98 +17,63 @@ import {
 } from 'react-native';
 import Footer from '../../components/Footer';
 
-interface Atividade { // Defino o que é atividade e as suas informações
+interface Atividade {
   id: string;
   nome: string;
   inicio: Date;
   fim: Date;
 }
 
+interface AtividadeMaster {
+  idAtividades: number;
+  nome: string;
+}
+
 export default function CriarRotina() {
-  const router = useRouter(); // para poder trocar de tela depois
+  const router = useRouter(); 
   
-  // estados iniciais 
-  const [nomeRotina, setNomeRotina] = useState(''); // começa sem nome
-  const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]); // array começa vazio
+  // IP do seu servidor
+  const IP_SERVIDOR = "192.168.1.59";
+
+  // Estados da Rotina
+  const [nome, setNome] = useState('');
+  const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]); 
   
-  // estados de controle dos Modais e Pickers
-  const [modalVisivel, setModalVisivel] = useState(false); // controla se o pop-up aparece na tela
-  const [showPicker, setShowPicker] = useState(false); // controla SE o relógio do celular aparece ou não na tela
-  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); // controla O QUE vai aparecer na tela depois do relógio ser aberto
-  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); // salva o indice numerico de qual atividade na lista o usuario esta alterando
+  // Lista de Atividades do Banco
+  const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]);
 
-  // estados novos: para a criação da atividade personalizada
-  const [criandoPersonalizada, setCriandoPersonalizada] = useState(false); // modal da personalizada
-  const [novoNomeAtividade, setNovoNomeAtividade] = useState(''); // guarda o texto digitado pelo usuário ao criar uma atividade do zero de forma manual.
+  // Modais e Pickers
+  const [modalVisivel, setModalVisivel] = useState(false); 
+  const [showPicker, setShowPicker] = useState(false); 
+  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); 
+  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); 
 
-  // lista de atividades pré-cadastradas
-  const listaMaster = [
-    { idAtividades: 1, nome: "Mapa mental" },
-    { idAtividades: 2, nome: "Esquemas Ilustrados" },
-    { idAtividades: 3, nome: "Guia de leitura" },
-    { idAtividades: 4, nome: "Desenho explicativo" },
-    { idAtividades: 5, nome: "Objeto de toque" },
-    { idAtividades: 6, nome: "Pausa programada" }
-  ];
+  // Busca as atividades pré-cadastradas do banco assim que a tela abre
+  useEffect(() => {
+    async function carregarAtividadesBanco() {
+      try {
+        const resposta = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php`);
+        const dados = await resposta.json();
+        if (dados && Array.isArray(dados)) {
+          setListaMaster(dados);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar lista de atividades:", error);
+      }
+    }
+    carregarAtividadesBanco();
+  }, []);
 
-  // adiciona uma atividade da lista pré-definida
-  const adicionarDaMaster = (atividade: { idAtividades: number; nome: string }) => {
+  // Adiciona a atividade selecionada da lista master para a rotina
+  const adicionarDaMaster = (atividade: AtividadeMaster) => {
     const novaAtiv: Atividade = {
-      id: atividade.idAtividades.toString(), // Salva o ID real do banco aqui!
+      id: atividade.idAtividades.toString(),
       nome: atividade.nome,
       inicio: new Date(),
       fim: new Date(),
     };
     setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
     setModalVisivel(false);
-  };
-
-  // Salva a atividade que o usuário digitou manualmente (CORRIGIDO)
-  const salvarAtividadePersonalizada = async () => {
-    if (novoNomeAtividade.trim() === '') {
-      Alert.alert("Aviso", "Por favor, digite o nome da atividade.");
-      return; // Impede salvar em branco
-    }
-
-    try {
-      // Ajustado para a mesma faixa de IP e arquivo de criação de atividade correto
-      const URL_API = 'http://192.168.0.106/DiarioInclusivo/src/app/criar_atividade.php';
-
-      const resposta = await fetch(URL_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          novoNomeAtividade: novoNomeAtividade // Envia o texto pro PHP
-        }),
-      });
-
-      const resultado = await resposta.json();
-
-      if (resultado.sucesso) {
-        const novaAtiv: Atividade = {
-          id: resultado.idAtividades.toString(), // Usa o ID real do banco!
-          nome: novoNomeAtividade,
-          inicio: new Date(),
-          fim: new Date(),
-        };
-
-        setAtividadesSelecionadas(prevAtividades => [...prevAtividades, novaAtiv]);
-        
-        setNovoNomeAtividade('');
-        setCriandoPersonalizada(false);
-        setModalVisivel(false);
-        
-        Alert.alert("Sucesso", "Atividade cadastrada e adicionada com sucesso!");
-      } else {
-        Alert.alert("Erro", resultado.mensagem || "Erro ao cadastrar atividade.");
-      }
-
-    } catch (error: any) {
-      console.error("Erro detalhado:", error);
-      Alert.alert("Erro de Rede/Conexão", error.message || "Não foi possível se conectar ao servidor.");
-    }
   };
 
   const apagarAtividade = (idParaApagar: string) => {
@@ -129,7 +94,7 @@ export default function CriarRotina() {
     );
   };
 
-  // funções do DateTimePicker
+  // Funções de ajuste de horário
   const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
     setIndexSendoEditado(index);
     setPickerMode(modo);
@@ -137,7 +102,6 @@ export default function CriarRotina() {
   };
 
   const aoMudarHora = (event: any, selectedDate?: Date) => {
-    // Se for no Android, quando o usuário clica em "OK" ele gera o evento 'set' e podemos fechar
     if (event.type === 'set' && selectedDate && indexSendoEditado !== null) {
       const novasAtividades = [...atividadesSelecionadas]; 
       novasAtividades[indexSendoEditado][pickerMode] = selectedDate;
@@ -145,10 +109,8 @@ export default function CriarRotina() {
       setShowPicker(false);
       setIndexSendoEditado(null);
     } 
-    // No iOS (spinner), o evento dispara a cada girada do rolinho. Atualizamos a hora na hora!
     else if (selectedDate && indexSendoEditado !== null) {
       const novasAtividades = [...atividadesSelecionadas]; 
-      
       if (pickerMode === 'inicio') {
         novasAtividades[indexSendoEditado].inicio = selectedDate; 
       } else {
@@ -158,8 +120,9 @@ export default function CriarRotina() {
     }
   };
 
+  // Salva uma NOVA rotina enviando para o salvar_rotina.php
   const finalizarRotina = async () => {
-    if (nomeRotina.trim() === '') {
+    if (nome.trim() === '') {
       Alert.alert("Aviso", "Por favor, digite um nome para a rotina.");
       return;
     }
@@ -172,12 +135,12 @@ export default function CriarRotina() {
       const idUsuarioLogado = 1;
 
       const atividadesFormatadas = atividadesSelecionadas.map(ativ => ({
-        idAtividades: ativ.id, 
-        horaInicial: ativ.inicio.toLocaleTimeString([], { hour12: false }), 
-        horaFinal: ativ.fim.toLocaleTimeString([], { hour12: false })      
+        idAtividades: ativ.id,
+        horas_iniciais: ativ.inicio.toLocaleTimeString([], { hour12: false }),
+        horas_finais: ativ.fim.toLocaleTimeString([], { hour12: false })
       }));
 
-      const URL_SALVAR = 'http://192.168.0.106/DiarioInclusivo/src/app/salvar_rotina.php';
+      const URL_SALVAR = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/salvar_rotina.php`;
 
       const resposta = await fetch(URL_SALVAR, {
         method: 'POST',
@@ -185,8 +148,8 @@ export default function CriarRotina() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          nomeRotina: nomeRotina,
-          idUsuario: idUsuarioLogado, 
+          nome: nome,
+          idUsuario: idUsuarioLogado,
           atividades: atividadesFormatadas
         }),
       });
@@ -194,10 +157,10 @@ export default function CriarRotina() {
       const resultado = await resposta.json();
 
       if (resultado.sucesso) {
-        Alert.alert("Sucesso!", "Sua rotina completa e os horários foram salvos no banco de dados.");
+        Alert.alert("Sucesso!", "Sua rotina foi criada e salva com sucesso!");
         router.push("/minhasRotinas" as Href); 
       } else {
-        Alert.alert("Erro ao salvar", resultado.mensagem);
+        Alert.alert("Erro ao salvar", resultado.mensagem || "Não foi possível salvar a nova rotina.");
       }
 
     } catch (error: any) {
@@ -216,36 +179,33 @@ export default function CriarRotina() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* input Nome da Rotina */}
+        {/* Input Nome da Rotina */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Nome da rotina</Text>
           <TextInput 
             style={styles.input} 
             placeholder="Ex: Aula de Português"
             placeholderTextColor="#0b8cbfd1"
-            value={nomeRotina}
-            onChangeText={setNomeRotina}
+            value={nome}
+            onChangeText={setNome}
           />
         </View>
 
-        {/* botão para Abrir a Lista Master */}
+        {/* Botão para Abrir a Lista Master */}
         <TouchableOpacity 
           style={styles.botaoMaster} 
-          onPress={() => {
-            setCriandoPersonalizada(false); 
-            setModalVisivel(true);
-          }}
+          onPress={() => setModalVisivel(true)}
         >
           <Ionicons name="add-circle" size={24} color="#F5F2E8" />
-          <Text style={styles.textoBotaoMaster}>Atividade</Text>
+          <Text style={styles.textoBotaoMaster}>Selecionar Atividade</Text>
         </TouchableOpacity>
 
+        {/* Lista de Atividades Selecionadas */}
         {atividadesSelecionadas.map((item, index) => (
           <View key={`${item.id}-${index}`} style={styles.cardAtividade}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <Text style={styles.nomeAtividade}>{item.nome}</Text>
               
-              {/* Botão da Lixeira */}
               <TouchableOpacity onPress={() => apagarAtividade(item.id)}>
                 <Ionicons name="trash-outline" size={22} color="#FF4444" />
               </TouchableOpacity>
@@ -264,80 +224,45 @@ export default function CriarRotina() {
         ))}
       </ScrollView>
 
-      {/* botão Finalizar */}
+      {/* Botão Finalizar / Salvar */}
       <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarRotina}>
         <Text style={styles.textoFinalizar}>Salvar Rotina</Text>
       </TouchableOpacity>
 
-      {/* MODAL */}
+      {/* MODAL DE SELEÇÃO DE ATIVIDADES EXISTENTES */}
       <Modal visible={modalVisivel} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             
-            {criandoPersonalizada ? (
-              <View style={{ flex: 1, justifyContent: 'center' }}>
-                <Text style={styles.modalTitulo}>Nova Atividade</Text>
-                
-                <TextInput 
-                  style={styles.input}
-                  placeholder="Digite o nome da atividade..."
-                  placeholderTextColor="#0b8cbfd1"
-                  value={novoNomeAtividade}
-                  onChangeText={setNovoNomeAtividade}
-                />
-                
-                <Text style={styles.avisoHorario}>
-                  * O horário poderá ser ajustado assim que ela for adicionada à lista.
-                </Text>
+            <Text style={styles.modalTitulo}>Escolha uma Atividade</Text>
 
-                <TouchableOpacity style={styles.botaoAdicionarSimulado} onPress={salvarAtividadePersonalizada}>
-                  <Text style={{ color: '#F5F2E8', fontWeight: 'bold', fontSize: 16 }}>Adicionar na Lista</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={{ marginTop: 15, alignItems: 'center' }} onPress={() => setCriandoPersonalizada(false)}>
-                  <Text style={{ color: '#2F1CA6', fontWeight: 'bold' }}>Voltar para a lista</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <Text style={styles.modalTitulo}>Escolha as Atividades</Text>
-                <FlatList 
-                  data={listaMaster}
-                  keyExtractor={(item) => item.idAtividades.toString()} 
-                  renderItem={({ item }) => (
-                    <TouchableOpacity 
-                      style={styles.itemMaster} 
-                      onPress={() => adicionarDaMaster(item)} 
-                    >
-                      <View style={styles.containerMaster}>
-                        <Ionicons name="add-circle-outline" size={22} color="#2F1CA6" />
-                        <View style={styles.conteudoItemMaster}>
-                          <Text style={styles.textoItemMaster}>{item.nome}</Text> 
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                />
-
+            <FlatList 
+              data={listaMaster}
+              keyExtractor={(item) => item.idAtividades.toString()} 
+              renderItem={({ item }) => (
                 <TouchableOpacity 
-                  style={styles.botaoCriarNovaDentroDoModal} 
-                  onPress={() => setCriandoPersonalizada(true)}
+                  style={styles.itemMaster} 
+                  onPress={() => adicionarDaMaster(item)} 
                 >
-                  <Ionicons name="create-outline" size={20} color="white" />
-                  <Text style={styles.textoBotaoCriarNova}>Criar Nova Atividade</Text>
+                  <View style={styles.containerMaster}>
+                    <Ionicons name="add-circle-outline" size={22} color="#2F1CA6" />
+                    <View style={styles.conteudoItemMaster}>
+                      <Text style={styles.textoItemMaster}>{item.nome}</Text> 
+                    </View>
+                  </View>
                 </TouchableOpacity>
+              )}
+            />
 
-                <TouchableOpacity style={styles.botaoFechar} onPress={() => setModalVisivel(false)}>
-                  <Text style={{ color: '#F5F2E8', fontWeight: 'bold' }}>Fechar</Text>
-                </TouchableOpacity>
-              </>
-            )}
+            <TouchableOpacity style={styles.botaoFechar} onPress={() => setModalVisivel(false)}>
+              <Text style={{ color: '#F5F2E8', fontWeight: 'bold' }}>Fechar</Text>
+            </TouchableOpacity>
 
           </View>
         </View>
       </Modal>
 
-     {/* MODAL EXCLUSIVO PARA O RELÓGIO (iOS e Android) */}
+      {/* MODAL DO RELÓGIO */}
       <Modal visible={showPicker && indexSendoEditado !== null} animationType="fade" transparent={true}>
         <View style={styles.modalOverlayRelogio}>
           <View style={styles.modalContentRelogio}>
@@ -370,6 +295,7 @@ export default function CriarRotina() {
         </View>
       </Modal>
 
+      {/* Footer */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
@@ -405,11 +331,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center',
     padding: 20,
-  },
-  titulo: { 
-    fontSize: 24, 
-    fontWeight: 'bold', 
-    color: '#2F1CA6' 
   },
   subtitulo: {
     marginTop: 5,
@@ -536,35 +457,6 @@ const styles = StyleSheet.create({
     color: '#2F1CA6',
     fontWeight: '500' 
   },
-  botaoCriarNovaDentroDoModal: {
-    backgroundColor: '#7CBF17', 
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 30,
-    marginTop: 15
-  },
-  textoBotaoCriarNova: { 
-    color: '#F5F2E8', 
-    fontSize: 16, 
-    fontWeight: 'bold', 
-    marginLeft: 8 
-  },
-  botaoAdicionarSimulado: {
-    backgroundColor: '#2F1CA6',
-    padding: 15,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  avisoHorario: { 
-    color: '#2e1ca665', 
-    fontSize: 13, 
-    fontStyle: 'italic', 
-    marginTop: 8, 
-    textAlign: 'center' 
-  },
   botaoFechar: { 
     backgroundColor: '#F22222', 
     padding: 12, 
@@ -585,10 +477,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: {
-    width: 80, // Largura e altura iguais
-  height: 80,
-  borderRadius: 15, // Metade do tamanho
-  resizeMode: "cover",      
+    width: 80,
+    height: 80,
+    borderRadius: 15,
+    resizeMode: "cover",      
   },
   barraMenuGeral: {
     flexDirection: "row",          
@@ -624,10 +516,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#2F1CA6',
     elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
   },
   modalTituloRelogio: { 
     fontSize: 18, 

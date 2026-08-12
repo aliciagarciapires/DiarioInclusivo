@@ -30,14 +30,14 @@ $dados = json_decode(file_get_contents("php://input"), true);
 ob_end_clean();
 
 // Verifica se todos os campos obrigatórios chegaram do aplicativo
-if (!empty($dados['nomeRotina']) && !empty($dados['atividades']) && !empty($dados['idUsuario'])) {
+if (!empty($dados['nome']) && !empty($dados['atividades']) && !empty($dados['idUsuario'])) {
     
     // Protege os dados contra SQL Injection
-    $nomeRotina = $mysqli->real_escape_string($dados['nomeRotina']);
+    $nome = $mysqli->real_escape_string($dados['nome']);
     $idUsuario = intval($dados['idUsuario']); // Transforma em número inteiro seguro
     
     // 1. Insere a nova rotina na tabela ROTINA vinculando ao idUsuario
-    $queryRotina = "INSERT INTO ROTINA (nome, idUsuario) VALUES ('$nomeRotina', $idUsuario)";
+    $queryRotina = "INSERT INTO ROTINA (nome, idUsuario) VALUES ('$nome', $idUsuario)";
     
     if ($mysqli->query($queryRotina)) {
         // Pega o ID automático que o banco acabou de gerar para esta rotina
@@ -49,12 +49,12 @@ if (!empty($dados['nomeRotina']) && !empty($dados['atividades']) && !empty($dado
         // 2. Faz um loop para salvar cada atividade selecionada na tabela de relacionamento (ROTINA_TEM_ATIVIDADES)
         foreach ($dados['atividades'] as $atividade) {
             $idAtividade = intval($atividade['idAtividades']);
-            $horaInicial = $mysqli->real_escape_string($atividade['horaInicial']);
-            $horaFinal = $mysqli->real_escape_string($atividade['horaFinal']);
+            $horas_iniciais = $mysqli->real_escape_string($atividade['horas_iniciais']);
+            $horas_finais = $mysqli->real_escape_string($atividade['horas_finais']);
             
             // Query que junta o ID da rotina criada, o ID da atividade existente e as horas
             $queryVinculo = "INSERT INTO ROTINA_TEM_ATIVIDADES (idRotina, idAtividades, horas_iniciais, horas_finais) 
-                             VALUES ($idRotinaGerado, $idAtividade, '$horaInicial', '$horaFinal')";
+                             VALUES ($idRotinaGerado, $idAtividade, '$horas_iniciais', '$horas_finais')";
             
             if (!$mysqli->query($queryVinculo)) {
                 $erroVinculo = true;

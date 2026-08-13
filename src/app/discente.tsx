@@ -24,7 +24,7 @@ export default function Discente() {
 
       // 2. Envia o idUsuario via parâmetro GET para a API
       const response = await fetch(
-        `http://200.18.141.168/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`
+        `http://172.25.0.28/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`
       );
       const dados = await response.json();
 

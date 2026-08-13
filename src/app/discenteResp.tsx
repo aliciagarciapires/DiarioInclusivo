@@ -20,7 +20,7 @@ export default function DiscenteResp() {
       return;
     }
 
-    const url = `http://200.18.141.168/DiarioInclusivo/src/app/discenteResp.php?idResp=${idUsuarioLogado}`;
+    const url = `http://172.25.0.28/DiarioInclusivo/src/app/discenteResp.php?idResp=${idUsuarioLogado}`;
     console.log("URL chamada:", url);
 
     const response = await fetch(url);

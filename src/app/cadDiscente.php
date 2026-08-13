@@ -26,21 +26,22 @@ if (empty($nome) || empty($dataNasc) || empty($grau) || empty($idUsuarioLogado))
 }
 
 try {
-    // 1. Cadastra o Discente na tabela
-    $stmt = $db->prepare("INSERT INTO discente (nome, data_nascimento, grau_de_suporte) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $nome, $dataNasc, $grau);
+    $idUsuarioInt = (int)$idUsuarioLogado;
+
+    // 1. Cadastra o Discente salvando o idUsuario diretamente na tabela discente
+    $stmt = $db->prepare("INSERT INTO discente (nome, data_nascimento, grau_de_suporte, idUsuario) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("sssi", $nome, $dataNasc, $grau, $idUsuarioInt);
     
     if ($stmt->execute()) {
         $idDiscente = $db->insert_id;
 
-        // 2. Salva a relação com idUsuario (quem cadastrou) e idResp (responsável selecionado)
+        // 2. Salva a relação apenas do responsável com o discente
         if (!empty($idsResponsaveis) && is_array($idsResponsaveis)) {
-            $stmtRelacao = $db->prepare("INSERT INTO usuario_possui_discente (idUsuario, idResp, idDiscente) VALUES (?, ?, ?)");
-            $idUsuarioInt = (int)$idUsuarioLogado;
+            $stmtRelacao = $db->prepare("INSERT INTO usuario_possui_discente (idResp, idDiscente) VALUES (?, ?)");
 
             foreach ($idsResponsaveis as $idResp) {
                 $idRespInt = (int)$idResp;
-                $stmtRelacao->bind_param("iii", $idUsuarioInt, $idRespInt, $idDiscente);
+                $stmtRelacao->bind_param("ii", $idRespInt, $idDiscente);
                 $stmtRelacao->execute();
             }
             $stmtRelacao->close();

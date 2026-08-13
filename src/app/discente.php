@@ -20,11 +20,10 @@ if (!$idUsuario) {
 }
 
 try {
-    // Busca discentes vinculados ao ID do usuário informado
-    $query = "SELECT DISTINCT d.id, d.nome, d.data_nascimento, d.grau_de_suporte 
-              FROM discente d
-              INNER JOIN usuario_possui_discente upd ON d.id = upd.idDiscente
-              WHERE upd.idUsuario = ?";
+    // Busca os discentes onde o idUsuario da própria tabela discente é igual ao fornecido
+    $query = "SELECT id, nome, data_nascimento, grau_de_suporte, idUsuario 
+              FROM discente 
+              WHERE idUsuario = ?";
 
     $stmt = $db->prepare($query);
     $idUsuarioInt = (int)$idUsuario;

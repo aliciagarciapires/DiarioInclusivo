@@ -69,7 +69,7 @@ export default function CadResp() {
         }
 
         try {
-                const response = await fetch("http://172.25.0.28/DiarioInclusivo/src/app/cadResp.php", {
+                const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/cadResp.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

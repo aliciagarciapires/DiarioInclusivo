@@ -52,7 +52,7 @@ export default function VisualizarRotina() {
   const [carregando, setCarregando] = useState<boolean>(true); // Controle do ícone de carregamento (spinner)
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]); // Lista de IDs das tarefas marcadas como "feitas" (checkbox)
 
-  const IP_SERVIDOR = "192.168.1.59" ;  
+  const IP_SERVIDOR = "200.18.141.168" ;  
 
   // --- ESTADOS DO MODAL DE EDIÇÃO ---
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -649,6 +649,7 @@ const styles = StyleSheet.create({
   botaoAdicionar: {
     width: 260,
     height: 45,
+    marginBottom: 30,
     backgroundColor: "#2F1CA6",
     justifyContent: "center",
     alignItems: "center",

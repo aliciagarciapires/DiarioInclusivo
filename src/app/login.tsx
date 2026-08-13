@@ -3,16 +3,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
@@ -55,7 +55,7 @@ export default function Login() {
         }
 
         try {
-            const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/login.php", {
+            const response = await fetch("http://200.18.141.168/DiarioInclusivo/src/app/login.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

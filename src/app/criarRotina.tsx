@@ -3,7 +3,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   FlatList,
   Image,
@@ -18,6 +17,7 @@ import {
 } from 'react-native';
 import Footer from '../../components/Footer';
 
+// Define o formato de uma atividade que já foi adicionada à rotina atual
 interface Atividade {
   id: string;
   nome: string;
@@ -25,6 +25,7 @@ interface Atividade {
   fim: Date;
 }
 
+// Define o formato de uma atividade vinda da lista geral do banco de dados
 interface AtividadeMaster {
   idAtividades: number;
   nome: string;
@@ -34,97 +35,52 @@ export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "10.0.0.100";
+  const IP_SERVIDOR = "192.168.1.59";
 
-  // TODO: Altere esse valor de acordo com quem está logado no app (1 = Resp, 2 = ADM, 3 = Prof)
-  // Por exemplo, você pode puxar do AsyncStorage ou do contexto de autenticação do projeto
-  const [tipoUsuario, setTipoUsuario] = useState<number>(2); // 2 = ADM
-
-  // Estados da Rotina
-  const [nome, setNome] = useState('');
-  const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]); 
+  // --- ESTADOS DA TELA ---
+  const [nome, setNome] = useState(''); // Guarda o nome digitado para a rotina
+  const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]); // Lista de atividades montadas na rotina
   
-  // Lista de Atividades do Banco
+  // Lista de atividades pré-cadastradas trazidas do banco de dados
   const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]);
 
-  // Estado para Cadastro de Nova Atividade pelo ADM
-  const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
-  const [cadastrandoAtividade, setCadastrandoAtividade] = useState(false);
+  // Controle de visibilidade dos Modais e do Relógio
+  const [modalVisivel, setModalVisivel] = useState(false); // Modal de escolher atividade
+  const [showPicker, setShowPicker] = useState(false); // Modal do relógio
+  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); // Define se o relógio ajusta 'inicio' ou 'fim'
+  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); // Posição (índice) da atividade na lista que está tendo o horário alterado
 
-  // Modais e Pickers
-  const [modalVisivel, setModalVisivel] = useState(false); 
-  const [showPicker, setShowPicker] = useState(false); 
-  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); 
-  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); 
-
-  // Função para buscar atividades do banco
-  const carregarAtividadesBanco = async () => {
-    try {
-      const resposta = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php`);
-      const dados = await resposta.json();
-      if (dados && Array.isArray(dados)) {
-        setListaMaster(dados);
-      }
-    } catch (error) {
-      console.error("Erro ao carregar lista de atividades:", error);
-    }
-  };
-
-  // Busca as atividades pré-cadastradas do banco assim que a tela abre
+  // useEffect roda apenas UMA VEZ quando a tela é montada ([])
+  // Busca todas as atividades cadastradas no banco para preencher a lista do modal
   useEffect(() => {
+    async function carregarAtividadesBanco() {
+      try {
+        const resposta = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php`);
+        const dados = await resposta.json();
+        if (dados && Array.isArray(dados)) {
+          setListaMaster(dados);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar lista de atividades:", error);
+      }
+    }
     carregarAtividadesBanco();
   }, []);
 
-  // Cadastrar nova atividade no Banco (Exclusivo para ADM)
-  const cadastrarNovaAtividadeMaster = async () => {
-    if (!novoNomeAtividade.trim()) {
-      Alert.alert("Atenção", "Digite o nome da nova atividade para cadastrar.");
-      return;
-    }
-
-    setCadastrandoAtividade(true);
-
-    try {
-      const resposta = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/criar_atividade.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          novoNomeAtividade: novoNomeAtividade.trim(),
-        }),
-      });
-
-      const resultado = await resposta.json();
-
-      if (resultado.sucesso) {
-        Alert.alert("Sucesso!", resultado.mensagem || "Atividade cadastrada com sucesso!");
-        setNovoNomeAtividade('');
-        // Recarrega a lista do banco para a nova atividade já aparecer no modal
-        await carregarAtividadesBanco();
-      } else {
-        Alert.alert("Erro", resultado.mensagem || "Não foi possível cadastrar a atividade.");
-      }
-    } catch (error) {
-      console.error("Erro ao cadastrar atividade:", error);
-      Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor para cadastrar a atividade.");
-    } finally {
-      setCadastrandoAtividade(false);
-    }
-  };
-
-  // Adiciona a atividade selecionada da lista master para a rotina
+  // Adiciona a atividade selecionada no modal para a lista da rotina
   const adicionarDaMaster = (atividade: AtividadeMaster) => {
     const novaAtiv: Atividade = {
       id: atividade.idAtividades.toString(),
       nome: atividade.nome,
-      inicio: new Date(),
-      fim: new Date(),
+      inicio: new Date(), // Inicia por padrão com a hora atual
+      fim: new Date(),    // Inicia por padrão com a hora atual
     };
+    // Adiciona o novo item mantendo os itens anteriores (...atividadesSelecionadas)
     setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
-    setModalVisivel(false);
+    setModalVisivel(false); // Fecha o modal após selecionar
   };
 
+  // Remove um item da lista local da rotina
   const apagarAtividade = (idParaApagar: string) => {
     Alert.alert(
       "Apagar Atividade",
@@ -135,6 +91,7 @@ export default function CriarRotina() {
           text: "Apagar", 
           style: "destructive", 
           onPress: () => {
+            // Filtra o array mantendo apenas quem tem ID diferente do clicado
             const listaFiltrada = atividadesSelecionadas.filter(ativ => ativ.id !== idParaApagar);
             setAtividadesSelecionadas(listaFiltrada);
           }
@@ -143,17 +100,18 @@ export default function CriarRotina() {
     );
   };
 
-  // Funções de ajuste de horário
+  // Prepara e abre o seletor de relógio para um item específico da lista
   const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
     setIndexSendoEditado(index);
     setPickerMode(modo);
     setShowPicker(true);
   };
 
+  // Atualiza a hora da atividade editada respeitando a imutabilidade do React
   const aoMudarHora = (event: any, selectedDate?: Date) => {
     if (event.type === 'set' && selectedDate && indexSendoEditado !== null) {
-      const novasAtividades = [...atividadesSelecionadas]; 
-      novasAtividades[indexSendoEditado][pickerMode] = selectedDate;
+      const novasAtividades = [...atividadesSelecionadas]; // Cria uma cópia do array original
+      novasAtividades[indexSendoEditado][pickerMode] = selectedDate; // Atualiza o campo dinamicamente ('inicio' ou 'fim')
       setAtividadesSelecionadas(novasAtividades);
       setShowPicker(false);
       setIndexSendoEditado(null);
@@ -169,8 +127,9 @@ export default function CriarRotina() {
     }
   };
 
-  // Salva uma NOVA rotina enviando para o salvar_rotina.php
+  // Envia os dados completos da rotina via POST para a API em PHP
   const finalizarRotina = async () => {
+    // Validações de campos obrigatórios
     if (nome.trim() === '') {
       Alert.alert("Aviso", "Por favor, digite um nome para a rotina.");
       return;
@@ -181,8 +140,10 @@ export default function CriarRotina() {
     }
 
     try {
+      // TODO: Substituir o ID '1' estático pelo ID vindo do sistema/contexto de Login
       const idUsuarioLogado = 1;
 
+      // Formata os objetos Date para strings simples de horário (ex: "14:30:00")
       const atividadesFormatadas = atividadesSelecionadas.map(ativ => ({
         idAtividades: ativ.id,
         horas_iniciais: ativ.inicio.toLocaleTimeString([], { hour12: false }),
@@ -207,7 +168,7 @@ export default function CriarRotina() {
 
       if (resultado.sucesso) {
         Alert.alert("Sucesso!", "Sua rotina foi criada e salva com sucesso!");
-        router.push("/minhasRotinas" as Href); 
+        router.push("/minhasRotinas" as Href); // Redireciona para a tela de rotinas salvas
       } else {
         Alert.alert("Erro ao salvar", resultado.mensagem || "Não foi possível salvar a nova rotina.");
       }
@@ -220,15 +181,16 @@ export default function CriarRotina() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* --- CABAÇALHO --- */}
       <View style={styles.header}>
         <View style={{ alignItems: 'center', flex: 1 }}>
           <Text style={styles.subtitulo}>Criar rotina</Text>
         </View>
       </View>
 
+      {/* --- CONTEÚDO PRINCIPAL --- */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Input Nome da Rotina */}
+        {/* Campo de Texto: Nome da Rotina */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Nome da rotina</Text>
           <TextInput 
@@ -240,7 +202,7 @@ export default function CriarRotina() {
           />
         </View>
 
-        {/* Botão para Abrir a Lista Master */}
+        {/* Botão para abrir o Modal de Seleção de Atividade */}
         <TouchableOpacity 
           style={styles.botaoMaster} 
           onPress={() => setModalVisivel(true)}
@@ -249,17 +211,20 @@ export default function CriarRotina() {
           <Text style={styles.textoBotaoMaster}>Selecionar Atividade</Text>
         </TouchableOpacity>
 
-        {/* Lista de Atividades Selecionadas */}
+        {/* Renderiza a lista de atividades que já foram adicionadas pelo usuário */}
         {atividadesSelecionadas.map((item, index) => (
+          // key única usando id + index para evitar problemas com itens duplicados
           <View key={`${item.id}-${index}`} style={styles.cardAtividade}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <Text style={styles.nomeAtividade}>{item.nome}</Text>
               
+              {/* Botão de Excluir */}
               <TouchableOpacity onPress={() => apagarAtividade(item.id)}>
                 <Ionicons name="trash-outline" size={22} color="#FF4444" />
               </TouchableOpacity>
             </View>
             
+            {/* Botões de Seleção de Horários */}
             <View style={styles.containerHorarios}>
               <TouchableOpacity onPress={() => abrirRelogio(index, 'inicio')} style={styles.botaoHora}>
                 <Text style={styles.textoHora}>Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
@@ -273,45 +238,19 @@ export default function CriarRotina() {
         ))}
       </ScrollView>
 
-      {/* Botão Finalizar / Salvar */}
+      {/* Botão para Enviar os dados ao Banco */}
       <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarRotina}>
         <Text style={styles.textoFinalizar}>Salvar Rotina</Text>
       </TouchableOpacity>
 
-      {/* MODAL DE SELEÇÃO DE ATIVIDADES EXISTENTES */}
+      {/* --- MODAL 1: SELEÇÃO DE ATIVIDADES EXISTENTES --- */}
       <Modal visible={modalVisivel} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             
             <Text style={styles.modalTitulo}>Escolha uma Atividade</Text>
 
-            {/* 🔒 ÁREA EXCLUSIVA DO ADM (tipoUsuario === 2) PARA CADASTRAR NOVA ATIVIDADE */}
-            {tipoUsuario === 2 && (
-              <View style={styles.containerCadastrarNova}>
-                <Text style={styles.tituloCadastrarNova}>Cadastrar Nova Atividade (ADM)</Text>
-                <View style={styles.rowCadastrarNova}>
-                  <TextInput
-                    style={styles.inputCadastrarNova}
-                    placeholder="Nome da nova atividade..."
-                    placeholderTextColor="#888"
-                    value={novoNomeAtividade}
-                    onChangeText={setNovoNomeAtividade}
-                  />
-                  <TouchableOpacity
-                    style={styles.botaoCadastrarNova}
-                    onPress={cadastrarNovaAtividadeMaster}
-                    disabled={cadastrandoAtividade}
-                  >
-                    {cadastrandoAtividade ? (
-                      <ActivityIndicator color="#FFF" size="small" />
-                    ) : (
-                      <Ionicons name="checkmark" size={20} color="#FFF" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
+            {/* Lista otimizada para exibir as opções vinda do servidor */}
             <FlatList 
               data={listaMaster}
               keyExtractor={(item) => item.idAtividades.toString()} 
@@ -338,7 +277,7 @@ export default function CriarRotina() {
         </View>
       </Modal>
 
-      {/* MODAL DO RELÓGIO */}
+      {/* --- MODAL 2: SELETOR DE RELÓGIO (DATETIMEPICKER) --- */}
       <Modal visible={showPicker && indexSendoEditado !== null} animationType="fade" transparent={true}>
         <View style={styles.modalOverlayRelogio}>
           <View style={styles.modalContentRelogio}>
@@ -371,7 +310,7 @@ export default function CriarRotina() {
         </View>
       </Modal>
 
-      {/* Footer */}
+      {/* --- NAVEGAÇÃO E RODAPÉ --- */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
@@ -511,41 +450,6 @@ const styles = StyleSheet.create({
     marginBottom: 15, 
     color: '#2F1CA6', 
     textAlign: 'center' 
-  },
-  containerCadastrarNova: {
-    backgroundColor: '#E8E4D9',
-    padding: 10,
-    borderRadius: 12,
-    marginBottom: 15,
-  },
-  tituloCadastrarNova: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#2F1CA6',
-    marginBottom: 8,
-  },
-  rowCadastrarNova: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  inputCadastrarNova: {
-    flex: 1,
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#2F1CA6',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 14,
-    color: '#2F1CA6',
-  },
-  botaoCadastrarNova: {
-    backgroundColor: '#2F1CA6',
-    padding: 10,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   containerMaster: {
     flexDirection: "row", 

@@ -13,6 +13,7 @@ include_once "conexao.php";
 // Identifica a variável de conexão do mysqli
 $db = isset($mysqli) ? $mysqli : (isset($conn) ? $conn : null);
 
+// Trava de segurança
 if (!$db) {
     echo json_encode(["sucesso" => false, "mensagem" => "Erro: Conexao mysqli nao encontrada."]);
     exit;
@@ -21,11 +22,12 @@ if (!$db) {
 $json = file_get_contents('php://input');
 $dados = json_decode($json, true);
 
+// Verificação: IdRotina não pode ser nulo e tem que existir a tabela atividades
 if (!empty($dados['idRotina']) && isset($dados['atividades'])) {
     $idRotina = (int) $dados['idRotina'];
     $nomeRotina = $dados['nomeRotina'];
 
-    // 1. Atualiza o nome na tabela rotina
+    // 1: Atualiza o nome na tabela rotina, se digitar o mesmo nome não mudará, mas se digitar outro nome vai atualizar
     $stmt1 = $db->prepare("UPDATE rotina SET nome = ? WHERE idRotina = ?");
     if (!$stmt1) {
         echo json_encode(["sucesso" => false, "mensagem" => "Erro SQL 1: " . $db->error]);
@@ -35,7 +37,7 @@ if (!empty($dados['idRotina']) && isset($dados['atividades'])) {
     $stmt1->execute();
     $stmt1->close();
 
-    // 2. Limpa as atividades antigas
+    // 2: Limpa as atividades antigas, para evitar duplicações e inconsistências
     $stmt2 = $db->prepare("DELETE FROM rotina_tem_atividades WHERE idRotina = ?");
     if (!$stmt2) {
         echo json_encode(["sucesso" => false, "mensagem" => "Erro SQL 2: " . $db->error]);
@@ -45,13 +47,13 @@ if (!empty($dados['idRotina']) && isset($dados['atividades'])) {
     $stmt2->execute();
     $stmt2->close();
 
-    // 3. Insere os novos relacionamentos
+    // 3: Insere os novos relacionamentos, se houver atividades fornecidas
     $stmt3 = $db->prepare("INSERT INTO rotina_tem_atividades (idRotina, idAtividades, horas_iniciais, horas_finais) VALUES (?, ?, ?, ?)");
     if (!$stmt3) {
         echo json_encode(["sucesso" => false, "mensagem" => "Erro SQL 3: " . $db->error]);
         exit;
     }
-
+    // Loop pelas atividades fornecidas e insere cada uma
     foreach ($dados['atividades'] as $ativ) {
         $idAtiv = (int) $ativ['idAtividades'];
         $hIni = $ativ['horaInicial'];

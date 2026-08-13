@@ -3,6 +3,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
     Alert,
     FlatList,
     Image,
@@ -31,11 +32,16 @@ interface AtividadeMaster {
   nome: string;
 }
 
+const [tipoUsuario, setTipoUsuario] = useState<number>(2); // 2 = ADM
+// Estado para Cadastro de Nova Atividade pelo ADM
+  const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
+  const [cadastrandoAtividade, setCadastrandoAtividade] = useState(false);
+
 export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "200.18.141.168";
+  const IP_SERVIDOR = "172.25.0.28";
 
   // --- ESTADOS DA TELA ---
   const [nome, setNome] = useState(''); // Guarda o nome digitado para a rotina

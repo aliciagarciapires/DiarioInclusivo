@@ -3,18 +3,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -62,7 +62,7 @@ export default function InfoProf() {
         const idLogado = await AsyncStorage.getItem("idUsuario");
         if (idLogado) {
           const respLogado = await fetch(
-            `http://192.168.0.106/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
+            `http://10.0.0.100/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
           );
           const jsonLogado = await respLogado.json();
           if (jsonLogado.success && jsonLogado.dados?.tipo_de_usuario) {
@@ -79,7 +79,7 @@ export default function InfoProf() {
 
         // 3. Busca os dados do professor selecionado
         const response = await fetch(
-          `http://192.168.0.106/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
+          `http://10.0.0.100/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
         );
         const json = await response.json();
 
@@ -125,7 +125,7 @@ export default function InfoProf() {
     try {
       setSalvando(true);
             const response = await fetch(
-        "http://192.168.0.106/DiarioInclusivo/src/app/updateUsuario.php",
+        "http://10.0.0.100/DiarioInclusivo/src/app/updateUsuario.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -171,7 +171,7 @@ export default function InfoProf() {
       setLoading(true);
 
             const response = await fetch(
-        `http://192.168.0.106/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
+        `http://10.0.0.100/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
         { method: "GET" }
             );
       const json = await response.json();

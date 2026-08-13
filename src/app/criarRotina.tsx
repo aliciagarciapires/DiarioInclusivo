@@ -3,6 +3,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Image,
@@ -33,7 +34,11 @@ export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "192.168.0.106";
+  const IP_SERVIDOR = "10.0.0.100";
+
+  // TODO: Altere esse valor de acordo com quem está logado no app (1 = Resp, 2 = ADM, 3 = Prof)
+  // Por exemplo, você pode puxar do AsyncStorage ou do contexto de autenticação do projeto
+  const [tipoUsuario, setTipoUsuario] = useState<number>(2); // 2 = ADM
 
   // Estados da Rotina
   const [nome, setNome] = useState('');
@@ -42,27 +47,71 @@ export default function CriarRotina() {
   // Lista de Atividades do Banco
   const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]);
 
+  // Estado para Cadastro de Nova Atividade pelo ADM
+  const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
+  const [cadastrandoAtividade, setCadastrandoAtividade] = useState(false);
+
   // Modais e Pickers
   const [modalVisivel, setModalVisivel] = useState(false); 
   const [showPicker, setShowPicker] = useState(false); 
   const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); 
   const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); 
 
+  // Função para buscar atividades do banco
+  const carregarAtividadesBanco = async () => {
+    try {
+      const resposta = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php`);
+      const dados = await resposta.json();
+      if (dados && Array.isArray(dados)) {
+        setListaMaster(dados);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar lista de atividades:", error);
+    }
+  };
+
   // Busca as atividades pré-cadastradas do banco assim que a tela abre
   useEffect(() => {
-    async function carregarAtividadesBanco() {
-      try {
-        const resposta = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php`);
-        const dados = await resposta.json();
-        if (dados && Array.isArray(dados)) {
-          setListaMaster(dados);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar lista de atividades:", error);
-      }
-    }
     carregarAtividadesBanco();
   }, []);
+
+  // Cadastrar nova atividade no Banco (Exclusivo para ADM)
+  const cadastrarNovaAtividadeMaster = async () => {
+    if (!novoNomeAtividade.trim()) {
+      Alert.alert("Atenção", "Digite o nome da nova atividade para cadastrar.");
+      return;
+    }
+
+    setCadastrandoAtividade(true);
+
+    try {
+      const resposta = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/criar_atividade.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          novoNomeAtividade: novoNomeAtividade.trim(),
+        }),
+      });
+
+      const resultado = await resposta.json();
+
+      if (resultado.sucesso) {
+        Alert.alert("Sucesso!", resultado.mensagem || "Atividade cadastrada com sucesso!");
+        setNovoNomeAtividade('');
+        // Recarrega a lista do banco para a nova atividade já aparecer no modal
+        await carregarAtividadesBanco();
+      } else {
+        Alert.alert("Erro", resultado.mensagem || "Não foi possível cadastrar a atividade.");
+      }
+    } catch (error) {
+      console.error("Erro ao cadastrar atividade:", error);
+      Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor para cadastrar a atividade.");
+    } finally {
+      setCadastrandoAtividade(false);
+    }
+  };
 
   // Adiciona a atividade selecionada da lista master para a rotina
   const adicionarDaMaster = (atividade: AtividadeMaster) => {
@@ -235,6 +284,33 @@ export default function CriarRotina() {
           <View style={styles.modalContent}>
             
             <Text style={styles.modalTitulo}>Escolha uma Atividade</Text>
+
+            {/* 🔒 ÁREA EXCLUSIVA DO ADM (tipoUsuario === 2) PARA CADASTRAR NOVA ATIVIDADE */}
+            {tipoUsuario === 2 && (
+              <View style={styles.containerCadastrarNova}>
+                <Text style={styles.tituloCadastrarNova}>Cadastrar Nova Atividade (ADM)</Text>
+                <View style={styles.rowCadastrarNova}>
+                  <TextInput
+                    style={styles.inputCadastrarNova}
+                    placeholder="Nome da nova atividade..."
+                    placeholderTextColor="#888"
+                    value={novoNomeAtividade}
+                    onChangeText={setNovoNomeAtividade}
+                  />
+                  <TouchableOpacity
+                    style={styles.botaoCadastrarNova}
+                    onPress={cadastrarNovaAtividadeMaster}
+                    disabled={cadastrandoAtividade}
+                  >
+                    {cadastrandoAtividade ? (
+                      <ActivityIndicator color="#FFF" size="small" />
+                    ) : (
+                      <Ionicons name="checkmark" size={20} color="#FFF" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
 
             <FlatList 
               data={listaMaster}
@@ -435,6 +511,41 @@ const styles = StyleSheet.create({
     marginBottom: 15, 
     color: '#2F1CA6', 
     textAlign: 'center' 
+  },
+  containerCadastrarNova: {
+    backgroundColor: '#E8E4D9',
+    padding: 10,
+    borderRadius: 12,
+    marginBottom: 15,
+  },
+  tituloCadastrarNova: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#2F1CA6',
+    marginBottom: 8,
+  },
+  rowCadastrarNova: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  inputCadastrarNova: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#2F1CA6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: '#2F1CA6',
+  },
+  botaoCadastrarNova: {
+    backgroundColor: '#2F1CA6',
+    padding: 10,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   containerMaster: {
     flexDirection: "row", 

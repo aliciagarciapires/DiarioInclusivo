@@ -3,20 +3,20 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  FlatList,
-  Image,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    FlatList,
+    Image,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -45,7 +45,7 @@ export default function VisualizarRotina() {
   const [carregando, setCarregando] = useState<boolean>(true);
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
 
-  const IP_SERVIDOR = "192.168.0.106";
+  const IP_SERVIDOR = "10.0.0.100";
 
   const [modalVisivel, setModalVisivel] = useState(false);
   const [abaModal, setAbaModal] = useState<'editar' | 'selecionar'>('editar');

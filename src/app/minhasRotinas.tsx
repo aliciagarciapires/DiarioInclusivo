@@ -52,7 +52,7 @@ export default function VisualizarRotina() {
   const [carregando, setCarregando] = useState<boolean>(true); // Controle do ícone de carregamento (spinner)
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]); // Lista de IDs das tarefas marcadas como "feitas" (checkbox)
 
-  const IP_SERVIDOR = "192.168.0.106" ;  
+  const IP_SERVIDOR = "192.168.0.102" ;  
 
   // --- ESTADOS DO MODAL DE EDIÇÃO ---
   const [modalVisivel, setModalVisivel] = useState(false);

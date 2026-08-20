@@ -21,29 +21,35 @@ import { Input } from "../../components/input";
 export default function CadResp() {
 
     const [tipoConta, setTipoConta] = useState("1"); 
+    
+    // Estados Responsável
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [telefone, setTelefone] = useState("");
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
 
-    // Estados para controlar a visibilidade das senhas
+    // Estados Administrador
+    const [nomeEscola, setNomeEscola] = useState("");
+    const [emailInst, setEmailInst] = useState("");
+    const [emailAdm, setEmailAdm] = useState("");
+    const [senhaAdm, setSenhaAdm] = useState("");
+
+    // Visibilidade de senha
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
-    // Tratamento para o campo de e-mail (remove espaços e força minúsculas)
-    const tratarEmail = (text: string) => {
-        const emailTratado = text.trim().toLowerCase();
-        setEmail(emailTratado);
+    // Tratamento e validação de e-mail
+    const tratarEmail = (text: string, setter: (val: string) => void) => {
+        setter(text.trim().toLowerCase());
     };
 
-    // Validação de formato de e-mail usando Regex simples
     const validarEmail = (emailParaTestar: string) => {
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regexEmail.test(emailParaTestar);
     };
 
-    // Função para aplicar a máscara de telefone (celular e fixo)
+    // Máscara de telefone
     const aplicarMascaraTelefone = (text: string) => {
         const limpo = text.replace(/\D/g, "");
         let formatado = limpo;
@@ -62,22 +68,21 @@ export default function CadResp() {
     };
 
     const cadastrarResponsavel = async () => {
-        // Validação antes de enviar o formulário
         if (email && !validarEmail(email)) {
             Alert.alert("Aviso", "Por favor, insira um e-mail válido.");
             return;
         }
 
         try {
-                const response = await fetch("http://192.168.0.106/DiarioInclusivo/src/app/cadResp.php", {
+            const response = await fetch("http://192.168.0.102/DiarioInclusivo/src/app/cadResp.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    nome: nome,
-                    email: email,
-                    telefone: telefone,
-                    senha: senha,
-                    confirmarSenha: confirmarSenha
+                    nome,
+                    email,
+                    telefone,
+                    senha,
+                    confirmarSenha
                 })
             });
 
@@ -94,6 +99,42 @@ export default function CadResp() {
             Alert.alert("Erro", "Falha na conexão.");
         }
     };
+
+    // Nova função para cadastrar a solicitação do Administrador
+    const enviarCadastro = async () => {
+  const urlAPI = 'http://192.168.0.102/DiarioInclusivo/src/app/cadAdm.php'; // Substitua pelo seu IP e pasta
+
+  try {
+    const resposta = await fetch(urlAPI, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nome_escola: nomeEscola,             // Certifique-se de que estas variáveis
+        email_institucional: emailInst,       // têm conteúdo preenchido nos inputs
+        email_adm: emailAdm,
+        senha_adm: senhaAdm,
+      }),
+    });
+
+    const textoResposta = await resposta.text();
+    console.log("Resposta bruta do servidor:", textoResposta);
+
+    const dados = JSON.parse(textoResposta);
+
+    if (dados.sucesso) {
+      alert("Sucesso: " + dados.mensagem);
+    } else {
+      alert("Aviso: " + dados.mensagem);
+    }
+
+  } catch (erro) {
+    console.error("Erro detalhado do fetch:", erro);
+    alert("Falha na conexão. Verifique se o IP " + urlAPI + " está acessível.");
+  }
+};
 
     return (
         <KeyboardAvoidingView 
@@ -144,7 +185,7 @@ export default function CadResp() {
                             <Input 
                                 placeholder="usuario@email.com" 
                                 value={email} 
-                                onChangeText={tratarEmail} 
+                                onChangeText={(txt) => tratarEmail(txt, setEmail)} 
                                 placeholderTextColor="#0b8cbfd1" 
                                 keyboardType="email-address"
                                 autoCapitalize="none"
@@ -212,8 +253,14 @@ export default function CadResp() {
                             <Text style={styles.subtitulo2}>
                                 Preencha os campos abaixo para nos enviar a solicitação de cadastro para a equipe do Diário Inclusivo.
                             </Text>
+                            
                             <Text style={styles.textoInput}>Nome da Escola:</Text>
-                            <Input placeholder="Nome da Instituição" placeholderTextColor="#0b8cbfd1" />
+                            <Input 
+                                placeholder="Nome da Instituição" 
+                                placeholderTextColor="#0b8cbfd1" 
+                                value={nomeEscola}
+                                onChangeText={setNomeEscola}
+                            />
 
                             <Text style={styles.textoInput}>E-mail Institucional:</Text>
                             <Input 
@@ -222,6 +269,8 @@ export default function CadResp() {
                                 keyboardType="email-address" 
                                 autoCapitalize="none"
                                 autoCorrect={false}
+                                value={emailInst}
+                                onChangeText={(txt) => tratarEmail(txt, setEmailInst)}
                             />
 
                             <Text style={styles.textoInput}>E-mail do Administrador:</Text>
@@ -231,6 +280,8 @@ export default function CadResp() {
                                 keyboardType="email-address" 
                                 autoCapitalize="none"
                                 autoCorrect={false}
+                                value={emailAdm}
+                                onChangeText={(txt) => tratarEmail(txt, setEmailAdm)}
                             />
 
                             <Text style={styles.textoInput}>Senha:</Text>
@@ -239,6 +290,8 @@ export default function CadResp() {
                                     placeholder="**********" 
                                     placeholderTextColor="#0b8cbfd1" 
                                     secureTextEntry={!mostrarSenha} 
+                                    value={senhaAdm}
+                                    onChangeText={setSenhaAdm}
                                 />
                                 <TouchableOpacity 
                                     style={styles.iconeOlho} 
@@ -253,12 +306,11 @@ export default function CadResp() {
                             </View>
 
                             <View style={styles.botaoContainer}>
-                                <Button label="Enviar Solicitação" onPress={() => router.push("/cadProf")} />
+                                <Button label="Enviar Solicitação" onPress={enviarCadastro} />
                             </View>
                         </View>
                     )}
 
-                    {/* BOTÃO PARA REDIRECIONAR QUEM JÁ TEM CONTA */}
                     <View style={styles.loginContainer}>
                         <Text style={styles.textoJaTemConta}>Já tem uma conta? </Text>
                         <Pressable onPress={() => router.push("/login")}>

@@ -40,7 +40,7 @@ export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "192.168.0.106";
+  const IP_SERVIDOR = "192.168.0.102";
 
   // --- ESTADOS DA TELA ---
   const [nome, setNome] = useState(''); // Guarda o nome digitado para a rotina

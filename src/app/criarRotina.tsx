@@ -3,17 +3,17 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  FlatList,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    FlatList,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import Footer from '../../components/Footer';
 
@@ -40,7 +40,7 @@ export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "192.168.0.102";
+  const IP_SERVIDOR = "192.168.1.5";
 
   // --- ESTADOS DA TELA ---
   const [nome, setNome] = useState(''); // Guarda o nome digitado para a rotina

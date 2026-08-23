@@ -1,31 +1,87 @@
-import React from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import Footer from "../../components/Footer";
 import { router } from "expo-router";
+import React, { useState } from "react";
+import {
+  Alert,
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Footer from "../../components/Footer";
 
 export default function Diario() {
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [data, setData] = useState("");
+  const [complemento, setComplemento] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const idUsuario = 3;
+  const idDiscente = 2;
+
+  const handleSalvarDiario = async () => {
+    if (!data) {
+      Alert.alert("Atenção", "Por favor, selecione ou digite uma data.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://192.168.1.5/DiarioInclusivo/criar_diario.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: data,
+          complemento: complemento,
+          idUsuario: idUsuario,
+          idDiscente: idDiscente,
+        }),
+      });
+
+      const text = await response.text();
+      const result = JSON.parse(text);
+
+      if (result.sucesso) {
+        Alert.alert("Sucesso", result.mensagem);
+        setData("");
+        setComplemento("");
+        setModalVisivel(false);
+      } else {
+        Alert.alert("Erro", result.mensagem);
+      }
+    } catch (error) {
+      Alert.alert("Erro de Conexão", "Não foi possível se conectar ao servidor.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      
       {/* Topo com botão voltar e Título */}
-    <View style={styles.header}>
-    <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text> 
-    <Text style={styles.mesTexto}>ABRIL DE 2026</Text>
-    <View style={{ width: 24 }} />
-    </View>
+      <View style={styles.header}>
+        <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text>
+        <Text style={styles.mesTexto}>ABRIL DE 2026</Text>
+        <View style={{ width: 24 }} />
+      </View>
 
       {/* Seção do Calendário */}
       <View style={styles.calendarioContainer}>
-        
-        
-        {/* Dias da Semana */}
         <View style={styles.semanaContainer}>
-          {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((dia, i) => (
-            <Text key={i} style={styles.diaSemanaTexto}>{dia}</Text>
+          {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
+            <Text key={i} style={styles.diaSemanaTexto}>
+              {dia}
+            </Text>
           ))}
         </View>
 
-        {/* Linhas de Dias */}
         <View style={styles.gradeDias}>
           <Text style={[styles.diaTexto, styles.diaCinza]}>29</Text>
           <Text style={[styles.diaTexto, styles.diaCinza]}>30</Text>
@@ -39,7 +95,9 @@ export default function Diario() {
           <Text style={styles.diaTexto}>6</Text>
           <Text style={styles.diaTexto}>7</Text>
           <Text style={styles.diaTexto}>8</Text>
-          <View style={styles.diaSelecionado}><Text style={styles.diaTextoNoCirculo}>9</Text></View>
+          <View style={styles.diaSelecionado}>
+            <Text style={styles.diaTextoNoCirculo}>9</Text>
+          </View>
           <Text style={styles.diaTexto}>10</Text>
           <Text style={styles.diaTexto}>11</Text>
 
@@ -64,46 +122,97 @@ export default function Diario() {
           <Text style={styles.diaTexto}>28</Text>
           <Text style={styles.diaTexto}>29</Text>
           <Text style={styles.diaTexto}>30</Text>
-          <View style={styles.diaInvisivel}/>
-          <View style={styles.diaInvisivel}/>
+          <View style={styles.diaInvisivel} />
+          <View style={styles.diaInvisivel} />
         </View>
       </View>
 
       {/* Botões Grandes Centrais */}
       <View style={styles.botoesAcaoContainer}>
-        <View style={[styles.botaoAcao, styles.botaoRoxo]}>
+        <Pressable
+          style={[styles.botaoAcao, styles.botaoRoxo]}
+          onPress={() => setModalVisivel(true)}
+        >
           <Text style={styles.botaoAcaoTexto}>Nova Entrada</Text>
-        </View>
+        </Pressable>
 
-        <View style={[styles.botaoAcao, styles.botaoAzul]}>
+        <Pressable style={[styles.botaoAcao, styles.botaoAzul]}>
           <Text style={styles.botaoAcaoTexto}>Histórico</Text>
-        </View>
+        </Pressable>
       </View>
+
+      {/* Modal para Nova Entrada */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisivel}
+        onRequestClose={() => setModalVisivel(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitulo}>Nova Entrada no Diário</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Data (ex: YYYY-MM-DD)"
+              value={data}
+              onChangeText={setData}
+            />
+
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Anotações do diário (complemento)..."
+              value={complemento}
+              onChangeText={setComplemento}
+              multiline={true}
+              numberOfLines={4}
+            />
+
+            <View style={styles.modalBotoes}>
+              <TouchableOpacity
+                style={[styles.modalBotao, styles.botaoCancelar]}
+                onPress={() => setModalVisivel(false)}
+              >
+                <Text style={styles.textoBotaoModal}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalBotao, styles.botaoSalvar]}
+                onPress={handleSalvarDiario}
+                disabled={loading}
+              >
+                <Text style={styles.textoBotaoModal}>
+                  {loading ? "Salvando..." : "Salvar"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Menu Inferior Estático */}
       <Footer children={undefined} />
-            <View style={styles.barraMenuGeral}>
-              <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-                <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                <Text style={styles.tabLabel}>Início</Text>
-              </Pressable>
-              
-              <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-                <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-                <Text style={styles.tabLabel}>Diário</Text>
-              </Pressable>
-              
-              <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                <Text style={styles.tabLabel}>Rotina</Text>
-              </Pressable>
-              
-              <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-                <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                <Text style={styles.tabLabel}>Conf.</Text>
-              </Pressable>
-            </View>
+      <View style={styles.barraMenuGeral}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Início</Text>
+        </Pressable>
 
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+          <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Diário</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Rotina</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Conf.</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -120,25 +229,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 20,
   },
-  iconeVoltar: {
-    width: 24,
-    height: 24,
-    resizeMode: "contain",
-  },
-  tituloPagina: {
-    fontSize: 22,
+  mesTexto: {
+    fontSize: 18,
     fontWeight: "bold",
     color: "#2F1CA6",
   },
   calendarioContainer: {
     marginTop: 40,
     alignItems: "center",
-  },
-  mesTexto: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#2F1CA6",
-    
   },
   semanaContainer: {
     flexDirection: "row",
@@ -147,7 +245,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   diaSemanaTexto: {
-    color: "#ED3C3C", 
+    color: "#ED3C3C",
     fontWeight: "bold",
     fontSize: 16,
     width: 40,
@@ -167,7 +265,7 @@ const styles = StyleSheet.create({
     height: 40,
     textAlign: "center",
     textAlignVertical: "center",
-    lineHeight: 40, // Centraliza o texto no Android
+    lineHeight: 40,
   },
   diaCinza: {
     color: "#1796cd5c",
@@ -219,43 +317,88 @@ const styles = StyleSheet.create({
     height: 30,
   },
   tabLabel: {
-    fontSize: 14,                  
+    fontSize: 14,
     fontWeight: "500",
     color: "#2F1CA6",
     marginTop: 4,
   },
   iconeCustom: {
-    width: 80, // Largura e altura iguais
-  height: 80,
-  borderRadius: 15, // Metade do tamanho
-  resizeMode: "cover",         
+    width: 80,
+    height: 80,
+    borderRadius: 15,
+    resizeMode: "cover",
   },
   barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    flexDirection: "row",
+    justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
+    backgroundColor: "#F5F2E8",
+    height: 90,
+    paddingBottom: 30,
+    borderTopWidth: 3,
+    borderTopColor: "#F5F2E8",
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 10,                 
+    elevation: 10,
     shadowColor: "#000",
-    marginTop: 20   
+    marginTop: 20,
   },
-  botaoContainer:{
-    width: 250,
-    height: 55,
-    backgroundColor: "#2F1CA6",
-    borderRadius: 50,
+  modalOverlay: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 35
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: "85%",
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+    padding: 20,
+    elevation: 5,
+  },
+  modalTitulo: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2F1CA6",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#CCC",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 14,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  modalBotoes: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  modalBotao: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  botaoCancelar: {
+    backgroundColor: "#ED3C3C",
+  },
+  botaoSalvar: {
+    backgroundColor: "#2F1CA6",
+  },
+  textoBotaoModal: {
+    color: "#FFF",
+    fontWeight: "bold",
   },
 });

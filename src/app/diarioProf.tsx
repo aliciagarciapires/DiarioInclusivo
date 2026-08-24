@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
+  FlatList,
   Image,
   Modal,
   Pressable,
@@ -15,11 +16,14 @@ import Footer from "../../components/Footer";
 
 export default function Diario() {
   const [modalVisivel, setModalVisivel] = useState(false);
+  const [modalHistoricoVisivel, setModalHistoricoVisivel] = useState(false);
   const [data, setData] = useState("");
   const [complemento, setComplemento] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingHistorico, setLoadingHistorico] = useState(false);
+  const [diarios, setDiarios] = useState<any[]>([]);
 
-  const idUsuario = 3;
+  const idUsuario = 1;
   const idDiscente = 2;
 
   const handleSalvarDiario = async () => {
@@ -31,7 +35,7 @@ export default function Diario() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://10.0.0.102/DiarioInclusivo/src/app/criar_diario.php", {
+      const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/criar_diario.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,14 +62,49 @@ export default function Diario() {
           Alert.alert("Erro", result.mensagem);
         }
       } catch (jsonError) {
-        console.error("Resposta do servidor não é JSON:", text);
-        Alert.alert("Erro de Resposta", "O servidor respondeu com um formato inválido.");
+        // Exibe o retorno bruto retornado pelo PHP para facilitar o diagnóstico do erro
+        console.error("Erro no Parse JSON. Retorno bruto do servidor:", text);
+        
+        // Remove tags HTML caso o PHP tenha retornado uma página de erro
+        const mensagemLimpa = text.replace(/<[^>]*>?/gm, '').trim();
+        Alert.alert(
+          "Erro do Servidor PHP", 
+          `O servidor respondeu algo inválido:\n\n${mensagemLimpa.substring(0, 150)}...`
+        );
       }
     } catch (error) {
       Alert.alert("Erro de Conexão", "Não foi possível se conectar ao servidor.");
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBuscarHistorico = async () => {
+    setLoadingHistorico(true);
+    try {
+      const response = await fetch(
+        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+      );
+      const text = await response.text();
+      
+      try {
+        const result = JSON.parse(text);
+        if (result.sucesso) {
+          setDiarios(result.dados);
+          setModalHistoricoVisivel(true);
+        } else {
+          Alert.alert("Erro", result.mensagem || "Erro ao carregar histórico.");
+        }
+      } catch (e) {
+        console.error("Erro JSON no Histórico:", text);
+        Alert.alert("Erro de Resposta", "Resposta inválida ao buscar histórico.");
+      }
+    } catch (error) {
+      Alert.alert("Erro de Conexão", "Não foi possível buscar o histórico.");
+      console.error(error);
+    } finally {
+      setLoadingHistorico(false);
     }
   };
 
@@ -142,8 +181,14 @@ export default function Diario() {
           <Text style={styles.botaoAcaoTexto}>Nova Entrada</Text>
         </Pressable>
 
-        <Pressable style={[styles.botaoAcao, styles.botaoAzul]}>
-          <Text style={styles.botaoAcaoTexto}>Histórico</Text>
+        <Pressable
+          style={[styles.botaoAcao, styles.botaoAzul]}
+          onPress={handleBuscarHistorico}
+          disabled={loadingHistorico}
+        >
+          <Text style={styles.botaoAcaoTexto}>
+            {loadingHistorico ? "Carregando..." : "Histórico"}
+          </Text>
         </Pressable>
       </View>
 
@@ -192,6 +237,46 @@ export default function Diario() {
                 </Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de Histórico (Leitura / Read) */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalHistoricoVisivel}
+        onRequestClose={() => setModalHistoricoVisivel(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: "80%" }]}>
+            <Text style={styles.modalTitulo}>Histórico de Entradas</Text>
+
+            {diarios.length === 0 ? (
+              <Text style={styles.textoVazio}>
+                Nenhum registro encontrado para este aluno.
+              </Text>
+            ) : (
+              <FlatList
+                data={diarios}
+                keyExtractor={(item) => item.idDiario.toString()}
+                renderItem={({ item }) => (
+                  <View style={styles.cardDiario}>
+                    <Text style={styles.cardData}>{item.data}</Text>
+                    <Text style={styles.cardTexto}>
+                      {item.complemento || "Sem anotações."}
+                    </Text>
+                  </View>
+                )}
+              />
+            )}
+
+            <TouchableOpacity
+              style={[styles.modalBotao, styles.botaoCancelar, { marginTop: 15 }]}
+              onPress={() => setModalHistoricoVisivel(false)}
+            >
+              <Text style={styles.textoBotaoModal}>Fechar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -406,5 +491,29 @@ const styles = StyleSheet.create({
   textoBotaoModal: {
     color: "#FFF",
     fontWeight: "bold",
+  },
+  textoVazio: {
+    textAlign: "center",
+    color: "#666",
+    marginVertical: 20,
+    fontSize: 14,
+  },
+  cardDiario: {
+    backgroundColor: "#F5F2E8",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: "#2F1CA6",
+  },
+  cardData: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#2F1CA6",
+    marginBottom: 5,
+  },
+  cardTexto: {
+    fontSize: 14,
+    color: "#333",
   },
 });

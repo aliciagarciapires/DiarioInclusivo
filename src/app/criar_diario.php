@@ -1,26 +1,24 @@
 <?php
-// criar_diario.php
-
-ob_start();
+// Garante que nenhum aviso/erro do PHP suje o JSON
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
 
 header("Access-Control-Allow-Origin: *"); 
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-header("Content-Type: application/json"); 
+header("Content-Type: application/json; charset=UTF-8"); 
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    ob_end_clean();
+    http_response_code(200);
     exit(0);
 }
 
 include_once "conexao.php";
 
-$mysqli->query("SET FOREIGN_KEY_CHECKS = 0;");
-
 date_default_timezone_set('America/Sao_Paulo');
 
+// Lê os dados do corpo da requisição
 $dados = json_decode(file_get_contents("php://input"), true);
-ob_end_clean();
 
 if (!empty($dados['data']) && !empty($dados['idUsuario']) && !empty($dados['idDiscente'])) {
     
@@ -29,7 +27,6 @@ if (!empty($dados['data']) && !empty($dados['idUsuario']) && !empty($dados['idDi
     $idUsuario = intval($dados['idUsuario']);
     $idDiscente = intval($dados['idDiscente']);
     
-    // Nome da tabela ajustado para minúsculo conforme o MySQL
     $queryDiario = "INSERT INTO diario (data, complemento, idUsuario, idDiscente) 
                     VALUES ('$data', '$complemento', $idUsuario, $idDiscente)";
     
@@ -52,4 +49,5 @@ if (!empty($dados['data']) && !empty($dados['idUsuario']) && !empty($dados['idDi
         "mensagem" => "Dados incompletos fornecidos."
     ]);
 }
+exit();
 ?>

@@ -31,7 +31,7 @@ export default function Diario() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://192.168.1.5/DiarioInclusivo/criar_diario.php", {
+      const response = await fetch("http://10.0.0.102/DiarioInclusivo/src/app/criar_diario.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,15 +45,21 @@ export default function Diario() {
       });
 
       const text = await response.text();
-      const result = JSON.parse(text);
 
-      if (result.sucesso) {
-        Alert.alert("Sucesso", result.mensagem);
-        setData("");
-        setComplemento("");
-        setModalVisivel(false);
-      } else {
-        Alert.alert("Erro", result.mensagem);
+      try {
+        const result = JSON.parse(text);
+
+        if (result.sucesso) {
+          Alert.alert("Sucesso", result.mensagem);
+          setData("");
+          setComplemento("");
+          setModalVisivel(false);
+        } else {
+          Alert.alert("Erro", result.mensagem);
+        }
+      } catch (jsonError) {
+        console.error("Resposta do servidor não é JSON:", text);
+        Alert.alert("Erro de Resposta", "O servidor respondeu com um formato inválido.");
       }
     } catch (error) {
       Alert.alert("Erro de Conexão", "Não foi possível se conectar ao servidor.");

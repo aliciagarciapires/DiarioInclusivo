@@ -160,7 +160,7 @@ export default function Diario() {
 
             <TextInput
               style={styles.input}
-              placeholder="Data (ex: YYYY-MM-DD)"
+              placeholder="Data (ex: 24/08/2026)"
               value={data}
               onChangeText={setData}
             />

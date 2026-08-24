@@ -22,7 +22,21 @@ $dados = json_decode(file_get_contents("php://input"), true);
 
 if (!empty($dados['data']) && !empty($dados['idUsuario']) && !empty($dados['idDiscente'])) {
     
-    $data = $mysqli->real_escape_string($dados['data']);
+    // Tratamento e conversão da data para YYYY-MM-DD (padrão MySQL)
+    $dataEntrada = trim($dados['data']);
+    $dataEntrada = str_replace('/', '-', $dataEntrada); // padroniza separador
+    
+    try {
+        $dt = new DateTime($dataEntrada);
+        $data = $dt->format('Y-m-d');
+    } catch (Exception $e) {
+        echo json_encode([
+            "sucesso" => false,
+            "mensagem" => "Formato de data inválido. Use DD/MM/YYYY."
+        ]);
+        exit();
+    }
+
     $complemento = isset($dados['complemento']) ? $mysqli->real_escape_string($dados['complemento']) : '';
     $idUsuario = intval($dados['idUsuario']);
     $idDiscente = intval($dados['idDiscente']);

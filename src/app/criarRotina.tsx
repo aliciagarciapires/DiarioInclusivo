@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Href, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Href, useRouter, useFocusEffect } from 'expo-router';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Alert,
   FlatList,
@@ -31,18 +32,19 @@ interface AtividadeMaster {
   nome: string;
 }
 
-const [tipoUsuario, setTipoUsuario] = useState<number>(2); // 2 = ADM
-// Estado para Cadastro de Nova Atividade pelo ADM
-  const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
-  const [cadastrandoAtividade, setCadastrandoAtividade] = useState(false);
-
 export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "192.168.1.59";
+  const IP_SERVIDOR = "192.168.0.102";
 
   // --- ESTADOS DA TELA ---
+  const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
+  
+  // Estado para Cadastro de Nova Atividade pelo ADM
+  const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
+  const [cadastrandoAtividade, setCadastrandoAtividade] = useState(false);
+
   const [nome, setNome] = useState(''); // Guarda o nome digitado para a rotina
   const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]); // Lista de atividades montadas na rotina
   
@@ -54,6 +56,23 @@ export default function CriarRotina() {
   const [showPicker, setShowPicker] = useState(false); // Modal do relógio
   const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); // Define se o relógio ajusta 'inicio' ou 'fim'
   const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); // Posição (índice) da atividade na lista que está tendo o horário alterado
+
+  // Verifica o tipo de usuário toda vez que a tela entra em foco
+  useFocusEffect(
+    useCallback(() => {
+      const carregarTipoUsuario = async () => {
+        try {
+          let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
+          if (tipoLogado) {
+            setTipoUsuario(String(tipoLogado).trim());
+          }
+        } catch (error) {
+          console.error("Erro ao carregar tipo de usuário:", error);
+        }
+      };
+      carregarTipoUsuario();
+    }, [])
+  );
 
   // useEffect roda apenas UMA VEZ quando a tela é montada ([])
   // Busca todas as atividades cadastradas no banco para preencher a lista do modal
@@ -146,7 +165,10 @@ export default function CriarRotina() {
 
     try {
       // TODO: Substituir o ID '1' estático pelo ID vindo do sistema/contexto de Login
-      const idUsuarioLogado = 1;
+      let idUsuarioLogado = await AsyncStorage.getItem("idUsuario");
+      if (!idUsuarioLogado) {
+        idUsuarioLogado = await AsyncStorage.getItem("id");
+      }
 
       // Formata os objetos Date para strings simples de horário (ex: "14:30:00")
       const atividadesFormatadas = atividadesSelecionadas.map(ativ => ({
@@ -164,7 +186,7 @@ export default function CriarRotina() {
         },
         body: JSON.stringify({
           nome: nome,
-          idUsuario: idUsuarioLogado,
+          idUsuario: idUsuarioLogado || 1, // Se não achar ID, manda 1 (fallback)
           atividades: atividadesFormatadas
         }),
       });
@@ -186,7 +208,7 @@ export default function CriarRotina() {
 
   return (
     <View style={styles.container}>
-      {/* --- CABAÇALHO --- */}
+      {/* --- CABEÇALHO --- */}
       <View style={styles.header}>
         <View style={{ alignItems: 'center', flex: 1 }}>
           <Text style={styles.subtitulo}>Criar rotina</Text>
@@ -315,28 +337,56 @@ export default function CriarRotina() {
         </View>
       </Modal>
 
-      {/* --- NAVEGAÇÃO E RODAPÉ --- */}
+      {/* --- NAVEGAÇÃO E RODAPÉ CONDICIONAL --- */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
-        
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
-        
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
-        
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
+        {tipoUsuario === "2" ? (
+          /* BARRA PARA O TIPO 2 (ADM) - Destaque em Rotina */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        ) : (
+          /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque em Rotina */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );
@@ -512,7 +562,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 3,             
     borderTopColor: "#F5F2E8",     
     borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,       
+    borderTopRightRadius: 35,      
     position: "absolute",          
     bottom: 0,
     left: 0,

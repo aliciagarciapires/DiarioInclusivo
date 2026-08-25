@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -25,7 +26,6 @@ const { width } = Dimensions.get("window");
 
 // --- INTERFACES (TIPAGEM TYPESCRIPT) ---
 
-// Formato de uma atividade vinculada a uma rotina existente
 interface Atividade {
   id: number;
   nome: string;
@@ -33,14 +33,12 @@ interface Atividade {
   fim: string;
 }
 
-// Formato de uma rotina completa trazida do banco
 interface Rotina {
   idRotina: number;
   nome: string;
   atividades: Atividade[];
 }
 
-// Formato de uma atividade vinda da lista mestre (banco geral)
 interface AtividadeMaster {
   idAtividades: number;
   nome: string;
@@ -48,21 +46,22 @@ interface AtividadeMaster {
 
 export default function VisualizarRotina() {
   // --- ESTADOS PRINCIPAIS ---
-  const [rotinas, setRotinas] = useState<Rotina[]>([]); // Lista de rotinas do usuário
-  const [carregando, setCarregando] = useState<boolean>(true); // Controle do ícone de carregamento (spinner)
-  const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]); // Lista de IDs das tarefas marcadas como "feitas" (checkbox)
+  const [rotinas, setRotinas] = useState<Rotina[]>([]);
+  const [carregando, setCarregando] = useState<boolean>(true);
+  const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
+  const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
-  const IP_SERVIDOR = "192.168.1.59" ;
+  const IP_SERVIDOR = "192.168.0.102";
 
   // --- ESTADOS DO MODAL DE EDIÇÃO ---
   const [modalVisivel, setModalVisivel] = useState(false);
-  const [abaModal, setAbaModal] = useState<'editar' | 'selecionar'>('editar'); // Alterna entre a tela de edição e a lista de adição de atividades
+  const [abaModal, setAbaModal] = useState<'editar' | 'selecionar'>('editar');
 
-  const [rotinaEditandoId, setRotinaEditandoId] = useState<number | null>(null); // ID da rotina que está sendo editada
-  const [nomeRotinaEdit, setNomeRotinaEdit] = useState(''); // Nome temporário no formulário de edição
-  const [atividadesEdit, setAtividadesEdit] = useState<{ id: string; nome: string; inicio: Date; fim: Date }[]>([]); // Lista temporária das atividades da rotina em edição
+  const [rotinaEditandoId, setRotinaEditandoId] = useState<number | null>(null);
+  const [nomeRotinaEdit, setNomeRotinaEdit] = useState('');
+  const [atividadesEdit, setAtividadesEdit] = useState<{ id: string; nome: string; inicio: Date; fim: Date }[]>([]);
 
-  const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]); // Atividades disponíveis para adicionar
+  const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]);
 
   // --- ESTADOS DO RELÓGIO (SELETOR DE HORA) ---
   const [showPicker, setShowPicker] = useState(false);
@@ -71,13 +70,10 @@ export default function VisualizarRotina() {
 
   // --- FUNÇÕES DE REQUISIÇÃO (API) ---
 
-  // Busca as rotinas do usuário cadastradas no banco PHP
   const carregarRotinasDoBanco = async () => {
     try {
       setCarregando(true);
-      // TODO: Substituir ID estático '1' pelo usuário autenticado na aplicação
       const idUsuario = 1;
-      // Adiciona timestamp (`new Date().getTime()`) ao final da URL para evitar problemas de cache do navegador/dispositivo
       const URL_API = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}&t=${new Date().getTime()}`;
 
       const resposta = await fetch(URL_API);
@@ -95,7 +91,6 @@ export default function VisualizarRotina() {
     }
   };
 
-  // Busca a lista geral de atividades cadastradas no sistema
   const carregarAtividadesMaster = async () => {
     try {
       const URL_MASTER = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php?t=${new Date().getTime()}`;
@@ -110,15 +105,26 @@ export default function VisualizarRotina() {
     }
   };
 
-  // `useFocusEffect` recarrega as rotinas e atividades toda vez que a tela ganha foco na navegação
+  // Carrega rotinas, atividades e tipo de usuário quando a tela ganha foco
   useFocusEffect(
     useCallback(() => {
       carregarRotinasDoBanco();
       carregarAtividadesMaster();
+
+      const carregarTipoUsuario = async () => {
+        try {
+          let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
+          if (tipoLogado) {
+            setTipoUsuario(String(tipoLogado).trim());
+          }
+        } catch (error) {
+          console.error("Erro ao carregar tipo de usuário:", error);
+        }
+      };
+      carregarTipoUsuario();
     }, [])
   );
 
-  // Exclui uma rotina enviando o ID via POST para o servidor PHP
   const confirmarExclusaoRotina = (idRotina: number) => {
     Alert.alert(
       "Excluir Rotina",
@@ -143,7 +149,7 @@ export default function VisualizarRotina() {
 
               if (resultado.sucesso) {
                 Alert.alert("Sucesso", "Rotina excluída com sucesso!");
-                carregarRotinasDoBanco(); // Atualiza a lista na tela
+                carregarRotinasDoBanco();
               } else {
                 Alert.alert("Erro", resultado.mensagem || "Erro ao excluir rotina.");
               }
@@ -156,15 +162,11 @@ export default function VisualizarRotina() {
     );
   };
 
-  // --- LÓGICA DE EDIÇÃO ---
-
-  // Prepara os dados da rotina clicada e abre o Modal de edição
   const abrirModalEditar = (rotina: Rotina) => {
     setRotinaEditandoId(rotina.idRotina);
     setNomeRotinaEdit(rotina.nome || '');
 
     const hoje = new Date();
-    // Converte a string de hora (ex: "08:30:00") vinda do banco em objetos `Date` válidos do JS
     const formatoAtividades = (rotina.atividades || []).map((ativ) => {
       const strInicio = ativ.inicio ? String(ativ.inicio) : "08:00";
       const strFim = ativ.fim ? String(ativ.fim) : "09:00";
@@ -191,7 +193,6 @@ export default function VisualizarRotina() {
     setModalVisivel(true);
   };
 
-  // Adiciona uma nova atividade da lista mestre na rotina em edição
   const adicionarAtividadeEdit = (atividade: AtividadeMaster) => {
     const novaAtiv = {
       id: String(atividade.idAtividades),
@@ -200,22 +201,19 @@ export default function VisualizarRotina() {
       fim: new Date(),
     };
     setAtividadesEdit(prev => [...prev, novaAtiv]);
-    setAbaModal('editar'); // Voltar para a aba de edição após selecionar
+    setAbaModal('editar');
   };
 
-  // Remove uma atividade da lista temporária de edição
   const removerAtividadeEdit = (index: number) => {
     setAtividadesEdit(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Prepara o relógio para editar inicio/fim de um item específico
   const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
     setIndexSendoEditado(index);
     setPickerMode(modo);
     setShowPicker(true);
   };
 
-  // Atualiza o horário na lista de edição mantendo a imutabilidade
   const aoMudarHora = (event: any, selectedDate?: Date) => {
     setShowPicker(false);
     if (selectedDate && indexSendoEditado !== null) {
@@ -227,7 +225,6 @@ export default function VisualizarRotina() {
     }
   };
 
-  // Converte o objeto Date em formato de string "HH:MM:SS" aceito pelo PHP/Banco
   const formatarHoraString = (data: Date) => {
     if (!(data instanceof Date) || isNaN(data.getTime())) return "00:00:00";
     const h = String(data.getHours()).padStart(2, '0');
@@ -235,7 +232,6 @@ export default function VisualizarRotina() {
     return `${h}:${m}:00`;
   };
 
-  // Envia as alterações da rotina via POST (`updateRotina.php`)
   const salvarEdicaoRotina = async () => {
     if (!nomeRotinaEdit.trim()) {
       Alert.alert("Aviso", "Digite o nome da rotina.");
@@ -257,11 +253,9 @@ export default function VisualizarRotina() {
       const payload = {
         idRotina: rotinaEditandoId,
         nomeRotina: nomeRotinaEdit,
-        idUsuario: 1, // TODO: Tornar idUsuario dinâmico no futuro
+        idUsuario: 1,
         atividades: atividadesFormatadas,
       };
-
-      console.log("Enviando para o PHP:", JSON.stringify(payload));
 
       const URL_UPDATE = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/updateRotina.php`;
 
@@ -272,13 +266,12 @@ export default function VisualizarRotina() {
       });
 
       const textoResposta = await resposta.text();
-      console.log("Resposta bruta do PHP:", textoResposta);
 
       let resultado;
       try {
         resultado = JSON.parse(textoResposta);
       } catch (e) {
-        Alert.alert("Erro no Servidor", "O PHP retornou uma resposta inválida. Verifique o console.");
+        Alert.alert("Erro no Servidor", "O PHP retornou uma resposta inválida.");
         return;
       }
 
@@ -290,12 +283,10 @@ export default function VisualizarRotina() {
         Alert.alert("Erro ao Salvar", resultado.mensagem || "Não foi possível atualizar.");
       }
     } catch (error) {
-      console.error("Erro na requisição:", error);
       Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
     }
   };
 
-  // Marca/Desmarca uma atividade individualmente da rotina atual (efeito visual de checkbox)
   const alternarCheck = (idUnico: string) => {
     if (tarefasConcluidas.includes(idUnico)) {
       setTarefasConcluidas(tarefasConcluidas.filter((item) => item !== idUnico));
@@ -306,21 +297,20 @@ export default function VisualizarRotina() {
 
   return (
     <View style={styles.container}>
-      {/* CABAÇALHO */}
+      {/* CABEÇALHO */}
       <View style={styles.areaCriarTopo}>
         <Text style={styles.subtitulo}>Minhas rotinas</Text>
       </View>
 
-      {/* RENDERIZAÇÃO CONDICIONAL: Mostra o indicador de carregamento enquanto o banco responde */}
+      {/* RENDERIZAÇÃO CONDICIONAL */}
       {carregando ? (
         <ActivityIndicator size="large" color="#2F1CA6" style={{ marginTop: 40 }} />
       ) : (
-        /* LISTA PRINCIPAL DAS ROTINAS */
         <FlatList
           data={rotinas}
           keyExtractor={(item) => item.idRotina.toString()}
           style={styles.lista}
-          contentContainerStyle={{ paddingBottom: 150 }}
+          contentContainerStyle={{ paddingBottom: 160 }}
           ListEmptyComponent={
             <Text style={styles.textoVazio}>
               Nenhuma rotina encontrada. Crie uma nova rotina abaixo!
@@ -328,12 +318,10 @@ export default function VisualizarRotina() {
           }
           renderItem={({ item: rotinaItem }) => (
             <View style={styles.cardRotina}>
-              {/* Cabeçalho do Card da Rotina */}
               <View style={styles.headerCard}>
                 <Text style={styles.nomeRotina}>{rotinaItem.nome}</Text>
 
                 <View style={styles.acoesContainer}>
-                  {/* Botão Editar */}
                   <TouchableOpacity
                     onPress={() => abrirModalEditar(rotinaItem)}
                     style={styles.iconeAcao}
@@ -341,7 +329,6 @@ export default function VisualizarRotina() {
                     <Ionicons name="pencil-outline" size={20} color="#0B8CBF" />
                   </TouchableOpacity>
 
-                  {/* Botão Excluir */}
                   <TouchableOpacity
                     onPress={() => confirmarExclusaoRotina(rotinaItem.idRotina)}
                     style={styles.iconeAcao}
@@ -351,10 +338,8 @@ export default function VisualizarRotina() {
                 </View>
               </View>
 
-              {/* Lista interna de Atividades da Rotina */}
               {rotinaItem.atividades && rotinaItem.atividades.length > 0 ? (
                 rotinaItem.atividades.map((atividade, idx) => {
-                  // Cria uma chave única composta por ID da rotina + ID da atividade + Índice
                   const idUnicoTask = `${rotinaItem.idRotina}-${atividade.id}-${idx}`;
                   const isMarcada = tarefasConcluidas.includes(idUnicoTask);
 
@@ -366,7 +351,6 @@ export default function VisualizarRotina() {
                       activeOpacity={0.8}
                     >
                       <View style={styles.blocoEsquerdo}>
-                        {/* Caixa do Checkbox */}
                         <View style={styles.checkbox}>
                           {isMarcada && (
                             <Ionicons name="checkmark" size={14} color="#2F1CA6" />
@@ -402,12 +386,10 @@ export default function VisualizarRotina() {
         </TouchableOpacity>
       </View>
 
-      {/* --- MODAL PRINCIPAL (EDIÇÃO E SELEÇÃO DE ATIVIDADES) --- */}
+      {/* --- MODAL PRINCIPAL --- */}
       <Modal visible={modalVisivel} animationType="slide" transparent={true} onRequestClose={() => setModalVisivel(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-
-            {/* ABA 1: FORMULÁRIO DE EDIÇÃO */}
             {abaModal === 'editar' ? (
               <>
                 <Text style={styles.modalTitulo}>Editar Rotina</Text>
@@ -420,13 +402,11 @@ export default function VisualizarRotina() {
                     onChangeText={setNomeRotinaEdit}
                   />
 
-                  {/* Botão que troca para a aba de seleção de atividades mestre */}
                   <TouchableOpacity style={styles.botaoAddAtivModal} onPress={() => setAbaModal('selecionar')}>
                     <Ionicons name="add-circle" size={20} color="#F5F2E8" />
                     <Text style={styles.textoAddAtivModal}>Adicionar nova atividade</Text>
                   </TouchableOpacity>
 
-                  {/* Renderiza as atividades em edição */}
                   {atividadesEdit.map((item, idx) => (
                     <View key={idx} style={styles.cardAtivEdit}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -437,7 +417,6 @@ export default function VisualizarRotina() {
                       </View>
 
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        {/* Botões do Relógio para Inicio/Fim */}
                         <TouchableOpacity onPress={() => abrirRelogio(idx, 'inicio')} style={styles.btnHoraModal}>
                           <Text style={styles.txtHoraModal}>
                             Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -454,7 +433,6 @@ export default function VisualizarRotina() {
                   ))}
                 </ScrollView>
 
-                {/* Botões do rodapé do Modal */}
                 <TouchableOpacity style={styles.btnSalvarModal} onPress={salvarEdicaoRotina}>
                   <Text style={styles.txtSalvarModal}>Salvar Alterações</Text>
                 </TouchableOpacity>
@@ -464,7 +442,6 @@ export default function VisualizarRotina() {
                 </TouchableOpacity>
               </>
             ) : (
-              /* ABA 2: SELEÇÃO DE ATIVIDADE MESTRE */
               <>
                 <Text style={styles.modalTitulo}>Escolha uma Atividade</Text>
 
@@ -490,7 +467,6 @@ export default function VisualizarRotina() {
               </>
             )}
 
-            {/* SELETOR NATIVO DE HORA (COM TEMA CLARO FORÇADO) */}
             {showPicker && indexSendoEditado !== null && (
               <DateTimePicker
                 value={
@@ -505,38 +481,61 @@ export default function VisualizarRotina() {
                 onChange={aoMudarHora}
               />
             )}
-
           </View>
         </View>
       </Modal>
 
-      {/* --- RODAPÉ E BARRA DE NAVEGAÇÃO --- */}
+      {/* --- RODAPÉ E MENU GERAL CONDICIONAL --- */}
       <Footer children={undefined} />
+      <View style={styles.barraMenuGeral}>
+        {tipoUsuario === "2" ? (
+          /* BARRA PARA O TIPO 2 (ADM) - Destaque no botão Discentes */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
 
-    
-          {/* --- NAVEGAÇÃO E RODAPÉ --- */}
-          <Footer children={undefined} />
-          <View style={styles.barraMenuGeral}>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Início</Text>
+              <Image source={require("../../assets/images/discenteD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
             </Pressable>
-            
-            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Diário</Text>
-            </Pressable>
-            
+
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-              <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Rotina</Text>
             </Pressable>
-            
+
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
               <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Conf.</Text>
             </Pressable>
-          </View>
+          </>
+        ) : (
+          /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque em Início */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
+      </View>
     </View>
   );
 }
@@ -641,26 +640,24 @@ const styles = StyleSheet.create({
   },
   botaoAdicionarContainer: {
     position: "absolute",
-    bottom: 85,
-    marginTop: -50,
+    bottom: 95,
     alignSelf: "center",
     zIndex: 10,
   },
   botaoAdicionar: {
     width: 260,
     height: 45,
-    marginBottom: 30,
     backgroundColor: "#2F1CA6",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 30,
+    marginBottom: 20,
   },
   adicionar: {
     color: "#F5F2E8",
     fontWeight: "bold",
     fontSize: 16,
   },
-  
   botaoMenu: {
     alignItems: "center",
     justifyContent: "center",
@@ -668,7 +665,7 @@ const styles = StyleSheet.create({
     height: 30,
   },
   tabLabel: {
-    fontSize: 14,                  
+    fontSize: 14,                     
     fontWeight: "500",
     color: "#2F1CA6",
     marginTop: 4,
@@ -680,23 +677,22 @@ const styles = StyleSheet.create({
     resizeMode: "cover",      
   },
   barraMenuGeral: {
-    flexDirection: "row",          
+    flexDirection: "row",           
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "#F5F2E8",    
-    height: 90,                    
+    height: 90,                     
     paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,       
-    position: "absolute",          
+    borderTopWidth: 3,              
+    borderTopColor: "#F5F2E8",    
+    borderTopLeftRadius: 35,      
+    borderTopRightRadius: 35,      
+    position: "absolute",           
     bottom: 0,
     left: 0,
     right: 0,
     elevation: 10,                 
     shadowColor: "#000",
-    marginTop: 20   
   },
   modalOverlay: {
     flex: 1,

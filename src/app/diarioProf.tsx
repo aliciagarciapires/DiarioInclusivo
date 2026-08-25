@@ -1,5 +1,6 @@
-import { router } from "expo-router";
-import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useFocusEffect } from "expo-router";
+import React, { useState, useCallback } from "react";
 import {
   Alert,
   FlatList,
@@ -15,6 +16,9 @@ import {
 import Footer from "../../components/Footer";
 
 export default function Diario() {
+  // --- ESTADOS DA TELA ---
+  const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
+
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalHistoricoVisivel, setModalHistoricoVisivel] = useState(false);
   const [data, setData] = useState("");
@@ -23,8 +27,25 @@ export default function Diario() {
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [diarios, setDiarios] = useState<any[]>([]);
 
-  const idUsuario = 1;
+  // O idDiscente ainda está estático, mas no futuro você pode pegar da navegação (ex: useLocalSearchParams)
   const idDiscente = 2;
+
+  // Verifica o tipo de usuário toda vez que a tela entra em foco (Para a barra condicional)
+  useFocusEffect(
+    useCallback(() => {
+      const carregarTipoUsuario = async () => {
+        try {
+          let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
+          if (tipoLogado) {
+            setTipoUsuario(String(tipoLogado).trim());
+          }
+        } catch (error) {
+          console.error("Erro ao carregar tipo de usuário:", error);
+        }
+      };
+      carregarTipoUsuario();
+    }, [])
+  );
 
   const handleSalvarDiario = async () => {
     if (!data) {
@@ -35,7 +56,13 @@ export default function Diario() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/criar_diario.php", {
+      // Busca o ID do usuário logado diretamente do AsyncStorage
+      let idUsuarioLogado = await AsyncStorage.getItem("idUsuario");
+      if (!idUsuarioLogado) {
+        idUsuarioLogado = await AsyncStorage.getItem("id"); // Tenta buscar como 'id' caso 'idUsuario' não exista
+      }
+
+      const response = await fetch("http://192.168.0.102/DiarioInclusivo/src/app/criar_diario.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +70,7 @@ export default function Diario() {
         body: JSON.stringify({
           data: data,
           complemento: complemento,
-          idUsuario: idUsuario,
+          idUsuario: idUsuarioLogado || 1, // Fallback para 1 caso não ache no storage
           idDiscente: idDiscente,
         }),
       });
@@ -84,7 +111,7 @@ export default function Diario() {
     setLoadingHistorico(true);
     try {
       const response = await fetch(
-        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://192.168.0.102/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
       );
       const text = await response.text();
       
@@ -281,28 +308,63 @@ export default function Diario() {
         </View>
       </Modal>
 
-      {/* Menu Inferior Estático */}
+      {/* --- NAVEGAÇÃO E RODAPÉ CONDICIONAL --- */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
+        {tipoUsuario === "2" ? (
+          /* BARRA PARA O TIPO 2 (ADM) - Menu Padrão de Admin */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-          <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              {/* O ÍCONE DESTACADO VAI AQUI (diarioD.png) */}
+              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        ) : (
+          /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque no Diário */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              {/* O ÍCONE DESTACADO VAI AQUI (diarioD.png) */}
+              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );

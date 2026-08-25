@@ -93,13 +93,12 @@ try {
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
     $mail->Username   = 'aliciagarciapiress@gmail.com';
-    $mail->Password   = 'kvpd shfv gfaz rmyv'; // Substitua pelos 16 caracteres sem espaços
+    $mail->Password   = 'kvpd shfv gfaz rmyv'; 
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
     $mail->CharSet    = 'UTF-8';
-    $mail->Timeout    = 10; // Evita que a requisição fique presa esperando o SMTP
+    $mail->Timeout    = 10; 
 
-    // Ignora verificações rígidas de certificado SSL no XAMPP local
     $mail->SMTPOptions = array(
         'ssl' => array(
             'verify_peer' => false,
@@ -108,8 +107,13 @@ try {
         )
     );
 
-    $mail->setFrom('aliciagarciapiress@gmail.com', 'Sistema Diario Inclusivo');
+    $mail->setFrom('aliciagarciapiress@gmail.com', "App: " . $nomeEscola);
+    
+    // O e-mail de destino 
     $mail->addAddress('aliciagarciapiress@gmail.com');
+
+    // vá para o e-mail da instituição, e não para o seu próprio e-mail
+    $mail->addReplyTo($emailInst, $nomeEscola);
 
     $mail->isHTML(true);
     $mail->Subject = 'Nova Solicitacao de Cadastro - Diario Inclusivo';

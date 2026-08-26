@@ -45,9 +45,6 @@ export default function Configuracoes() {
               // 1. Apaga a chave do usuário logado
               await AsyncStorage.removeItem("idUsuario");
               
-              // Se quiser garantir que TODAS as chaves locais sejam apagadas, use:
-              // await AsyncStorage.clear();
-
               // 2. Redireciona para a tela inicial / login substituindo o histórico
               router.replace("/cadRespAdm"); 
             } catch (error) {
@@ -95,53 +92,76 @@ export default function Configuracoes() {
         </Pressable>
       </View>
 
-      {/* Menu Inferior Condicional */}
+      {/* Menu Inferior Condicional por Tipo de Usuário */}
       <Footer children={undefined} />
+      
       <View style={styles.barraMenuGeral}>
-        
-        {/* BOTÃO INÍCIO (Exibido para todos os tipos) */}
-        <Pressable 
-          style={styles.botaoMenu} 
-          onPress={() => router.push(tipoUsuario === 1 ? "/discenteResp" : "/discente")}
-        >
-          <Image 
-            source={require("../../assets/images/home.png")} 
-            style={styles.iconeCustom} 
-          />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
+        {tipoUsuario === 1 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
 
-        {/* BOTÃO DIÁRIO (Apenas tipo 2 e 3) */}
-        {(tipoUsuario === 2 || tipoUsuario === 3) && (
-          <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-            <Image 
-              source={require("../../assets/images/diario.png")} 
-              style={styles.iconeCustom} 
-            />
-            <Text style={styles.tabLabel}>Diário</Text>
-          </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
         )}
 
-        {/* BOTÃO ROTINA (Apenas tipo 2 e 3) */}
-        {(tipoUsuario === 2 || tipoUsuario === 3) && (
-          <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-            <Image 
-              source={require("../../assets/images/rotina.png")} 
-              style={styles.iconeCustom} 
-            />
-            <Text style={styles.tabLabel}>Rotina</Text>
-          </Pressable>
+        {tipoUsuario === 2 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
         )}
 
-        {/* BOTÃO CONFIGURAÇÕES (Exibido para todos os tipos) */}
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-          <Image 
-            source={require("../../assets/images/confgD.png")} 
-            style={styles.iconeCustom} 
-          />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
+        {tipoUsuario === 3 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
 
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );

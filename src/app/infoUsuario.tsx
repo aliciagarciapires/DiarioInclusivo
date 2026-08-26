@@ -191,10 +191,10 @@ export default function InfoUsuario() {
         return;
       }
 
-            const response = await fetch(
+      const response = await fetch(
         `http://192.168.0.102/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
         { method: "GET" }
-            );
+      );
 
       const json = await response.json();
 
@@ -221,7 +221,7 @@ export default function InfoUsuario() {
     );
   }
 
-  const tipoUsuario = usuario?.tipo_de_usuario;
+  const tipoUsuario = Number(usuario?.tipo_de_usuario);
 
   return (
     <View style={styles.container}>
@@ -350,35 +350,76 @@ export default function InfoUsuario() {
         <Text style={styles.erro}>Dados do usuário indisponíveis.</Text>
       )}
 
-      {/* Menu Inferior */}
+      {/* Menu Inferior Condicional por Tipo de Usuário */}
       <Footer children={undefined} />
+      
       <View style={styles.barraMenuGeral}>
-        <Pressable 
-          style={styles.botaoMenu} 
-          onPress={() => router.push(tipoUsuario === 1 ? "/discenteResp" : "/discente")}
-        >
-          <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
+        {tipoUsuario === 1 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
 
-        {(tipoUsuario === 2 || tipoUsuario === 3) && (
-          <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-            <Text style={styles.tabLabel}>Diário</Text>
-          </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
         )}
 
-        {(tipoUsuario === 2 || tipoUsuario === 3) && (
-          <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-            <Text style={styles.tabLabel}>Rotina</Text>
-          </Pressable>
+        {tipoUsuario === 2 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
         )}
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
+        {tipoUsuario === 3 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );

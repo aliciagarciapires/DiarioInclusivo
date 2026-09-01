@@ -4,12 +4,17 @@ import {
   Alert,
   FlatList,
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Footer from "../../components/Footer";
@@ -17,8 +22,14 @@ import Footer from "../../components/Footer";
 export default function Diario() {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalHistoricoVisivel, setModalHistoricoVisivel] = useState(false);
+  
   const [data, setData] = useState("");
+  const [horaInicial, setHoraInicial] = useState("");
+  const [horaFinal, setHoraFinal] = useState("");
+  const [avaliacao, setAvaliacao] = useState<number>(5);
   const [complemento, setComplemento] = useState("");
+  const [idAtividades, setIdAtividades] = useState<number | null>(null);
+  
   const [loading, setLoading] = useState(false);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [diarios, setDiarios] = useState<any[]>([]);
@@ -26,9 +37,58 @@ export default function Diario() {
   const idUsuario = 1;
   const idDiscente = 2;
 
+  // Máscara para Data: DD/MM/AAAA (Apenas números)
+  const handleDataChange = (text: string) => {
+    const apenasNumeros = text.replace(/\D/g, "");
+    let dataFormatada = apenasNumeros;
+
+    if (apenasNumeros.length > 2 && apenasNumeros.length <= 4) {
+      dataFormatada = `${apenasNumeros.slice(0, 2)}/${apenasNumeros.slice(2)}`;
+    } else if (apenasNumeros.length > 4) {
+      dataFormatada = `${apenasNumeros.slice(0, 2)}/${apenasNumeros.slice(2, 4)}/${apenasNumeros.slice(4, 8)}`;
+    }
+
+    setData(dataFormatada);
+  };
+
+  // Máscara para Horário: HH:MM (Apenas números)
+  const handleHoraChange = (text: string, setHora: (v: string) => void) => {
+    const apenasNumeros = text.replace(/\D/g, "");
+    let horaFormatada = apenasNumeros;
+
+    if (apenasNumeros.length > 2) {
+      horaFormatada = `${apenasNumeros.slice(0, 2)}:${apenasNumeros.slice(2, 4)}`;
+    }
+
+    setHora(horaFormatada);
+  };
+
+  // Validar se a data é de hoje para frente
+  const validarDataFutura = (dataString: string): boolean => {
+    if (dataString.length !== 10) return false;
+
+    const [dia, mes, ano] = dataString.split("/").map(Number);
+    const dataDigitada = new Date(ano, mes - 1, dia);
+    
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    return dataDigitada >= hoje;
+  };
+
   const handleSalvarDiario = async () => {
     if (!data) {
-      Alert.alert("Atenção", "Por favor, selecione ou digite uma data.");
+      Alert.alert("Atenção", "Por favor, digite a data.");
+      return;
+    }
+
+    if (data.length < 10) {
+      Alert.alert("Atenção", "Por favor, digite a data completa no formato DD/MM/AAAA.");
+      return;
+    }
+
+    if (!validarDataFutura(data)) {
+      Alert.alert("Data Inválida", "A data deve ser o dia de hoje ou uma data futura.");
       return;
     }
 
@@ -42,7 +102,11 @@ export default function Diario() {
         },
         body: JSON.stringify({
           data: data,
+          hora_inicial: horaInicial,
+          hora_final: horaFinal,
+          avaliacao_1_5: avaliacao,
           complemento: complemento,
+          idAtividades: idAtividades,
           idUsuario: idUsuario,
           idDiscente: idDiscente,
         }),
@@ -56,16 +120,17 @@ export default function Diario() {
         if (result.sucesso) {
           Alert.alert("Sucesso", result.mensagem);
           setData("");
+          setHoraInicial("");
+          setHoraFinal("");
+          setAvaliacao(5);
           setComplemento("");
           setModalVisivel(false);
+          handleBuscarHistorico();
         } else {
           Alert.alert("Erro", result.mensagem);
         }
       } catch (jsonError) {
-        // Exibe o retorno bruto retornado pelo PHP para facilitar o diagnóstico do erro
-        console.error("Erro no Parse JSON. Retorno bruto do servidor:", text);
-        
-        // Remove tags HTML caso o PHP tenha retornado uma página de erro
+        console.error("Erro no Parse JSON:", text);
         const mensagemLimpa = text.replace(/<[^>]*>?/gm, '').trim();
         Alert.alert(
           "Erro do Servidor PHP", 
@@ -110,14 +175,11 @@ export default function Diario() {
 
   return (
     <View style={styles.container}>
-      {/* Topo com botão voltar e Título */}
       <View style={styles.header}>
-        <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text>
-        <Text style={styles.mesTexto}>ABRIL DE 2026</Text>
+        <Text style={styles.mesTexto}>AGOSTO DE 2026</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Seção do Calendário */}
       <View style={styles.calendarioContainer}>
         <View style={styles.semanaContainer}>
           {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
@@ -128,51 +190,58 @@ export default function Diario() {
         </View>
 
         <View style={styles.gradeDias}>
+          <Text style={[styles.diaTexto, styles.diaCinza]}>26</Text>
+          <Text style={[styles.diaTexto, styles.diaCinza]}>27</Text>
+          <Text style={[styles.diaTexto, styles.diaCinza]}>28</Text>
           <Text style={[styles.diaTexto, styles.diaCinza]}>29</Text>
           <Text style={[styles.diaTexto, styles.diaCinza]}>30</Text>
-          <Text style={[styles.diaTexto, styles.diaCinza]}>31</Text>
+          <Text style={styles.diaTexto}>31</Text>
           <Text style={styles.diaTexto}>1</Text>
+
           <Text style={styles.diaTexto}>2</Text>
           <Text style={styles.diaTexto}>3</Text>
           <Text style={styles.diaTexto}>4</Text>
-
           <Text style={styles.diaTexto}>5</Text>
           <Text style={styles.diaTexto}>6</Text>
           <Text style={styles.diaTexto}>7</Text>
           <Text style={styles.diaTexto}>8</Text>
-          <View style={styles.diaSelecionado}>
-            <Text style={styles.diaTextoNoCirculo}>9</Text>
-          </View>
+
+          <Text style={styles.diaTexto}>9</Text>
           <Text style={styles.diaTexto}>10</Text>
           <Text style={styles.diaTexto}>11</Text>
-
           <Text style={styles.diaTexto}>12</Text>
           <Text style={styles.diaTexto}>13</Text>
           <Text style={styles.diaTexto}>14</Text>
           <Text style={styles.diaTexto}>15</Text>
+
           <Text style={styles.diaTexto}>16</Text>
           <Text style={styles.diaTexto}>17</Text>
           <Text style={styles.diaTexto}>18</Text>
-
           <Text style={styles.diaTexto}>19</Text>
           <Text style={styles.diaTexto}>20</Text>
           <Text style={styles.diaTexto}>21</Text>
           <Text style={styles.diaTexto}>22</Text>
+
           <Text style={styles.diaTexto}>23</Text>
           <Text style={styles.diaTexto}>24</Text>
           <Text style={styles.diaTexto}>25</Text>
-
           <Text style={styles.diaTexto}>26</Text>
           <Text style={styles.diaTexto}>27</Text>
           <Text style={styles.diaTexto}>28</Text>
           <Text style={styles.diaTexto}>29</Text>
+
           <Text style={styles.diaTexto}>30</Text>
+          <View style={styles.diaSelecionado}>
+            <Text style={styles.diaTextoNoCirculo}>31</Text>
+          </View>
+          <View style={styles.diaInvisivel} />
+          <View style={styles.diaInvisivel} />
+          <View style={styles.diaInvisivel} />
           <View style={styles.diaInvisivel} />
           <View style={styles.diaInvisivel} />
         </View>
       </View>
 
-      {/* Botões Grandes Centrais */}
       <View style={styles.botoesAcaoContainer}>
         <Pressable
           style={[styles.botaoAcao, styles.botaoRoxo]}
@@ -199,49 +268,114 @@ export default function Diario() {
         visible={modalVisivel}
         onRequestClose={() => setModalVisivel(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitulo}>Nova Entrada no Diário</Text>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ width: "100%", alignItems: "center" }}
+            >
+              <View style={styles.modalContent}>
+                <ScrollView 
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  <Text style={styles.modalTitulo}>Nova Entrada no Diário</Text>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Data (ex: 24/08/2026)"
-              value={data}
-              onChangeText={setData}
-            />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Data (ex: 31/08/2026)"
+                    placeholderTextColor="#888"
+                    value={data}
+                    onChangeText={handleDataChange}
+                    keyboardType="numeric"
+                    maxLength={10}
+                  />
 
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Anotações do diário (complemento)..."
-              value={complemento}
-              onChangeText={setComplemento}
-              multiline={true}
-              numberOfLines={4}
-            />
+                  <View style={styles.horasRow}>
+                    <TextInput
+                      style={[styles.input, styles.inputMetade]}
+                      placeholder="Início (08:00)"
+                      placeholderTextColor="#888"
+                      value={horaInicial}
+                      onChangeText={(text) => handleHoraChange(text, setHoraInicial)}
+                      keyboardType="numeric"
+                      maxLength={5}
+                    />
+                    <TextInput
+                      style={[styles.input, styles.inputMetade]}
+                      placeholder="Fim (09:00)"
+                      placeholderTextColor="#888"
+                      value={horaFinal}
+                      onChangeText={(text) => handleHoraChange(text, setHoraFinal)}
+                      keyboardType="numeric"
+                      maxLength={5}
+                    />
+                  </View>
 
-            <View style={styles.modalBotoes}>
-              <TouchableOpacity
-                style={[styles.modalBotao, styles.botaoCancelar]}
-                onPress={() => setModalVisivel(false)}
-              >
-                <Text style={styles.textoBotaoModal}>Cancelar</Text>
-              </TouchableOpacity>
+                  <Text style={styles.labelAvaliacao}>
+                    Avaliação do desempenho (1 a 5):
+                  </Text>
+                  <View style={styles.notasContainer}>
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <TouchableOpacity
+                        key={num}
+                        style={[
+                          styles.botaoNota,
+                          avaliacao === num && styles.botaoNotaSelecionado,
+                        ]}
+                        onPress={() => setAvaliacao(num)}
+                      >
+                        <Text
+                          style={[
+                            styles.textoNota,
+                            avaliacao === num && styles.textoNotaSelecionado,
+                          ]}
+                        >
+                          {num}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
 
-              <TouchableOpacity
-                style={[styles.modalBotao, styles.botaoSalvar]}
-                onPress={handleSalvarDiario}
-                disabled={loading}
-              >
-                <Text style={styles.textoBotaoModal}>
-                  {loading ? "Salvando..." : "Salvar"}
-                </Text>
-              </TouchableOpacity>
-            </View>
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    placeholder="Observações do professor..."
+                    placeholderTextColor="#888"
+                    value={complemento}
+                    onChangeText={setComplemento}
+                    multiline={true}
+                    numberOfLines={3}
+                    returnKeyType="done"
+                    blurOnSubmit={true}
+                    onSubmitEditing={Keyboard.dismiss}
+                  />
+
+                  <View style={styles.modalBotoes}>
+                    <TouchableOpacity
+                      style={[styles.modalBotao, styles.botaoCancelar]}
+                      onPress={() => setModalVisivel(false)}
+                    >
+                      <Text style={styles.textoBotaoModal}>Cancelar</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.modalBotao, styles.botaoSalvar]}
+                      onPress={handleSalvarDiario}
+                      disabled={loading}
+                    >
+                      <Text style={styles.textoBotaoModal}>
+                        {loading ? "Salvando..." : "Salvar"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </ScrollView>
+              </View>
+            </KeyboardAvoidingView>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Modal de Histórico (Leitura / Read) */}
+      {/* Modal de Histórico */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -262,7 +396,17 @@ export default function Diario() {
                 keyExtractor={(item) => item.idDiario.toString()}
                 renderItem={({ item }) => (
                   <View style={styles.cardDiario}>
-                    <Text style={styles.cardData}>{item.data}</Text>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.cardData}>{item.data}</Text>
+                      {item.avaliacao_1_5 && (
+                        <Text style={styles.cardNota}>Nota: {item.avaliacao_1_5}/5</Text>
+                      )}
+                    </View>
+                    {(item.hora_inicial || item.hora_final) && (
+                      <Text style={styles.cardHorario}>
+                        Horário: {item.hora_inicial} - {item.hora_final}
+                      </Text>
+                    )}
                     <Text style={styles.cardTexto}>
                       {item.complemento || "Sem anotações."}
                     </Text>
@@ -281,7 +425,6 @@ export default function Diario() {
         </View>
       </Modal>
 
-      {/* Menu Inferior Estático */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
@@ -319,11 +462,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 20,
+    textAlign: "center",
   },
   mesTexto: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#2F1CA6",
+    textAlign: "center",
   },
   calendarioContainer: {
     marginTop: 40,
@@ -461,14 +606,54 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#CCC",
+    backgroundColor: "#FFF",
+    color: "#333",
     borderRadius: 10,
     padding: 12,
     marginBottom: 12,
     fontSize: 14,
   },
+  horasRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  inputMetade: {
+    width: "48%",
+  },
   textArea: {
-    height: 100,
+    height: 80,
     textAlignVertical: "top",
+  },
+  labelAvaliacao: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#2F1CA6",
+    marginBottom: 8,
+  },
+  notasContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  botaoNota: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: "#2F1CA6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  botaoNotaSelecionado: {
+    backgroundColor: "#2F1CA6",
+  },
+  textoNota: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2F1CA6",
+  },
+  textoNotaSelecionado: {
+    color: "#FFF",
   },
   modalBotoes: {
     flexDirection: "row",
@@ -506,10 +691,24 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: "#2F1CA6",
   },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
   cardData: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#2F1CA6",
+  },
+  cardNota: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#1797CD",
+  },
+  cardHorario: {
+    fontSize: 12,
+    color: "#666",
     marginBottom: 5,
   },
   cardTexto: {

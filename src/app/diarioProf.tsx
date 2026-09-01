@@ -28,7 +28,7 @@ export default function Diario() {
   const [horaFinal, setHoraFinal] = useState("");
   const [avaliacao, setAvaliacao] = useState<number>(5);
   const [complemento, setComplemento] = useState("");
-  const [idAtividades, setIdAtividades] = useState<number | null>(null);
+  const [idAtividades, setIdAtividades] = useState<number | null>(1);
   
   const [loading, setLoading] = useState(false);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
@@ -94,24 +94,29 @@ export default function Diario() {
 
     setLoading(true);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
       const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/criar_diario.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
           data: data,
           hora_inicial: horaInicial,
           hora_final: horaFinal,
           avaliacao_1_5: avaliacao,
           complemento: complemento,
-          idAtividades: idAtividades,
+          idAtividades: idAtividades, 
           idUsuario: idUsuario,
           idDiscente: idDiscente,
         }),
       });
 
+      clearTimeout(timeoutId);
       const text = await response.text();
 
       try {
@@ -130,15 +135,20 @@ export default function Diario() {
           Alert.alert("Erro", result.mensagem);
         }
       } catch (jsonError) {
-        console.error("Erro no Parse JSON:", text);
+        console.error("Resposta em formato inválido:", text);
         const mensagemLimpa = text.replace(/<[^>]*>?/gm, '').trim();
         Alert.alert(
-          "Erro do Servidor PHP", 
-          `O servidor respondeu algo inválido:\n\n${mensagemLimpa.substring(0, 150)}...`
+          "Erro do Servidor", 
+          `O servidor retornou uma resposta inesperada:\n\n${mensagemLimpa.substring(0, 150)}`
         );
       }
-    } catch (error) {
-      Alert.alert("Erro de Conexão", "Não foi possível se conectar ao servidor.");
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        Alert.alert("Tempo Excedido", "O servidor demorou para responder. Verifique se o PHP e o MySQL estão ativos.");
+      } else {
+        Alert.alert("Erro de Conexão", "Não foi possível se conectar ao servidor.");
+      }
       console.error(error);
     } finally {
       setLoading(false);
@@ -176,6 +186,7 @@ export default function Diario() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text>
         <Text style={styles.mesTexto}>AGOSTO DE 2026</Text>
         <View style={{ width: 24 }} />
       </View>
@@ -462,13 +473,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 20,
-    textAlign: "center",
   },
   mesTexto: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#2F1CA6",
-    textAlign: "center",
   },
   calendarioContainer: {
     marginTop: 40,

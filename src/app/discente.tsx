@@ -6,30 +6,43 @@ import Footer from "../../components/Footer";
 
 export default function Discente() {
   const [listaDiscentes, setListaDiscentes] = useState<any[]>([]);
+  // Estado para guardar qual é o TIPO de usuário (2 = Adm, 3 = Prof)
+  const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
-  // Função para buscar discentes criados pelo usuário logado
   const buscarDiscentes = async () => {
     try {
-      // 1. Tenta pegar o ID da chave "idUsuario" ou "id" salva no login
       let idUsuarioLogado = await AsyncStorage.getItem("idUsuario");
       if (!idUsuarioLogado) {
         idUsuarioLogado = await AsyncStorage.getItem("id");
       }
 
+      // Tenta pegar o tipo_de_usuario
+      let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
+      
+      // ESPIÃO: Mostra no terminal o que ele encontrou
+      console.log("ID do usuário logado:", idUsuarioLogado);
+      console.log("Tipo do usuário logado:", tipoLogado);
+      
       if (!idUsuarioLogado) {
         console.error("Usuário não autenticado no AsyncStorage.");
         setListaDiscentes([]);
         return;
       }
 
-      // 2. Envia o idUsuario via parâmetro GET para a API
-      const response = await fetch(
-        `http://192.168.1.59/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`
-      );
+      setTipoUsuario(String(tipoLogado));
+
+      let url = "";
+      // Usamos trim() por garantia, para remover espaços em branco invisíveis
+      if (tipoLogado && String(tipoLogado).trim() === "2") {
+        url = "http://192.168.1.59/DiarioInclusivo/src/app/discenteAdm.php";
+      } else {
+        url = `http://192.168.1.59/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`;
+      }
+
+      const response = await fetch(url);
       const dados = await response.json();
 
       if (Array.isArray(dados)) {
-        // Mapeia os dados garantindo a propriedade tipo="discente" para cada item
         const discentesMapeados = dados.map((d: any) => ({
           ...d,
           tipo: "discente",
@@ -93,26 +106,55 @@ export default function Discente() {
       
       <Footer children={undefined} />
 
+      {/* Renderização Condicional da Barra Inferior pelo TIPO DE USUÁRIO */}
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
+        {tipoUsuario === "2" ? (
+          /* BARRA PARA O TIPO 2 (ADM) */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
+            
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discenteD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
+            
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+            
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        ) : (
+          /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     </>
   );

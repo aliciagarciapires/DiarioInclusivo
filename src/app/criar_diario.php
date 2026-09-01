@@ -11,6 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
+set_time_limit(5);
+date_default_timezone_set('America/Sao_Paulo');
+
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 include_once "conexao.php";
@@ -19,7 +22,6 @@ if (isset($mysqli)) {
     $mysqli->set_charset("utf8");
 }
 
-date_default_timezone_set('America/Sao_Paulo');
 ob_clean();
 
 $dados = json_decode(file_get_contents("php://input"), true);
@@ -50,6 +52,8 @@ if (!empty($dataBruta) && $idUsuario > 0 && $idDiscente > 0) {
 
     $complemento = isset($dados['complemento']) ? $mysqli->real_escape_string($dados['complemento']) : '';
     
+    $mysqli->begin_transaction();
+
     try {
         // 1. Salva na tabela DIARIO (Sem avaliacao_1_5)
         $queryDiario = "INSERT INTO diario (data, hora_inicial, hora_final, complemento, idUsuario, idDiscente) 
@@ -59,11 +63,13 @@ if (!empty($dataBruta) && $idUsuario > 0 && $idDiscente > 0) {
         $idDiarioCriado = $mysqli->insert_id;
 
         // 2. Salva na tabela DIARIO_TEM_ATIVIDADES (Com avaliacao_1_5)
-        if ($idAtividades !== null) {
+        if ($idAtividades !== null && $idAtividades > 0) {
             $queryPivo = "INSERT INTO diario_tem_atividades (idDiario, idAtividades, hora_inicial, hora_final, avaliacao_1_5) 
                           VALUES ($idDiarioCriado, $idAtividades, $horaInicial, $horaFinal, $avaliacao_1_5)";
             $mysqli->query($queryPivo);
         }
+
+        $mysqli->commit();
         
         echo json_encode([
             "sucesso" => true,
@@ -72,6 +78,8 @@ if (!empty($dataBruta) && $idUsuario > 0 && $idDiscente > 0) {
         ], JSON_UNESCAPED_UNICODE);
 
     } catch (mysqli_sql_exception $e) {
+        $mysqli->rollback();
+        
         echo json_encode([
             "sucesso" => false,
             "mensagem" => "Erro no Banco: " . $e->getMessage()
@@ -81,7 +89,7 @@ if (!empty($dataBruta) && $idUsuario > 0 && $idDiscente > 0) {
 } else {
     echo json_encode([
         "sucesso" => false,
-        "mensagem" => "Dados incompletos fornecidos."
+        "mensagem" => "Dados incompletos fornecidos. Verifique os IDs de Usuário e Discente."
     ], JSON_UNESCAPED_UNICODE);
 }
 exit();

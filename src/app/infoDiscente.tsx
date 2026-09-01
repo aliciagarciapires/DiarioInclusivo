@@ -1,18 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import React, { useEffect, useState, useCallback } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
@@ -36,6 +36,9 @@ export default function InfoDiscente() {
   const [discente, setDiscente] = useState<Discente | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Estado para armazenar o tipo de usuário logado (Renderização da Navbar)
+  const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
+
   // Estados de edição do discente
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState("");
@@ -50,6 +53,23 @@ export default function InfoDiscente() {
 
   // Estado do Dropdown de Grau
   const [abertoGrau, setAbertoGrau] = useState(false);
+
+  // Verifica o tipo de usuário toda vez que a tela entra em foco
+  useFocusEffect(
+    useCallback(() => {
+      const carregarTipoUsuario = async () => {
+        try {
+          let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
+          if (tipoLogado) {
+            setTipoUsuario(String(tipoLogado).trim());
+          }
+        } catch (error) {
+          console.error("Erro ao carregar tipo de usuário:", error);
+        }
+      };
+      carregarTipoUsuario();
+    }, [])
+  );
 
   // Função auxiliar para recuperar o ID do usuário logado
   const obterIdUsuarioLogado = async () => {
@@ -488,28 +508,56 @@ export default function InfoDiscente() {
         )}
       </ScrollView>
 
-      {/* RODAPÉ E MENU GERAL */}
+      {/* --- RODAPÉ E MENU GERAL CONDICIONAL --- */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
+        {tipoUsuario === "2" ? (
+          /* BARRA PARA O TIPO 2 (ADM) - Destaque no botão Discentes */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discenteD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        ) : (
+          /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque em Início */
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );

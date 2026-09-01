@@ -58,14 +58,14 @@ export default function Professores() {
       <Footer children={undefined} />
                                 <View style={styles.barraMenuGeral}>
                                 
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Início</Text>
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+                                  <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Professores</Text>
                                 </Pressable>
                         
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-                                  <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-                                  <Text style={styles.tabLabel}>Diário</Text>
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                                  <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+                                  <Text style={styles.tabLabel}>Discentes</Text>
                                 </Pressable>
                         
                                 <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
@@ -73,7 +73,7 @@ export default function Professores() {
                                   <Text style={styles.tabLabel}>Rotina</Text>
                                 </Pressable>
                         
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
                                   <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
                                   <Text style={styles.tabLabel}>Conf.</Text>
                                 </Pressable>
@@ -158,10 +158,11 @@ const styles = StyleSheet.create({
     color: "#2F1CA6",
     marginTop: 4,
   },
-  iconeCustom: {
-    width: 200,                     
-    height: 70,
-    resizeMode: "contain",         
+  iconeCustom: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 15, 
+    resizeMode: "cover" 
   },
   barraMenuGeral: {
     flexDirection: "row",          // Alinha os botões na horizontal
@@ -180,7 +181,8 @@ const styles = StyleSheet.create({
     right: 0,
     elevation: 10,                 
     shadowColor: "#000",
-    marginTop: 20   
+    marginTop: 20,
+    borderRadius: 20, // Adiciona bordas arredondadas
   },
   botaoContainer:{
     width: 250,

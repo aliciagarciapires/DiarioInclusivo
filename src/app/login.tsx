@@ -71,6 +71,7 @@ export default function Login() {
             if (data.sucesso) {
                 if (data.userId) {
                     await AsyncStorage.setItem("idUsuario", String(data.userId));
+                    await AsyncStorage.setItem("tipo_de_usuario", String(data.tipo_de_usuario));
                 }
                 Alert.alert("Sucesso", data.mensagem);
 

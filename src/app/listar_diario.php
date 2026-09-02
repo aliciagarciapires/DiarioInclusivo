@@ -31,9 +31,11 @@ if ($idDiscente > 0) {
                          d.hora_final, 
                          d.complemento, 
                          da.idAtividades, 
-                         da.avaliacao_1_5 
+                         da.avaliacao_1_5,
+                         a.nome AS atividade
                   FROM diario d
                   LEFT JOIN diario_tem_atividades da ON d.idDiario = da.idDiario
+                  LEFT JOIN atividades a ON da.idAtividades = a.idAtividades
                   WHERE d.idDiscente = $idDiscente 
                   ORDER BY d.data DESC, d.idDiario DESC";
 

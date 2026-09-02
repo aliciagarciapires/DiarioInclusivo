@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Href, useRouter, useFocusEffect } from 'expo-router';
-import React, { useEffect, useState, useCallback } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Href, useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     Alert,
     FlatList,
@@ -36,7 +36,7 @@ export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "192.168.1.59";
+  const IP_SERVIDOR = "10.0.0.100";
 
   // --- ESTADOS DA TELA ---
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);

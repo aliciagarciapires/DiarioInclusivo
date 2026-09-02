@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -19,17 +19,28 @@ import {
 } from "react-native";
 import Footer from "../../components/Footer";
 
+interface Atividade {
+  idAtividades: number;
+  nome: string;
+}
+
 export default function Diario() {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalHistoricoVisivel, setModalHistoricoVisivel] = useState(false);
-  
+  const [modalAtividadesVisivel, setModalAtividadesVisivel] = useState(false);
+
+  // Estados de Atividades vindo do Banco
+  const [listaAtividades, setListaAtividades] = useState<Atividade[]>([]);
+  const [idAtividades, setIdAtividades] = useState<number | null>(null);
+  const [nomeAtividadeSelecionada, setNomeAtividadeSelecionada] = useState<string>("");
+
+  // Demais estados do formulário
   const [data, setData] = useState("");
   const [horaInicial, setHoraInicial] = useState("");
   const [horaFinal, setHoraFinal] = useState("");
   const [avaliacao, setAvaliacao] = useState<number>(5);
   const [complemento, setComplemento] = useState("");
-  const [idAtividades, setIdAtividades] = useState<number | null>(1);
-  
+
   const [loading, setLoading] = useState(false);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [diarios, setDiarios] = useState<any[]>([]);
@@ -37,7 +48,30 @@ export default function Diario() {
   const idUsuario = 1;
   const idDiscente = 2;
 
-  // Máscara para Data: DD/MM/AAAA (Apenas números)
+  // Carrega as atividades do banco ao abrir a tela
+  useEffect(() => {
+    carregarAtividades();
+  }, []);
+
+  const carregarAtividades = async () => {
+    try {
+      const response = await fetch(
+        "http://10.0.0.100/DiarioInclusivo/src/app/listar_atividades.php"
+      );
+      const text = await response.text();
+      const result = JSON.parse(text);
+
+      if (result.sucesso) {
+        setListaAtividades(result.dados);
+      } else {
+        console.error("Erro ao buscar atividades:", result.mensagem);
+      }
+    } catch (error) {
+      console.error("Erro ao conectar com servidor de atividades:", error);
+    }
+  };
+
+  // Máscara para Data: DD/MM/AAAA
   const handleDataChange = (text: string) => {
     const apenasNumeros = text.replace(/\D/g, "");
     let dataFormatada = apenasNumeros;
@@ -45,13 +79,16 @@ export default function Diario() {
     if (apenasNumeros.length > 2 && apenasNumeros.length <= 4) {
       dataFormatada = `${apenasNumeros.slice(0, 2)}/${apenasNumeros.slice(2)}`;
     } else if (apenasNumeros.length > 4) {
-      dataFormatada = `${apenasNumeros.slice(0, 2)}/${apenasNumeros.slice(2, 4)}/${apenasNumeros.slice(4, 8)}`;
+      dataFormatada = `${apenasNumeros.slice(0, 2)}/${apenasNumeros.slice(
+        2,
+        4
+      )}/${apenasNumeros.slice(4, 8)}`;
     }
 
     setData(dataFormatada);
   };
 
-  // Máscara para Horário: HH:MM (Apenas números)
+  // Máscara para Horário: HH:MM
   const handleHoraChange = (text: string, setHora: (v: string) => void) => {
     const apenasNumeros = text.replace(/\D/g, "");
     let horaFormatada = apenasNumeros;
@@ -63,13 +100,12 @@ export default function Diario() {
     setHora(horaFormatada);
   };
 
-  // Validar se a data é de hoje para frente
   const validarDataFutura = (dataString: string): boolean => {
     if (dataString.length !== 10) return false;
 
     const [dia, mes, ano] = dataString.split("/").map(Number);
     const dataDigitada = new Date(ano, mes - 1, dia);
-    
+
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
 
@@ -77,18 +113,29 @@ export default function Diario() {
   };
 
   const handleSalvarDiario = async () => {
+    if (!idAtividades) {
+      Alert.alert("Atenção", "Por favor, selecione uma atividade.");
+      return;
+    }
+
     if (!data) {
       Alert.alert("Atenção", "Por favor, digite a data.");
       return;
     }
 
     if (data.length < 10) {
-      Alert.alert("Atenção", "Por favor, digite a data completa no formato DD/MM/AAAA.");
+      Alert.alert(
+        "Atenção",
+        "Por favor, digite a data completa no formato DD/MM/AAAA."
+      );
       return;
     }
 
     if (!validarDataFutura(data)) {
-      Alert.alert("Data Inválida", "A data deve ser o dia de hoje ou uma data futura.");
+      Alert.alert(
+        "Data Inválida",
+        "A data deve ser o dia de hoje ou uma data futura."
+      );
       return;
     }
 
@@ -98,23 +145,26 @@ export default function Diario() {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/criar_diario.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          data: data,
-          hora_inicial: horaInicial,
-          hora_final: horaFinal,
-          avaliacao_1_5: avaliacao,
-          complemento: complemento,
-          idAtividades: idAtividades, 
-          idUsuario: idUsuario,
-          idDiscente: idDiscente,
-        }),
-      });
+      const response = await fetch(
+        "http://10.0.0.100/DiarioInclusivo/src/app/criar_diario.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            data: data,
+            hora_inicial: horaInicial,
+            hora_final: horaFinal,
+            avaliacao_1_5: avaliacao,
+            complemento: complemento,
+            idAtividades: idAtividades,
+            idUsuario: idUsuario,
+            idDiscente: idDiscente,
+          }),
+        }
+      );
 
       clearTimeout(timeoutId);
       const text = await response.text();
@@ -124,6 +174,8 @@ export default function Diario() {
 
         if (result.sucesso) {
           Alert.alert("Sucesso", result.mensagem);
+          setIdAtividades(null);
+          setNomeAtividadeSelecionada("");
           setData("");
           setHoraInicial("");
           setHoraFinal("");
@@ -136,16 +188,22 @@ export default function Diario() {
         }
       } catch (jsonError) {
         console.error("Resposta em formato inválido:", text);
-        const mensagemLimpa = text.replace(/<[^>]*>?/gm, '').trim();
+        const mensagemLimpa = text.replace(/<[^>]*>?/gm, "").trim();
         Alert.alert(
-          "Erro do Servidor", 
-          `O servidor retornou uma resposta inesperada:\n\n${mensagemLimpa.substring(0, 150)}`
+          "Erro do Servidor",
+          `O servidor retornou uma resposta inesperada:\n\n${mensagemLimpa.substring(
+            0,
+            150
+          )}`
         );
       }
     } catch (error: any) {
       clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        Alert.alert("Tempo Excedido", "O servidor demorou para responder. Verifique se o PHP e o MySQL estão ativos.");
+      if (error.name === "AbortError") {
+        Alert.alert(
+          "Tempo Excedido",
+          "O servidor demorou para responder. Verifique se o PHP e o MySQL estão ativos."
+        );
       } else {
         Alert.alert("Erro de Conexão", "Não foi possível se conectar ao servidor.");
       }
@@ -159,10 +217,10 @@ export default function Diario() {
     setLoadingHistorico(true);
     try {
       const response = await fetch(
-        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://10.0.0.100/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
       );
       const text = await response.text();
-      
+
       try {
         const result = JSON.parse(text);
         if (result.sucesso) {
@@ -185,12 +243,14 @@ export default function Diario() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text>
         <Text style={styles.mesTexto}>AGOSTO DE 2026</Text>
         <View style={{ width: 24 }} />
       </View>
 
+      {/* Calendário */}
       <View style={styles.calendarioContainer}>
         <View style={styles.semanaContainer}>
           {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
@@ -253,6 +313,7 @@ export default function Diario() {
         </View>
       </View>
 
+      {/* Botões de Ação */}
       <View style={styles.botoesAcaoContainer}>
         <Pressable
           style={[styles.botaoAcao, styles.botaoRoxo]}
@@ -286,12 +347,28 @@ export default function Diario() {
               style={{ width: "100%", alignItems: "center" }}
             >
               <View style={styles.modalContent}>
-                <ScrollView 
+                <ScrollView
                   showsVerticalScrollIndicator={false}
                   keyboardShouldPersistTaps="handled"
                 >
                   <Text style={styles.modalTitulo}>Nova Entrada no Diário</Text>
 
+                  {/* SELETOR DA ATIVIDADE */}
+                  <TouchableOpacity
+                    style={styles.seletorAtividade}
+                    onPress={() => setModalAtividadesVisivel(true)}
+                  >
+                    <Text
+                      style={[
+                        styles.seletorTexto,
+                        !nomeAtividadeSelecionada && { color: "#888" },
+                      ]}
+                    >
+                      {nomeAtividadeSelecionada || "Selecione uma atividade..."}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* CAMPO DE DATA */}
                   <TextInput
                     style={styles.input}
                     placeholder="Data (ex: 31/08/2026)"
@@ -302,6 +379,7 @@ export default function Diario() {
                     maxLength={10}
                   />
 
+                  {/* CAMPOS DE HORÁRIO */}
                   <View style={styles.horasRow}>
                     <TextInput
                       style={[styles.input, styles.inputMetade]}
@@ -323,6 +401,7 @@ export default function Diario() {
                     />
                   </View>
 
+                  {/* AVALIAÇÃO */}
                   <Text style={styles.labelAvaliacao}>
                     Avaliação do desempenho (1 a 5):
                   </Text>
@@ -348,6 +427,7 @@ export default function Diario() {
                     ))}
                   </View>
 
+                  {/* COMPLEMENTO / OBSERVAÇÕES */}
                   <TextInput
                     style={[styles.input, styles.textArea]}
                     placeholder="Observações do professor..."
@@ -386,49 +466,51 @@ export default function Diario() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Modal de Histórico */}
+      {/* Modal para Selecionar Atividade da Lista */}
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalHistoricoVisivel}
-        onRequestClose={() => setModalHistoricoVisivel(false)}
+        visible={modalAtividadesVisivel}
+        onRequestClose={() => setModalAtividadesVisivel(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { maxHeight: "80%" }]}>
-            <Text style={styles.modalTitulo}>Histórico de Entradas</Text>
+          <View style={[styles.modalContent, { maxHeight: "70%" }]}>
+            <Text style={styles.modalTitulo}>Selecione a Atividade</Text>
 
-            {diarios.length === 0 ? (
-              <Text style={styles.textoVazio}>
-                Nenhum registro encontrado para este aluno.
-              </Text>
+            {listaAtividades.length === 0 ? (
+              <Text style={styles.textoVazio}>Carregando atividades...</Text>
             ) : (
               <FlatList
-                data={diarios}
-                keyExtractor={(item) => item.idDiario.toString()}
+                data={listaAtividades}
+                keyExtractor={(item) => item.idAtividades.toString()}
                 renderItem={({ item }) => (
-                  <View style={styles.cardDiario}>
-                    <View style={styles.cardHeader}>
-                      <Text style={styles.cardData}>{item.data}</Text>
-                      {item.avaliacao_1_5 && (
-                        <Text style={styles.cardNota}>Nota: {item.avaliacao_1_5}/5</Text>
-                      )}
-                    </View>
-                    {(item.hora_inicial || item.hora_final) && (
-                      <Text style={styles.cardHorario}>
-                        Horário: {item.hora_inicial} - {item.hora_final}
-                      </Text>
-                    )}
-                    <Text style={styles.cardTexto}>
-                      {item.complemento || "Sem anotações."}
+                  <TouchableOpacity
+                    style={[
+                      styles.itemAtividade,
+                      idAtividades === item.idAtividades && styles.itemAtividadeSelecionada,
+                    ]}
+                    onPress={() => {
+                      setIdAtividades(item.idAtividades);
+                      setNomeAtividadeSelecionada(item.nome);
+                      setModalAtividadesVisivel(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.textoAtividade,
+                        idAtividades === item.idAtividades && styles.textoAtividadeSelecionada,
+                      ]}
+                    >
+                      {item.nome}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
               />
             )}
 
             <TouchableOpacity
               style={[styles.modalBotao, styles.botaoCancelar, { marginTop: 15 }]}
-              onPress={() => setModalHistoricoVisivel(false)}
+              onPress={() => setModalAtividadesVisivel(false)}
             >
               <Text style={styles.textoBotaoModal}>Fechar</Text>
             </TouchableOpacity>
@@ -436,25 +518,112 @@ export default function Diario() {
         </View>
       </Modal>
 
+      {/* Modal de Histórico */}
+      {/* Modal de Histórico */}
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={modalHistoricoVisivel}
+  onRequestClose={() => setModalHistoricoVisivel(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={[styles.modalContent, { maxHeight: "80%" }]}>
+      <Text style={styles.modalTitulo}>Histórico de Entradas</Text>
+
+      {diarios.length === 0 ? (
+        <Text style={styles.textoVazio}>
+          Nenhum registro encontrado para este aluno.
+        </Text>
+      ) : (
+        <FlatList
+          data={diarios}
+          keyExtractor={(item) => item.idDiario.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.cardDiario}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardData}>{item.data}</Text>
+                {item.avaliacao_1_5 && (
+                  <Text style={styles.cardNota}>
+                    Nota: {item.avaliacao_1_5}/5
+                  </Text>
+                )}
+              </View>
+
+              {/* NOME DA ATIVIDADE */}
+              {item.atividade && (
+                <Text style={styles.cardAtividade}>
+                  Atividade: {item.atividade}
+                </Text>
+              )}
+
+              {(item.hora_inicial || item.hora_final) && (
+                <Text style={styles.cardHorario}>
+                  Horário: {item.hora_inicial} - {item.hora_final}
+                </Text>
+              )}
+              
+              <Text style={styles.cardTexto}>
+                {item.complemento || "Sem anotações."}
+              </Text>
+            </View>
+          )}
+        />
+      )}
+
+      <TouchableOpacity
+        style={[styles.modalBotao, styles.botaoCancelar, { marginTop: 15 }]}
+        onPress={() => setModalHistoricoVisivel(false)}
+      >
+        <Text style={styles.textoBotaoModal}>Fechar</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+      {/* Rodapé e Menu */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-          <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+        <Pressable
+          style={styles.botaoMenu}
+          onPress={() => router.push("/discente")}
+        >
+          <Image
+            source={require("../../assets/images/home.png")}
+            style={styles.iconeCustom}
+          />
           <Text style={styles.tabLabel}>Início</Text>
         </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-          <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+        <Pressable
+          style={styles.botaoMenu}
+          onPress={() => router.push("/diarioProf")}
+        >
+          <Image
+            source={require("../../assets/images/diarioD.png")}
+            style={styles.iconeCustom}
+          />
           <Text style={styles.tabLabel}>Diário</Text>
         </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+        <Pressable
+          style={styles.botaoMenu}
+          onPress={() => router.push("/rotina")}
+        >
+          <Image
+            source={require("../../assets/images/rotina.png")}
+            style={styles.iconeCustom}
+          />
           <Text style={styles.tabLabel}>Rotina</Text>
         </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+        <Pressable
+          style={styles.botaoMenu}
+          onPress={() => router.push("/configuracoes")}
+        >
+          <Image
+            source={require("../../assets/images/confg.png")}
+            style={styles.iconeCustom}
+          />
           <Text style={styles.tabLabel}>Conf.</Text>
         </Pressable>
       </View>
@@ -612,6 +781,37 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "center",
   },
+  seletorAtividade: {
+    borderWidth: 1,
+    borderColor: "#CCC",
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+    justifyContent: "center",
+  },
+  seletorTexto: {
+    fontSize: 14,
+    color: "#333",
+  },
+  itemAtividade: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  itemAtividadeSelecionada: {
+    backgroundColor: "#E2E0F8",
+  },
+  textoAtividade: {
+    fontSize: 15,
+    color: "#333",
+  },
+  textoAtividadeSelecionada: {
+    fontWeight: "bold",
+    color: "#2F1CA6",
+  },
   input: {
     borderWidth: 1,
     borderColor: "#CCC",
@@ -723,5 +923,11 @@ const styles = StyleSheet.create({
   cardTexto: {
     fontSize: 14,
     color: "#333",
+  },
+  cardAtividade: {
+  fontSize: 15,
+  fontWeight: "bold",
+  color: "#2F1CA6",
+  marginBottom: 4,
   },
 });

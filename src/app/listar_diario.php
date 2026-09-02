@@ -25,19 +25,19 @@ $idDiscente = isset($_GET['idDiscente']) ? intval($_GET['idDiscente']) : 0;
 
 if ($idDiscente > 0) {
     try {
-        $query = "SELECT d.idDiario, 
-                         DATE_FORMAT(d.data, '%d/%m/%Y') AS data, 
-                         d.hora_inicial, 
-                         d.hora_final, 
-                         d.complemento, 
-                         da.idAtividades, 
-                         da.avaliacao_1_5,
-                         a.nome AS atividade
-                  FROM diario d
-                  LEFT JOIN diario_tem_atividades da ON d.idDiario = da.idDiario
-                  LEFT JOIN atividades a ON da.idAtividades = a.idAtividades
-                  WHERE d.idDiscente = $idDiscente 
-                  ORDER BY d.data DESC, d.idDiario DESC";
+            $query = "SELECT d.idDiario, 
+                 DATE_FORMAT(d.data, '%d/%m/%Y') AS data, 
+                 d.complemento, 
+                 da.idAtividades, 
+                 da.hora_inicial,
+                 da.hora_final,
+                 da.avaliacao_1_5,
+                 a.nome AS atividade
+          FROM diario d
+          LEFT JOIN diario_tem_atividades da ON d.idDiario = da.idDiario
+          LEFT JOIN atividades a ON da.idAtividades = a.idAtividades
+          WHERE d.idDiscente = $idDiscente 
+          ORDER BY d.data DESC, d.idDiario DESC";
 
         $resultado = $mysqli->query($query);
         $diarios = [];

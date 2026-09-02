@@ -19,9 +19,24 @@ import {
 } from "react-native";
 import Footer from "../../components/Footer";
 
+// 1. Definição correta das interfaces
 interface Atividade {
   idAtividades: number;
   nome: string;
+}
+
+interface AtividadeRotina {
+  id: number;
+  nome?: string;
+  inicio: string;
+  fim: string;
+  avaliacao?: number;
+}
+
+interface Rotina {
+  idRotina: number;
+  nome?: string;
+  atividades: AtividadeRotina[];
 }
 
 export default function Diario() {
@@ -44,6 +59,15 @@ export default function Diario() {
   const [loading, setLoading] = useState(false);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [diarios, setDiarios] = useState<any[]>([]);
+
+  // --- ESTADOS PARA SINCRONIZAR ROTINA ---
+  const [modalRotinaVisivel, setModalRotinaVisivel] = useState(false);
+  const [rotinasUsuario, setRotinasUsuario] = useState<Rotina[]>([]);
+  const [rotinaSelecionada, setRotinaSelecionada] = useState<Rotina | null>(null);
+  const [atividadesRotinaEditavel, setAtividadesRotinaEditavel] = useState<AtividadeRotina[]>([]);
+  const [dataRotina, setDataRotina] = useState("");
+  const [obsRotina, setObsRotina] = useState("");
+  const [loadingRotina, setLoadingRotina] = useState(false);
 
   const idUsuario = 1;
   const idDiscente = 2;
@@ -68,6 +92,98 @@ export default function Diario() {
       }
     } catch (error) {
       console.error("Erro ao conectar com servidor de atividades:", error);
+    }
+  };
+
+  // --- FUNÇÃO PARA BUSCAR AS ROTINAS DO USUÁRIO ---
+  const handleAbrirModalSincronizarRotina = async () => {
+    setLoadingRotina(true);
+    try {
+      const resposta = await fetch(
+        `http://10.0.0.100/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
+      );
+      const resultado = await resposta.json();
+
+      if (resultado.sucesso && Array.isArray(resultado.dados)) {
+        setRotinasUsuario(resultado.dados);
+        setModalRotinaVisivel(true);
+      } else {
+        Alert.alert("Aviso", "Nenhuma rotina cadastrada encontrada.");
+      }
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível carregar as rotinas.");
+    } finally {
+      setLoadingRotina(false);
+    }
+  };
+
+  // --- QUANDO SELECIONA UMA ROTINA DA LISTA ---
+  const handleSelecionarRotina = (rotina: Rotina) => {
+    setRotinaSelecionada(rotina);
+    const ativsComNota = rotina.atividades.map((a) => ({
+      ...a,
+      avaliacao: 5,
+    }));
+    setAtividadesRotinaEditavel(ativsComNota);
+  };
+
+  // --- ALTERAR NOTA DE UMA ATIVIDADE ESPECÍFICA NA ROTINA ---
+  const handleMudarNotaAtividadeRotina = (index: number, nota: number) => {
+    const novas = [...atividadesRotinaEditavel];
+    novas[index].avaliacao = nota;
+    setAtividadesRotinaEditavel(novas);
+  };
+
+  // --- SALVAR ROTINA SINCRONIZADA NO DIÁRIO ---
+  const handleSalvarSincronizacaoRotina = async () => {
+    if (!dataRotina) {
+      Alert.alert("Atenção", "Por favor, preencha a data.");
+      return;
+    }
+    if (!rotinaSelecionada || atividadesRotinaEditavel.length === 0) {
+      Alert.alert("Atenção", "Selecione uma rotina com atividades.");
+      return;
+    }
+
+    setLoadingRotina(true);
+    try {
+      const payload = {
+        data: dataRotina,
+        idUsuario: idUsuario,
+        idDiscente: idDiscente,
+        complemento: obsRotina,
+        atividades: atividadesRotinaEditavel.map((a) => ({
+          idAtividades: a.id,
+          hora_inicial: a.inicio,
+          hora_final: a.fim,
+          avaliacao_1_5: a.avaliacao,
+        })),
+      };
+    const response = await fetch(
+        `http://10.0.0.100/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.sucesso) {
+        Alert.alert("Sucesso", result.mensagem);
+        setModalRotinaVisivel(false);
+        setRotinaSelecionada(null);
+        setDataRotina("");
+        setObsRotina("");
+        handleBuscarHistorico();
+      } else {
+        Alert.alert("Erro", result.mensagem);
+      }
+    } catch (error) {
+      Alert.alert("Erro de Conexão", "Não foi possível sincronizar a rotina.");
+    } finally {
+      setLoadingRotina(false);
     }
   };
 
@@ -321,6 +437,17 @@ export default function Diario() {
         >
           <Text style={styles.botaoAcaoTexto}>Nova Entrada</Text>
         </Pressable>
+
+          <Pressable
+          style={[styles.botaoAcao, styles.botaoVerde]}
+          onPress={handleAbrirModalSincronizarRotina}
+          disabled={loadingRotina}
+        >
+          <Text style={styles.botaoAcaoTexto}>
+            {loadingRotina ? "Carregando..." : "Sincronizar Rotina"}
+          </Text>
+        </Pressable>
+
 
         <Pressable
           style={[styles.botaoAcao, styles.botaoAzul]}
@@ -580,6 +707,124 @@ export default function Diario() {
   </View>
 </Modal>
 
+<Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalRotinaVisivel}
+        onRequestClose={() => setModalRotinaVisivel(false)}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { maxHeight: "85%" }]}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <Text style={styles.modalTitulo}>Sincronizar Rotina no Diário</Text>
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Data (ex: 31/08/2026)"
+                  placeholderTextColor="#888"
+                  value={dataRotina}
+                  onChangeText={(text) => {
+                    const apenasNums = text.replace(/\D/g, "");
+                    let dataF = apenasNums;
+                    if (apenasNums.length > 2 && apenasNums.length <= 4) {
+                      dataF = `${apenasNums.slice(0, 2)}/${apenasNums.slice(2)}`;
+                    } else if (apenasNums.length > 4) {
+                      dataF = `${apenasNums.slice(0, 2)}/${apenasNums.slice(2, 4)}/${apenasNums.slice(4, 8)}`;
+                    }
+                    setDataRotina(dataF);
+                  }}
+                  keyboardType="numeric"
+                  maxLength={10}
+                />
+
+                <Text style={styles.labelAvaliacao}>Selecione uma Rotina:</Text>
+                {rotinasUsuario.map((rot) => (
+                  <TouchableOpacity
+                    key={rot.idRotina}
+                    style={[
+                      styles.itemAtividade,
+                      rotinaSelecionada?.idRotina === rot.idRotina && styles.itemAtividadeSelecionada,
+                    ]}
+                    onPress={() => handleSelecionarRotina(rot)}
+                  >
+                    <Text
+                      style={[
+                        styles.textoAtividade,
+                        rotinaSelecionada?.idRotina === rot.idRotina && styles.textoAtividadeSelecionada,
+                      ]}
+                    >
+                      {rot.nome || `Rotina #${rot.idRotina}`}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+
+                {rotinaSelecionada && (
+                  <View style={{ marginTop: 15 }}>
+                    <Text style={styles.labelAvaliacao}>Avalie as atividades da rotina:</Text>
+                    {atividadesRotinaEditavel.map((ativ, idx) => (
+                      <View key={idx} style={styles.cardDiario}>
+                        <Text style={styles.cardAtividade}>{ativ.nome || `Atividade #${ativ.id}`}</Text>
+                        <Text style={styles.cardHorario}>Horário: {ativ.inicio} - {ativ.fim}</Text>
+                        <View style={styles.notasContainer}>
+                          {[1, 2, 3, 4, 5].map((num) => (
+                            <TouchableOpacity
+                              key={num}
+                              style={[
+                                styles.botaoNota,
+                                ativ.avaliacao === num && styles.botaoNotaSelecionado,
+                              ]}
+                              onPress={() => handleMudarNotaAtividadeRotina(idx, num)}
+                            >
+                              <Text
+                                style={[
+                                  styles.textoNota,
+                                  ativ.avaliacao === num && styles.textoNotaSelecionado,
+                                ]}
+                              >
+                                {num}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </View>
+                    ))}
+
+                    <TextInput
+                      style={[styles.input, styles.textArea]}
+                      placeholder="Observações da rotina..."
+                      placeholderTextColor="#888"
+                      value={obsRotina}
+                      onChangeText={setObsRotina}
+                      multiline={true}
+                    />
+                  </View>
+                )}
+
+                <View style={styles.modalBotoes}>
+                  <TouchableOpacity
+                    style={[styles.modalBotao, styles.botaoCancelar]}
+                    onPress={() => setModalRotinaVisivel(false)}
+                  >
+                    <Text style={styles.textoBotaoModal}>Cancelar</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.modalBotao, styles.botaoSalvar]}
+                    onPress={handleSalvarSincronizacaoRotina}
+                    disabled={loadingRotina}
+                  >
+                    <Text style={styles.textoBotaoModal}>
+                      {loadingRotina ? "Sincronizando..." : "Salvar Rotina"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
       {/* Rodapé e Menu */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
@@ -718,6 +963,9 @@ const styles = StyleSheet.create({
   },
   botaoAzul: {
     backgroundColor: "#1797CD",
+  },
+  botaoVerde: {
+    backgroundColor: "#28A745",
   },
   botaoAcaoTexto: {
     color: "#FFFFFF",

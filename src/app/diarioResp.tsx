@@ -1,15 +1,15 @@
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    FlatList,
-    Image,
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -24,7 +24,7 @@ export default function Diario() {
     setLoadingHistorico(true);
     try {
       const response = await fetch(
-        `http://10.0.0.100/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://172.20.10.4/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
       );
       const text = await response.text();
       const result = JSON.parse(text);

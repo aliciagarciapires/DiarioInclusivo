@@ -4,17 +4,17 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import Footer from '../../components/Footer';
 
@@ -36,7 +36,7 @@ export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "10.0.0.100";
+  const IP_SERVIDOR = "172.20.10.4";
 
   // --- ESTADOS DA TELA ---
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);

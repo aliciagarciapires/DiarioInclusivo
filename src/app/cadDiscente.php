@@ -28,16 +28,16 @@ if (empty($nome) || empty($dataNasc) || empty($grau) || empty($idUsuarioLogado))
 try {
     $idUsuarioInt = (int)$idUsuarioLogado;
 
-    // 1. Cadastra o Discente salvando o idUsuario diretamente na tabela discente
+    // 1. Cadastra o Discente salvando o idUsuario diretamente na tabela discente (chave id é AUTO_INCREMENT)
     $stmt = $db->prepare("INSERT INTO discente (nome, data_nascimento, grau_de_suporte, idUsuario) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("sssi", $nome, $dataNasc, $grau, $idUsuarioInt);
     
     if ($stmt->execute()) {
         $idDiscente = $db->insert_id;
 
-        // 2. Salva a relação apenas do responsável com o discente
+        // 2. Salva a relação dos responsáveis com o discente usando IGNORE para não duplicar chaves (idResp, idDiscente)
         if (!empty($idsResponsaveis) && is_array($idsResponsaveis)) {
-            $stmtRelacao = $db->prepare("INSERT INTO usuario_possui_discente (idResp, idDiscente) VALUES (?, ?)");
+            $stmtRelacao = $db->prepare("INSERT IGNORE INTO usuario_possui_discente (idResp, idDiscente) VALUES (?, ?)");
 
             foreach ($idsResponsaveis as $idResp) {
                 $idRespInt = (int)$idResp;

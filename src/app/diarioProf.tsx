@@ -1,9 +1,8 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -17,9 +16,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Footer from "../../components/Footer";
 
-// 1. Definição correta das interfaces
 interface Atividade {
   idAtividades: number;
   nome: string;
@@ -39,17 +38,44 @@ interface Rotina {
   atividades: AtividadeRotina[];
 }
 
+interface Discente {
+  id?: number;
+  idDiscente?: number;
+  id_discente?: number;
+  nome?: string;
+  nomeDiscente?: string;
+  nome_discente?: string;
+  [key: string]: any;
+}
+
 export default function Diario() {
+  const params = useLocalSearchParams();
+
+  // Estados para seleção do Discente
+  const [discentes, setDiscentes] = useState<Discente[]>([]);
+  const [idDiscente, setIdDiscente] = useState<number | null>(
+    params.idDiscente ? Number(params.idDiscente) : null
+  );
+  const [modalSelecaoDiscenteVisivel, setModalSelecaoDiscenteVisivel] = useState(false);
+
+  // ID do usuário logado
+  const [idUsuario, setIdUsuario] = useState<number | null>(null);
+
+  // Estados dos Modais
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalHistoricoVisivel, setModalHistoricoVisivel] = useState(false);
   const [modalAtividadesVisivel, setModalAtividadesVisivel] = useState(false);
+
+  // Estados do Calendário Dinâmico
+  const [dataAtual, setDataAtual] = useState(new Date());
+  const [diaSelecionado, setDiaSelecionado] = useState<number>(new Date().getDate());
 
   // Estados de Atividades vindo do Banco
   const [listaAtividades, setListaAtividades] = useState<Atividade[]>([]);
   const [idAtividades, setIdAtividades] = useState<number | null>(null);
   const [nomeAtividadeSelecionada, setNomeAtividadeSelecionada] = useState<string>("");
 
-  // Demais estados do formulário
+  // Demais estados do formulário de Entrada
   const [data, setData] = useState("");
   const [horaInicial, setHoraInicial] = useState("");
   const [horaFinal, setHoraFinal] = useState("");
@@ -60,7 +86,7 @@ export default function Diario() {
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [diarios, setDiarios] = useState<any[]>([]);
 
-  // --- ESTADOS PARA SINCRONIZAR ROTINA ---
+  // Estados para Sincronizar Rotina
   const [modalRotinaVisivel, setModalRotinaVisivel] = useState(false);
   const [rotinasUsuario, setRotinasUsuario] = useState<Rotina[]>([]);
   const [rotinaSelecionada, setRotinaSelecionada] = useState<Rotina | null>(null);
@@ -69,38 +95,128 @@ export default function Diario() {
   const [obsRotina, setObsRotina] = useState("");
   const [loadingRotina, setLoadingRotina] = useState(false);
 
-  const idUsuario = 77;
-  const idDiscente = 30;
+  // Funções para capturar IDs e Nomes independentemente da nomenclatura do banco/PHP
+  const obterIdDiscente = (aluno: any) => {
+    if (!aluno) return 0;
+    return aluno.idDiscente ?? aluno.id_discente ?? aluno.id ?? aluno.codigo ?? aluno.id_aluno ?? 0;
+  };
 
-  // Carrega as atividades do banco ao abrir a tela
+  const obterNomeDiscente = (aluno: any) => {
+    if (!aluno) return "Nome não encontrado";
+    return aluno.nome ?? aluno.nomeDiscente ?? aluno.nome_discente ?? aluno.aluno ?? "Nome não encontrado";
+  };
+
+  // Carrega o Usuário Logado e a lista de Discentes vinculados de forma totalmente blindada
   useEffect(() => {
+    const carregarInicial = async () => {
+      try {
+        let currentUserId: number | null = null;
+        const usuarioJson = await AsyncStorage.getItem("@usuario_logado");
+        
+        if (usuarioJson) {
+          const usuario = JSON.parse(usuarioJson);
+          currentUserId = Number(
+            usuario.idUsuario ?? usuario.id_usuario ?? usuario.id ?? usuario.codigo
+          );
+        } else {
+          const idSalvo = await AsyncStorage.getItem("idUsuario");
+          if (idSalvo) {
+            currentUserId = Number(idSalvo);
+          }
+        }
+
+        if (currentUserId && !Number.isNaN(currentUserId)) {
+          setIdUsuario(currentUserId);
+        }
+
+        if (currentUserId) {
+          const urlAPI = `http://192.168.1.59/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const response = await fetch(urlAPI);
+          const result = await response.json();
+          
+          console.log("RESPOSTA DISCENTES:", result);
+
+          let listaBruta = [];
+          if (Array.isArray(result)) {
+            listaBruta = result;
+          } else if (result.dados && Array.isArray(result.dados)) {
+            listaBruta = result.dados;
+          } else if (result.discentes && Array.isArray(result.discentes)) {
+            listaBruta = result.discentes;
+          } else if (result.sucesso && Array.isArray(result.dados)) {
+            listaBruta = result.dados;
+          }
+
+          setDiscentes(listaBruta);
+        }
+      } catch (error) {
+        console.error("Erro no carregamento inicial:", error);
+      }
+    };
+
+    carregarInicial();
     carregarAtividades();
   }, []);
+
+  // Preenche a data do formulário ao clicar em um dia do calendário
+  const selecionarDiaCalendario = (dia: number) => {
+    setDiaSelecionado(dia);
+    const mesFormatado = String(dataAtual.getMonth() + 1).padStart(2, "0");
+    const diaFormatado = String(dia).padStart(2, "0");
+    const ano = dataAtual.getFullYear();
+    const dataString = `${diaFormatado}/${mesFormatado}/${ano}`;
+    
+    setData(dataString);
+    setDataRotina(dataString);
+  };
+
+  const gerarGradeCalendario = () => {
+    const ano = dataAtual.getFullYear();
+    const mes = dataAtual.getMonth();
+
+    const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+    const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
+
+    const dias = [];
+
+    for (let i = 0; i < primeiroDiaSemana; i++) {
+      dias.push({ tipo: "vazio", id: `vazio-${i}` });
+    }
+
+    for (let dia = 1; dia <= totalDiasMes; dia++) {
+      dias.push({ tipo: "dia", dia, id: `dia-${dia}` });
+    }
+
+    return dias;
+  };
 
   const carregarAtividades = async () => {
     try {
       const response = await fetch(
-        "http://172.20.10.4/DiarioInclusivo/src/app/listar_atividades.php"
+        "http://192.168.1.59/DiarioInclusivo/src/app/listar_atividades.php"
       );
-      const text = await response.text();
-      const result = JSON.parse(text);
+      const result = await response.json();
 
-      if (result.sucesso) {
+      if (result.sucesso && Array.isArray(result.dados)) {
         setListaAtividades(result.dados);
-      } else {
-        console.error("Erro ao buscar atividades:", result.mensagem);
+      } else if (Array.isArray(result)) {
+        setListaAtividades(result);
       }
     } catch (error) {
       console.error("Erro ao conectar com servidor de atividades:", error);
     }
   };
 
-  // --- FUNÇÃO PARA BUSCAR AS ROTINAS DO USUÁRIO ---
   const handleAbrirModalSincronizarRotina = async () => {
+    if (!idDiscente) {
+      Alert.alert("Atenção", "Selecione um discente antes de sincronizar a rotina.");
+      return;
+    }
+
     setLoadingRotina(true);
     try {
       const resposta = await fetch(
-        `http://172.20.10.4/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
+        `http://192.168.1.59/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
       );
       const resultado = await resposta.json();
 
@@ -117,7 +233,6 @@ export default function Diario() {
     }
   };
 
-  // --- QUANDO SELECIONA UMA ROTINA DA LISTA ---
   const handleSelecionarRotina = (rotina: Rotina) => {
     setRotinaSelecionada(rotina);
     const ativsComNota = rotina.atividades.map((a) => ({
@@ -127,14 +242,12 @@ export default function Diario() {
     setAtividadesRotinaEditavel(ativsComNota);
   };
 
-  // --- ALTERAR NOTA DE UMA ATIVIDADE ESPECÍFICA NA ROTINA ---
   const handleMudarNotaAtividadeRotina = (index: number, nota: number) => {
     const novas = [...atividadesRotinaEditavel];
     novas[index].avaliacao = nota;
     setAtividadesRotinaEditavel(novas);
   };
 
-  // --- SALVAR ROTINA SINCRONIZADA NO DIÁRIO ---
   const handleSalvarSincronizacaoRotina = async () => {
     if (!dataRotina) {
       Alert.alert("Atenção", "Por favor, preencha a data.");
@@ -159,8 +272,9 @@ export default function Diario() {
           avaliacao_1_5: a.avaliacao,
         })),
       };
-    const response = await fetch(
-        `http://172.20.10.4/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
+
+      const response = await fetch(
+        `http://192.168.1.59/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -187,7 +301,6 @@ export default function Diario() {
     }
   };
 
-  // Máscara para Data: DD/MM/AAAA
   const handleDataChange = (text: string) => {
     const apenasNumeros = text.replace(/\D/g, "");
     let dataFormatada = apenasNumeros;
@@ -195,16 +308,12 @@ export default function Diario() {
     if (apenasNumeros.length > 2 && apenasNumeros.length <= 4) {
       dataFormatada = `${apenasNumeros.slice(0, 2)}/${apenasNumeros.slice(2)}`;
     } else if (apenasNumeros.length > 4) {
-      dataFormatada = `${apenasNumeros.slice(0, 2)}/${apenasNumeros.slice(
-        2,
-        4
-      )}/${apenasNumeros.slice(4, 8)}`;
+      dataFormatada = `${apenasNumeros.slice(0, 2)}/${apenasNumeros.slice(2, 4)}/${apenasNumeros.slice(4, 8)}`;
     }
 
     setData(dataFormatada);
   };
 
-  // Máscara para Horário: HH:MM
   const handleHoraChange = (text: string, setHora: (v: string) => void) => {
     const apenasNumeros = text.replace(/\D/g, "");
     let horaFormatada = apenasNumeros;
@@ -216,59 +325,27 @@ export default function Diario() {
     setHora(horaFormatada);
   };
 
-  const validarDataFutura = (dataString: string): boolean => {
-    if (dataString.length !== 10) return false;
-
-    const [dia, mes, ano] = dataString.split("/").map(Number);
-    const dataDigitada = new Date(ano, mes - 1, dia);
-
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-
-    return dataDigitada >= hoje;
-  };
-
   const handleSalvarDiario = async () => {
+    if (!idDiscente) {
+      Alert.alert("Atenção", "Selecione um discente antes de criar o registro.");
+      return;
+    }
     if (!idAtividades) {
       Alert.alert("Atenção", "Por favor, selecione uma atividade.");
       return;
     }
-
-    if (!data) {
-      Alert.alert("Atenção", "Por favor, digite a data.");
-      return;
-    }
-
-    if (data.length < 10) {
-      Alert.alert(
-        "Atenção",
-        "Por favor, digite a data completa no formato DD/MM/AAAA."
-      );
-      return;
-    }
-
-    if (!validarDataFutura(data)) {
-      Alert.alert(
-        "Data Inválida",
-        "A data deve ser o dia de hoje ou uma data futura."
-      );
+    if (!data || data.length < 10) {
+      Alert.alert("Atenção", "Por favor, digite a data completa (DD/MM/AAAA).");
       return;
     }
 
     setLoading(true);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
     try {
       const response = await fetch(
-        "http://172.20.10.4/DiarioInclusivo/src/app/criar_diario.php",
+        "http://192.168.1.59/DiarioInclusivo/src/app/criar_diario.php",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          signal: controller.signal,
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             data: data,
             hora_inicial: horaInicial,
@@ -282,91 +359,157 @@ export default function Diario() {
         }
       );
 
-      clearTimeout(timeoutId);
-      const text = await response.text();
+      const result = await response.json();
 
-      try {
-        const result = JSON.parse(text);
-
-        if (result.sucesso) {
-          Alert.alert("Sucesso", result.mensagem);
-          setIdAtividades(null);
-          setNomeAtividadeSelecionada("");
-          setData("");
-          setHoraInicial("");
-          setHoraFinal("");
-          setAvaliacao(5);
-          setComplemento("");
-          setModalVisivel(false);
-          handleBuscarHistorico();
-        } else {
-          Alert.alert("Erro", result.mensagem);
-        }
-      } catch (jsonError) {
-        console.error("Resposta em formato inválido:", text);
-        const mensagemLimpa = text.replace(/<[^>]*>?/gm, "").trim();
-        Alert.alert(
-          "Erro do Servidor",
-          `O servidor retornou uma resposta inesperada:\n\n${mensagemLimpa.substring(
-            0,
-            150
-          )}`
-        );
-      }
-    } catch (error: any) {
-      clearTimeout(timeoutId);
-      if (error.name === "AbortError") {
-        Alert.alert(
-          "Tempo Excedido",
-          "O servidor demorou para responder. Verifique se o PHP e o MySQL estão ativos."
-        );
+      if (result.sucesso) {
+        Alert.alert("Sucesso", result.mensagem);
+        setIdAtividades(null);
+        setNomeAtividadeSelecionada("");
+        setData("");
+        setHoraInicial("");
+        setHoraFinal("");
+        setAvaliacao(5);
+        setComplemento("");
+        setModalVisivel(false);
+        handleBuscarHistorico();
       } else {
-        Alert.alert("Erro de Conexão", "Não foi possível se conectar ao servidor.");
+        Alert.alert("Erro", result.mensagem);
       }
-      console.error(error);
+    } catch (error) {
+      Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleBuscarHistorico = async () => {
+    if (!idDiscente) {
+      Alert.alert("Atenção", "Selecione um discente para consultar o histórico.");
+      return;
+    }
+
     setLoadingHistorico(true);
     try {
       const response = await fetch(
-        `http://172.20.10.4/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
       );
-      const text = await response.text();
+      const result = await response.json();
 
-      try {
-        const result = JSON.parse(text);
-        if (result.sucesso) {
-          setDiarios(result.dados);
-          setModalHistoricoVisivel(true);
-        } else {
-          Alert.alert("Erro", result.mensagem || "Erro ao carregar histórico.");
-        }
-      } catch (e) {
-        console.error("Erro JSON no Histórico:", text);
-        Alert.alert("Erro de Resposta", "Resposta inválida ao buscar histórico.");
+      if (result.sucesso) {
+        setDiarios(result.dados);
+        setModalHistoricoVisivel(true);
+      } else {
+        Alert.alert("Erro", result.mensagem || "Erro ao carregar histórico.");
       }
     } catch (error) {
       Alert.alert("Erro de Conexão", "Não foi possível buscar o histórico.");
-      console.error(error);
     } finally {
       setLoadingHistorico(false);
     }
   };
 
+  const mesesAno = [
+    "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
+    "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
+  ];
+
+  const hoje = new Date();
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text>
-        <Text style={styles.mesTexto}>AGOSTO DE 2026</Text>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text>
+        </TouchableOpacity>
+        
+        <View style={styles.navegacaoMes}>
+          <Text style={styles.mesTexto}>
+            {`${mesesAno[dataAtual.getMonth()]} DE ${dataAtual.getFullYear()}`}
+          </Text>
+        </View>
+
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Calendário */}
+      {/* Seletor do Discente (Gatilho para o Modal) */}
+      <View style={styles.seletorDiscenteContainer}>
+        <Text style={styles.labelDiscente}>Discente:</Text>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.campoSeletorDiscente}
+          onPress={() => setModalSelecaoDiscenteVisivel(true)}
+        >
+          <Text style={styles.textoSeletorDiscente}>
+            {idDiscente
+              ? obterNomeDiscente(discentes.find((d) => obterIdDiscente(d) === idDiscente))
+              : "Selecione um Aluno..."}
+          </Text>
+          <Text style={{ color: "#2F1CA6", fontSize: 12 }}>▼</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Modal Seguro para Seleção do Discente */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalSelecaoDiscenteVisivel}
+        onRequestClose={() => setModalSelecaoDiscenteVisivel(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: "70%" }]}>
+            <Text style={styles.modalTitulo}>Selecione um Discente</Text>
+
+            {discentes.length === 0 ? (
+              <Text style={styles.textoVazio}>Nenhum discente encontrado vinculado a este professor.</Text>
+            ) : (
+              <FlatList
+                data={discentes}
+                keyExtractor={(item, index) => {
+                  const id = obterIdDiscente(item);
+                  return id ? id.toString() : index.toString();
+                }}
+                renderItem={({ item }) => {
+                  const alunoId = obterIdDiscente(item);
+                  const alunoNome = obterNomeDiscente(item);
+                  const selecionado = idDiscente === alunoId;
+
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.itemAtividade,
+                        selecionado && styles.itemAtividadeSelecionada,
+                      ]}
+                      onPress={() => {
+                        setIdDiscente(alunoId);
+                        setModalSelecaoDiscenteVisivel(false);
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.textoAtividade,
+                          selecionado && styles.textoAtividadeSelecionada,
+                        ]}
+                      >
+                        {alunoNome}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            )}
+
+            <TouchableOpacity
+              style={[styles.modalBotao, styles.botaoCancelar, { marginTop: 15 }]}
+              onPress={() => setModalSelecaoDiscenteVisivel(false)}
+            >
+              <Text style={styles.textoBotaoModal}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Calendário Dinâmico */}
       <View style={styles.calendarioContainer}>
         <View style={styles.semanaContainer}>
           {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
@@ -377,55 +520,40 @@ export default function Diario() {
         </View>
 
         <View style={styles.gradeDias}>
-          <Text style={[styles.diaTexto, styles.diaCinza]}>26</Text>
-          <Text style={[styles.diaTexto, styles.diaCinza]}>27</Text>
-          <Text style={[styles.diaTexto, styles.diaCinza]}>28</Text>
-          <Text style={[styles.diaTexto, styles.diaCinza]}>29</Text>
-          <Text style={[styles.diaTexto, styles.diaCinza]}>30</Text>
-          <Text style={styles.diaTexto}>31</Text>
-          <Text style={styles.diaTexto}>1</Text>
+          {gerarGradeCalendario().map((item) => {
+            if (item.tipo === "vazio") {
+              return <View key={item.id} style={styles.diaInvisivel} />;
+            }
 
-          <Text style={styles.diaTexto}>2</Text>
-          <Text style={styles.diaTexto}>3</Text>
-          <Text style={styles.diaTexto}>4</Text>
-          <Text style={styles.diaTexto}>5</Text>
-          <Text style={styles.diaTexto}>6</Text>
-          <Text style={styles.diaTexto}>7</Text>
-          <Text style={styles.diaTexto}>8</Text>
+            const eHoje =
+              item.dia === hoje.getDate() &&
+              dataAtual.getMonth() === hoje.getMonth() &&
+              dataAtual.getFullYear() === hoje.getFullYear();
 
-          <Text style={styles.diaTexto}>9</Text>
-          <Text style={styles.diaTexto}>10</Text>
-          <Text style={styles.diaTexto}>11</Text>
-          <Text style={styles.diaTexto}>12</Text>
-          <Text style={styles.diaTexto}>13</Text>
-          <Text style={styles.diaTexto}>14</Text>
-          <Text style={styles.diaTexto}>15</Text>
+            const eSelecionado = item.dia === diaSelecionado;
 
-          <Text style={styles.diaTexto}>16</Text>
-          <Text style={styles.diaTexto}>17</Text>
-          <Text style={styles.diaTexto}>18</Text>
-          <Text style={styles.diaTexto}>19</Text>
-          <Text style={styles.diaTexto}>20</Text>
-          <Text style={styles.diaTexto}>21</Text>
-          <Text style={styles.diaTexto}>22</Text>
-
-          <Text style={styles.diaTexto}>23</Text>
-          <Text style={styles.diaTexto}>24</Text>
-          <Text style={styles.diaTexto}>25</Text>
-          <Text style={styles.diaTexto}>26</Text>
-          <Text style={styles.diaTexto}>27</Text>
-          <Text style={styles.diaTexto}>28</Text>
-          <Text style={styles.diaTexto}>29</Text>
-
-          <Text style={styles.diaTexto}>30</Text>
-          <View style={styles.diaSelecionado}>
-            <Text style={styles.diaTextoNoCirculo}>31</Text>
-          </View>
-          <View style={styles.diaInvisivel} />
-          <View style={styles.diaInvisivel} />
-          <View style={styles.diaInvisivel} />
-          <View style={styles.diaInvisivel} />
-          <View style={styles.diaInvisivel} />
+            return (
+              <TouchableOpacity
+                key={item.id}
+                onPress={() => selecionarDiaCalendario(item.dia!)}
+                style={[
+                  styles.diaBotao,
+                  eSelecionado && styles.diaSelecionado,
+                  eHoje && !eSelecionado && styles.diaHojeBorder,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.diaTexto,
+                    eSelecionado && styles.diaTextoNoCirculo,
+                    eHoje && !eSelecionado && styles.diaTextoHoje,
+                  ]}
+                >
+                  {item.dia}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
 
@@ -433,12 +561,18 @@ export default function Diario() {
       <View style={styles.botoesAcaoContainer}>
         <Pressable
           style={[styles.botaoAcao, styles.botaoRoxo]}
-          onPress={() => setModalVisivel(true)}
+          onPress={() => {
+            if (!idDiscente) {
+              Alert.alert("Atenção", "Selecione um discente antes de abrir uma nova entrada.");
+              return;
+            }
+            setModalVisivel(true);
+          }}
         >
           <Text style={styles.botaoAcaoTexto}>Nova Entrada</Text>
         </Pressable>
 
-          <Pressable
+        <Pressable
           style={[styles.botaoAcao, styles.botaoVerde]}
           onPress={handleAbrirModalSincronizarRotina}
           disabled={loadingRotina}
@@ -447,7 +581,6 @@ export default function Diario() {
             {loadingRotina ? "Carregando..." : "Sincronizar Rotina"}
           </Text>
         </Pressable>
-
 
         <Pressable
           style={[styles.botaoAcao, styles.botaoAzul]}
@@ -474,13 +607,9 @@ export default function Diario() {
               style={{ width: "100%", alignItems: "center" }}
             >
               <View style={styles.modalContent}>
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled"
-                >
+                <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                   <Text style={styles.modalTitulo}>Nova Entrada no Diário</Text>
 
-                  {/* SELETOR DA ATIVIDADE */}
                   <TouchableOpacity
                     style={styles.seletorAtividade}
                     onPress={() => setModalAtividadesVisivel(true)}
@@ -495,7 +624,6 @@ export default function Diario() {
                     </Text>
                   </TouchableOpacity>
 
-                  {/* CAMPO DE DATA */}
                   <TextInput
                     style={styles.input}
                     placeholder="Data (ex: 31/08/2026)"
@@ -506,7 +634,6 @@ export default function Diario() {
                     maxLength={10}
                   />
 
-                  {/* CAMPOS DE HORÁRIO */}
                   <View style={styles.horasRow}>
                     <TextInput
                       style={[styles.input, styles.inputMetade]}
@@ -528,7 +655,6 @@ export default function Diario() {
                     />
                   </View>
 
-                  {/* AVALIAÇÃO */}
                   <Text style={styles.labelAvaliacao}>
                     Avaliação do desempenho (1 a 5):
                   </Text>
@@ -554,7 +680,6 @@ export default function Diario() {
                     ))}
                   </View>
 
-                  {/* COMPLEMENTO / OBSERVAÇÕES */}
                   <TextInput
                     style={[styles.input, styles.textArea]}
                     placeholder="Observações do professor..."
@@ -563,9 +688,6 @@ export default function Diario() {
                     onChangeText={setComplemento}
                     multiline={true}
                     numberOfLines={3}
-                    returnKeyType="done"
-                    blurOnSubmit={true}
-                    onSubmitEditing={Keyboard.dismiss}
                   />
 
                   <View style={styles.modalBotoes}>
@@ -593,7 +715,7 @@ export default function Diario() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Modal para Selecionar Atividade da Lista */}
+      {/* Modal para Selecionar Atividade */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -645,69 +767,64 @@ export default function Diario() {
         </View>
       </Modal>
 
-      {/* Modal de Histórico */}
-      {/* Modal de Histórico */}
-<Modal
-  animationType="slide"
-  transparent={true}
-  visible={modalHistoricoVisivel}
-  onRequestClose={() => setModalHistoricoVisivel(false)}
->
-  <View style={styles.modalOverlay}>
-    <View style={[styles.modalContent, { maxHeight: "80%" }]}>
-      <Text style={styles.modalTitulo}>Histórico de Entradas</Text>
-
-      {diarios.length === 0 ? (
-        <Text style={styles.textoVazio}>
-          Nenhum registro encontrado para este aluno.
-        </Text>
-      ) : (
-        <FlatList
-          data={diarios}
-          keyExtractor={(item) => item.idDiario.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.cardDiario}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardData}>{item.data}</Text>
-                {item.avaliacao_1_5 && (
-                  <Text style={styles.cardNota}>
-                    Nota: {item.avaliacao_1_5}/5
-                  </Text>
-                )}
-              </View>
-
-              {/* NOME DA ATIVIDADE */}
-              {item.atividade && (
-                <Text style={styles.cardAtividade}>
-                  Atividade: {item.atividade}
-                </Text>
-              )}
-
-              {(item.hora_inicial || item.hora_final) && (
-                <Text style={styles.cardHorario}>
-                  Horário: {item.hora_inicial} - {item.hora_final}
-                </Text>
-              )}
-              
-              <Text style={styles.cardTexto}>
-                {item.complemento || "Sem anotações."}
-              </Text>
-            </View>
-          )}
-        />
-      )}
-
-      <TouchableOpacity
-        style={[styles.modalBotao, styles.botaoCancelar, { marginTop: 15 }]}
-        onPress={() => setModalHistoricoVisivel(false)}
+      {/* Modal do Histórico */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalHistoricoVisivel}
+        onRequestClose={() => setModalHistoricoVisivel(false)}
       >
-        <Text style={styles.textoBotaoModal}>Fechar</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: "80%" }]}>
+            <Text style={styles.modalTitulo}>Histórico de Entradas</Text>
 
-<Modal
+            {diarios.length === 0 ? (
+              <Text style={styles.textoVazio}>
+                Nenhum registro encontrado para este aluno.
+              </Text>
+            ) : (
+              <FlatList
+                data={diarios}
+                keyExtractor={(item, index) => item.idDiario ? item.idDiario.toString() : index.toString()}
+                renderItem={({ item }) => (
+                  <View style={styles.cardDiario}>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.cardData}>{item.data}</Text>
+                      {item.avaliacao_1_5 && (
+                        <Text style={styles.cardNota}>Nota: {item.avaliacao_1_5}/5</Text>
+                      )}
+                    </View>
+
+                    {item.atividade && (
+                      <Text style={styles.cardAtividade}>Atividade: {item.atividade}</Text>
+                    )}
+
+                    {(item.hora_inicial || item.hora_final) && (
+                      <Text style={styles.cardHorario}>
+                        Horário: {item.hora_inicial} - {item.hora_final}
+                      </Text>
+                    )}
+
+                    <Text style={styles.cardTexto}>
+                      {item.complemento || "Sem anotações."}
+                    </Text>
+                  </View>
+                )}
+              />
+            )}
+
+            <TouchableOpacity
+              style={[styles.modalBotao, styles.botaoCancelar, { marginTop: 15 }]}
+              onPress={() => setModalHistoricoVisivel(false)}
+            >
+              <Text style={styles.textoBotaoModal}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de Rotinas */}
+      <Modal
         animationType="slide"
         transparent={true}
         visible={modalRotinaVisivel}
@@ -765,7 +882,9 @@ export default function Diario() {
                     {atividadesRotinaEditavel.map((ativ, idx) => (
                       <View key={idx} style={styles.cardDiario}>
                         <Text style={styles.cardAtividade}>{ativ.nome || `Atividade #${ativ.id}`}</Text>
-                        <Text style={styles.cardHorario}>Horário: {ativ.inicio} - {ativ.fim}</Text>
+                        <Text style={styles.cardHorario}>
+                          Horário: {ativ.inicio} - {ativ.fim}
+                        </Text>
                         <View style={styles.notasContainer}>
                           {[1, 2, 3, 4, 5].map((num) => (
                             <TouchableOpacity
@@ -797,6 +916,7 @@ export default function Diario() {
                       value={obsRotina}
                       onChangeText={setObsRotina}
                       multiline={true}
+                      numberOfLines={3}
                     />
                   </View>
                 )}
@@ -815,7 +935,7 @@ export default function Diario() {
                     disabled={loadingRotina}
                   >
                     <Text style={styles.textoBotaoModal}>
-                      {loadingRotina ? "Sincronizando..." : "Salvar Rotina"}
+                      {loadingRotina ? "Salvando..." : "Sincronizar"}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -825,53 +945,7 @@ export default function Diario() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Rodapé e Menu */}
-      <Footer children={undefined} />
-      <View style={styles.barraMenuGeral}>
-        <Pressable
-          style={styles.botaoMenu}
-          onPress={() => router.push("/discente")}
-        >
-          <Image
-            source={require("../../assets/images/home.png")}
-            style={styles.iconeCustom}
-          />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.botaoMenu}
-          onPress={() => router.push("/diarioProf")}
-        >
-          <Image
-            source={require("../../assets/images/diarioD.png")}
-            style={styles.iconeCustom}
-          />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.botaoMenu}
-          onPress={() => router.push("/rotina")}
-        >
-          <Image
-            source={require("../../assets/images/rotina.png")}
-            style={styles.iconeCustom}
-          />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.botaoMenu}
-          onPress={() => router.push("/configuracoes")}
-        >
-          <Image
-            source={require("../../assets/images/confg.png")}
-            style={styles.iconeCustom}
-          />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
-      </View>
+      <Footer />
     </View>
   );
 }
@@ -880,28 +954,62 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F2E8",
-    padding: 24,
+    padding: 16,
+    paddingBottom: 95,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 20,
+    marginBottom: 10,
+  },
+  navegacaoMes: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   mesTexto: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     color: "#2F1CA6",
   },
-  calendarioContainer: {
-    marginTop: 40,
+  seletorDiscenteContainer: {
+    marginBottom: 10,
+  },
+  labelDiscente: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#2F1CA6",
+    marginBottom: 4,
+  },
+  campoSeletorDiscente: {
+    borderWidth: 1,
+    borderColor: "#2F1CA6",
+    borderRadius: 12,
+    padding: 12,
+    backgroundColor: "#FFF",
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+  },
+  textoSeletorDiscente: {
+    color: "#2F1CA6",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  calendarioContainer: {
+    marginTop: 5,
+    alignItems: "center",
+    backgroundColor: "#FFF",
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 15,
   },
   semanaContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 15,
+    marginBottom: 10,
   },
   diaSemanaTexto: {
     color: "#ED3C3C",
@@ -916,47 +1024,49 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
   },
+  diaBotao: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 5,
+  },
   diaTexto: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#2F1CA6",
-    width: 40,
-    height: 40,
-    textAlign: "center",
-    textAlignVertical: "center",
-    lineHeight: 40,
   },
-  diaCinza: {
-    color: "#1796cd5c",
+  diaHojeBorder: {
+    borderWidth: 1.5,
+    borderColor: "#1797CD",
+    borderRadius: 20,
+  },
+  diaTextoHoje: {
+    color: "#1797CD",
   },
   diaSelecionado: {
     backgroundColor: "#1797CD",
-    width: 40,
-    height: 40,
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
   },
   diaTextoNoCirculo: {
-    fontSize: 16,
-    fontWeight: "bold",
     color: "#FFFFFF",
   },
   diaInvisivel: {
     width: 40,
     height: 40,
+    marginBottom: 5,
   },
   botoesAcaoContainer: {
     alignItems: "center",
-    marginTop: 40,
+    marginTop: 5,
   },
   botaoAcao: {
     width: 270,
-    height: 55,
+    height: 50,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 15,
+    marginTop: 8,
   },
   botaoRoxo: {
     backgroundColor: "#2F1CA6",
@@ -969,45 +1079,8 @@ const styles = StyleSheet.create({
   },
   botaoAcaoTexto: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-  },
-  botaoMenu: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    height: 30,
-  },
-  tabLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#2F1CA6",
-    marginTop: 4,
-  },
-  iconeCustom: {
-    width: 80,
-    height: 80,
-    borderRadius: 15,
-    resizeMode: "cover",
-  },
-  barraMenuGeral: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#F5F2E8",
-    height: 90,
-    paddingBottom: 30,
-    borderTopWidth: 3,
-    borderTopColor: "#F5F2E8",
-    borderTopLeftRadius: 35,
-    borderTopRightRadius: 35,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 10,
-    shadowColor: "#000",
-    marginTop: 20,
   },
   modalOverlay: {
     flex: 1,
@@ -1173,9 +1246,46 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   cardAtividade: {
-  fontSize: 15,
-  fontWeight: "bold",
-  color: "#2F1CA6",
-  marginBottom: 4,
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#2F1CA6",
+    marginBottom: 4,
+  },
+  barraMenuGeral: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+    height: 68,
+    borderTopWidth: 1,
+    borderTopColor: "#E0E0E0",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  botaoMenu: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    height: "100%",
+  },
+  tabLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#2F1CA6",
+    marginTop: 5,
+  },
+  iconeCustom: {
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
   },
 });

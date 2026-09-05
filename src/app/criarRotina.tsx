@@ -36,7 +36,7 @@ export default function CriarRotina() {
   const router = useRouter(); 
   
   // IP do seu servidor
-  const IP_SERVIDOR = "172.20.10.4";
+  const IP_SERVIDOR = "192.168.1.59";
 
   // --- ESTADOS DA TELA ---
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);

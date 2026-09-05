@@ -11,16 +11,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
-set_time_limit(5);
 date_default_timezone_set('America/Sao_Paulo');
-
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 include_once "conexao.php";
 
-if (isset($mysqli)) {
-    $mysqli->set_charset("utf8");
+if (!isset($mysqli) || $mysqli->connect_errno) {
+    ob_clean();
+    echo json_encode([
+        "sucesso" => false,
+        "mensagem" => "Falha na conexão inicial com o Banco de Dados."
+    ], JSON_UNESCAPED_UNICODE);
+    exit();
 }
+
+$mysqli->set_charset("utf8mb4");
 
 ob_clean();
 
@@ -50,36 +54,48 @@ if (!empty($dataBruta) && $idUsuario > 0 && $idDiscente > 0) {
         exit();
     }
 
+    // 1. Verifica se já existe um diário para este discente na mesma data
+    $checkQuery = "SELECT idDiario FROM diario WHERE idDiscente = $idDiscente AND data = '$data'";
+    $checkResult = $mysqli->query($checkQuery);
+
+    if ($checkResult && $checkResult->num_rows > 0) {
+        echo json_encode([
+            "sucesso" => false,
+            "mensagem" => "Já existe um diário cadastrado para este discente nesta data."
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
     $complemento = isset($dados['complemento']) ? $mysqli->real_escape_string($dados['complemento']) : '';
     
-    $mysqli->begin_transaction();
-
     try {
-        // 1. Salva na tabela DIARIO (Sem avaliacao_1_5)
+        // 2. Salva na tabela DIARIO
         $queryDiario = "INSERT INTO diario (data, hora_inicial, hora_final, complemento, idUsuario, idDiscente) 
                         VALUES ('$data', $horaInicial, $horaFinal, '$complemento', $idUsuario, $idDiscente)";
         
-        $mysqli->query($queryDiario);
+        if (!$mysqli->query($queryDiario)) {
+            throw new Exception($mysqli->error);
+        }
+        
         $idDiarioCriado = $mysqli->insert_id;
 
-        // 2. Salva na tabela DIARIO_TEM_ATIVIDADES (Com avaliacao_1_5)
+        // 3. Salva na tabela DIARIO_TEM_ATIVIDADES
         if ($idAtividades !== null && $idAtividades > 0) {
             $queryPivo = "INSERT INTO diario_tem_atividades (idDiario, idAtividades, hora_inicial, hora_final, avaliacao_1_5) 
                           VALUES ($idDiarioCriado, $idAtividades, $horaInicial, $horaFinal, $avaliacao_1_5)";
-            $mysqli->query($queryPivo);
+            
+            if (!$mysqli->query($queryPivo)) {
+                throw new Exception($mysqli->error);
+            }
         }
 
-        $mysqli->commit();
-        
         echo json_encode([
             "sucesso" => true,
             "mensagem" => "Diário salvo com sucesso!",
             "idDiario" => $idDiarioCriado
         ], JSON_UNESCAPED_UNICODE);
 
-    } catch (mysqli_sql_exception $e) {
-        $mysqli->rollback();
-        
+    } catch (Exception $e) {
         echo json_encode([
             "sucesso" => false,
             "mensagem" => "Erro no Banco: " . $e->getMessage()
@@ -89,7 +105,7 @@ if (!empty($dataBruta) && $idUsuario > 0 && $idDiscente > 0) {
 } else {
     echo json_encode([
         "sucesso" => false,
-        "mensagem" => "Dados incompletos fornecidos. Verifique os IDs de Usuário e Discente."
+        "mensagem" => "Dados incompletos fornecidos."
     ], JSON_UNESCAPED_UNICODE);
 }
 exit();

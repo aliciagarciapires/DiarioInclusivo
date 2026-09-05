@@ -24,7 +24,7 @@ export default function Diario() {
     setLoadingHistorico(true);
     try {
       const response = await fetch(
-        `http://172.20.10.4/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
       );
       const text = await response.text();
       const result = JSON.parse(text);

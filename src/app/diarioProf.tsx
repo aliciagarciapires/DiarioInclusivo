@@ -1,21 +1,21 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
-  FlatList,
-  Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+    Alert,
+    FlatList,
+    Image,
+    Keyboard,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -80,7 +80,7 @@ export default function Diario() {
   const carregarAtividades = async () => {
     try {
       const response = await fetch(
-        "http://172.20.10.4/DiarioInclusivo/src/app/listar_atividades.php"
+        "http://192.168.0.107/DiarioInclusivo/src/app/listar_atividades.php"
       );
       const text = await response.text();
       const result = JSON.parse(text);
@@ -100,7 +100,7 @@ export default function Diario() {
     setLoadingRotina(true);
     try {
       const resposta = await fetch(
-        `http://172.20.10.4/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
+        `http://192.168.0.107/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
       );
       const resultado = await resposta.json();
 
@@ -160,7 +160,7 @@ export default function Diario() {
         })),
       };
     const response = await fetch(
-        `http://172.20.10.4/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
+        `http://192.168.0.107/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -262,7 +262,7 @@ export default function Diario() {
 
     try {
       const response = await fetch(
-        "http://172.20.10.4/DiarioInclusivo/src/app/criar_diario.php",
+        "http://192.168.0.107/DiarioInclusivo/src/app/criar_diario.php",
         {
           method: "POST",
           headers: {
@@ -333,7 +333,7 @@ export default function Diario() {
     setLoadingHistorico(true);
     try {
       const response = await fetch(
-        `http://172.20.10.4/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://192.168.0.107/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
       );
       const text = await response.text();
 

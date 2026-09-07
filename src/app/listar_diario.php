@@ -14,7 +14,7 @@ if (isset($mysqli)) {
 // - Pega os dados principais da tabela 'diario' (d)
 // - Cruza com 'diario_tem_atividades' (ta) para pegar a avaliação e o idAtividades
 // - Cruza com 'atividades' (a) para comparar o idAtividades e pegar o 'nome'
-$query = "SELECT d.idDiario, d.data, d.complemento, ta.avaliacao_1_5, 
+$query = "SELECT d.idDiario, ta.idAtividades, d.data, d.complemento, ta.avaliacao_1_5, 
                  COALESCE(a.nome, 'Atividade não vinculada') AS atividade
           FROM diario d
           LEFT JOIN diario_tem_atividades ta ON d.idDiario = ta.idDiario
@@ -29,6 +29,7 @@ if ($resultado) {
     while ($row = $resultado->fetch_assoc()) {
         $historico[] = [
             "idDiario" => intval($row['idDiario']),
+            "idAtividades" => isset($row['idAtividades']) ? intval($row['idAtividades']) : null,
             "data" => strval($row['data'] ?? ""),
             "complemento" => strval($row['complemento'] ?? ""),
             "avaliacao_1_5" => isset($row['avaliacao_1_5']) ? intval($row['avaliacao_1_5']) : null,

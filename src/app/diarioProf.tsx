@@ -77,6 +77,8 @@ export default function Diario() {
   const [listaAtividades, setListaAtividades] = useState<Atividade[]>([]);
   const [idAtividades, setIdAtividades] = useState<number | null>(null);
   const [nomeAtividadeSelecionada, setNomeAtividadeSelecionada] = useState<string>("");
+  const [carregandoAtividades, setCarregandoAtividades] = useState(false);
+  const [erroAtividades, setErroAtividades] = useState(false);
 
   // Demais estados do formulário de Entrada
   const [data, setData] = useState("");
@@ -148,7 +150,7 @@ export default function Diario() {
         }
 
         if (currentUserId) {
-          const urlAPI = `http://192.168.0.107/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const urlAPI = `http://192.168.1.59/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
           const response = await fetch(urlAPI);
           const result = await response.json();
           
@@ -209,22 +211,47 @@ export default function Diario() {
   };
 
   const carregarAtividades = async () => {
+    setCarregandoAtividades(true);
+    setErroAtividades(false);
+
     try {
       const response = await fetch(
 
-        "http://192.168.0.107/DiarioInclusivo/src/app/listar_atividades.php"
+        "http://192.168.1.59/DiarioInclusivo/src/app/listar_atividades.php"
 
       );
       const result = await response.json();
 
       if (result.sucesso && Array.isArray(result.dados)) {
-        setListaAtividades(result.dados);
+        setListaAtividades(
+          result.dados.map((atividade: any) => ({
+            idAtividades: Number(atividade.idAtividades),
+            nome: atividade.nome,
+          }))
+        );
       } else if (Array.isArray(result)) {
-        setListaAtividades(result);
+        setListaAtividades(
+          result.map((atividade: any) => ({
+            idAtividades: Number(atividade.idAtividades),
+            nome: atividade.nome,
+          }))
+        );
+      } else {
+        setListaAtividades([]);
+        setErroAtividades(true);
       }
     } catch (error) {
+      setListaAtividades([]);
+      setErroAtividades(true);
       console.error("Erro ao conectar com servidor de atividades:", error);
+    } finally {
+      setCarregandoAtividades(false);
     }
+  };
+
+  const abrirSeletorAtividades = () => {
+    setModalAtividadesVisivel(true);
+    carregarAtividades();
   };
 
   const handleAbrirModalSincronizarRotina = async () => {
@@ -237,7 +264,7 @@ export default function Diario() {
     try {
       const resposta = await fetch(
 
-        `http://192.168.0.107/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
+        `http://192.168.1.59/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
 
       );
       const resultado = await resposta.json();
@@ -296,7 +323,7 @@ export default function Diario() {
       };
 
     const response = await fetch(
-        `http://192.168.0.107/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
+        `http://192.168.1.59/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
 
         {
           method: "POST",
@@ -366,7 +393,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://192.168.0.107/DiarioInclusivo/src/app/criar_diario.php",
+        "http://192.168.1.59/DiarioInclusivo/src/app/criar_diario.php",
 
         {
           method: "POST",
@@ -417,7 +444,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        `http://192.168.0.107/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
 
       );
       const result = await response.json();
@@ -639,7 +666,7 @@ export default function Diario() {
 
                   <TouchableOpacity
                     style={styles.seletorAtividade}
-                    onPress={() => setModalAtividadesVisivel(true)}
+                    onPress={abrirSeletorAtividades}
                   >
                     <Text
                       style={[
@@ -753,8 +780,14 @@ export default function Diario() {
           <View style={[styles.modalContent, { maxHeight: "70%" }]}>
             <Text style={styles.modalTitulo}>Selecione a Atividade</Text>
 
-            {listaAtividades.length === 0 ? (
+            {carregandoAtividades ? (
               <Text style={styles.textoVazio}>Carregando atividades...</Text>
+            ) : erroAtividades ? (
+              <TouchableOpacity onPress={carregarAtividades}>
+                <Text style={styles.textoVazio}>Não foi possível carregar. Toque para tentar novamente.</Text>
+              </TouchableOpacity>
+            ) : listaAtividades.length === 0 ? (
+              <Text style={styles.textoVazio}>Nenhuma atividade cadastrada.</Text>
             ) : (
               <FlatList
                 data={listaAtividades}

@@ -19,7 +19,7 @@ import {
 } from "react-native";
 
 const { width } = Dimensions.get("window");
-const IP_SERVIDOR = "192.168.0.107"; 
+const IP_SERVIDOR = "192.168.1.59";
 
 interface DiarioItem {
   idDiario: number;
@@ -27,6 +27,12 @@ interface DiarioItem {
   complemento: string;
   avaliacao_1_5: number | null;
   atividade: string;
+  atividades: AtividadeHistorico[];
+}
+
+interface AtividadeHistorico {
+  nome: string;
+  avaliacao: number | null;
 }
 
 interface AtividadeOpcao {
@@ -78,7 +84,40 @@ export default function HistoricoScreen() {
       const json = JSON.parse(textoPuro);
 
       const dados = Array.isArray(json) ? json : (json.dados || []);
-      setHistorico(Array.isArray(dados) ? dados : []);
+      const registrosAgrupados = (Array.isArray(dados) ? dados : []).reduce(
+        (grupos: Record<string, DiarioItem>, registro: any) => {
+          const idDiario = Number(registro.idDiario);
+          const chave = String(idDiario);
+          const nomeAtividade = registro.atividade && registro.atividade !== "Atividade não vinculada"
+            ? String(registro.atividade)
+            : null;
+          const avaliacao = registro.avaliacao_1_5 !== null && registro.avaliacao_1_5 !== undefined
+            ? Number(registro.avaliacao_1_5)
+            : null;
+
+          if (!grupos[chave]) {
+            grupos[chave] = {
+              idDiario,
+              data: String(registro.data || ""),
+              complemento: String(registro.complemento || ""),
+              avaliacao_1_5: registro.avaliacao_1_5 ?? null,
+              atividade: nomeAtividade || "Atividade não vinculada",
+              atividades: nomeAtividade ? [{ nome: nomeAtividade, avaliacao }] : [],
+            };
+          } else if (
+            nomeAtividade &&
+            !grupos[chave].atividades.some((atividade) => atividade.nome === nomeAtividade)
+          ) {
+            grupos[chave].atividades.push({ nome: nomeAtividade, avaliacao });
+            grupos[chave].atividade = grupos[chave].atividades.map((atividade) => atividade.nome).join(" + ");
+          }
+
+          return grupos;
+        },
+        {}
+      );
+
+      setHistorico(Object.values(registrosAgrupados));
     } catch (error) {
       console.error("Erro ao buscar histórico:", error);
       Alert.alert("Erro", "Não foi possível carregar o histórico.");
@@ -103,22 +142,22 @@ export default function HistoricoScreen() {
 
   const confirmarExclusao = (idDiario: number) => {
     Alert.alert(
-      "Excluir Registro",
-      "Tem certeza que deseja excluir?",
+      "Excluir diário",
+      "Este diário possui atividades vinculadas. Todas elas serão excluídas juntas.",
       [
         { text: "Cancelar", style: "cancel" },
         {
-          text: "Excluir",
+          text: "Excluir diário e atividades",
           style: "destructive",
-          onPress: () => deletarRegistro(idDiario),
+          onPress: () => excluirHistorico(idDiario),
         },
       ]
     );
   };
 
-  const deletarRegistro = async (idDiario: number) => {
+  const excluirHistorico = async (idDiario: number) => {
     try {
-      const response = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/delete_diario.php`, {
+      const response = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/deleteHistorico.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idDiario }),
@@ -128,7 +167,7 @@ export default function HistoricoScreen() {
       const json = JSON.parse(textoPuro);
 
       if (json.sucesso || json.success) {
-        Alert.alert("Sucesso", "Registro excluído!");
+        Alert.alert("Sucesso", json.mensagem || "Exclusão realizada!");
         buscarHistorico();
       } else {
         Alert.alert("Erro", json.mensagem || "Não foi possível excluir.");
@@ -392,7 +431,28 @@ export default function HistoricoScreen() {
         ) : (
           <View>
             <View style={styles.headerCard}>
-              <Text style={styles.nomeRotina}>{item.atividade || "Atividade"}</Text>
+              <View style={styles.listaAtividadesHistorico}>
+                <Text style={styles.rotuloAtividades}>Atividades deste diário:</Text>
+                {item.atividades.length > 0 ? (
+                  item.atividades.map((atividade, index) => (
+                    <View key={`${item.idDiario}-${index}`} style={styles.atividadeHistoricoLinha}>
+                      <Text numberOfLines={1} ellipsizeMode="tail" style={styles.nomeRotina}>
+                        • {atividade.nome}
+                      </Text>
+                      <View style={styles.badgeAvaliacaoAtividade}>
+                        <Text style={styles.textoBadgeRotulo}>Avaliação: </Text>
+                        <Text style={styles.textoBadgeValor}>
+                          {atividade.avaliacao !== null ? `${atividade.avaliacao}/5` : "N/A"}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+                ) : (
+                  <Text numberOfLines={1} ellipsizeMode="tail" style={styles.nomeRotina}>
+                    • Atividade não vinculada
+                  </Text>
+                )}
+              </View>
               <View style={styles.acoesHeader}>
                 <TouchableOpacity onPress={() => iniciarEdicao(item)} style={styles.botaoAcao}>
                   <Ionicons name="create-outline" size={22} color="#2F1CA6" />
@@ -405,13 +465,6 @@ export default function HistoricoScreen() {
 
             <View style={styles.linhaInfoTopo}>
               <Text style={styles.textoDataMaior}>{formatarData(item.data)}</Text>
-              
-              <View style={styles.badgeAvaliacao}>
-                <Text style={styles.textoBadgeRotulo}>Avaliação: </Text>
-                <Text style={styles.textoBadgeValor}>
-                  {item.avaliacao_1_5 !== null && item.avaliacao_1_5 !== undefined ? `${item.avaliacao_1_5}/5` : "N/A"}
-                </Text>
-              </View>
             </View>
 
             <View style={[styles.itemContainer, { marginTop: 12 }]}>
@@ -531,7 +584,7 @@ const styles = StyleSheet.create({
   headerCard: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     borderBottomWidth: 1,
     borderBottomColor: "#EEEEEE",
     paddingBottom: 10,
@@ -541,6 +594,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  listaAtividadesHistorico: {
+    flex: 1,
+    paddingRight: 8,
+  },
+  atividadeHistoricoLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 4,
+  },
+  badgeAvaliacaoAtividade: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8F4F8",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginLeft: 8,
+  },
+  rotuloAtividades: {
+    color: "#555555",
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 3,
+  },
   botaoAcao: {
     padding: 4,
     marginLeft: 6,
@@ -548,8 +626,9 @@ const styles = StyleSheet.create({
   nomeRotina: {
     color: "#2F1CA6",
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 15,
     flex: 1,
+    flexShrink: 1,
   },
   itemContainer: {
     flexDirection: "row",

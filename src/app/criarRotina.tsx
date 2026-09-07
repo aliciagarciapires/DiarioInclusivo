@@ -37,7 +37,7 @@ export default function CriarRotina() {
   
   // IP do seu servidor
 
-  const IP_SERVIDOR = "192.168.0.107";
+  const IP_SERVIDOR = "192.168.1.59";
 
 
   // --- ESTADOS DA TELA ---

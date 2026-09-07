@@ -89,21 +89,17 @@ export default function InfoDiscente() {
       setLoading(true);
 
       // 1. Busca todos os responsáveis disponíveis na base
-<<<<<<< HEAD
+
       const resResp = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/buscar_responsaveis.php");
-=======
-      const resResp = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/buscar_responsaveis.php");
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
       const dadosResp = await resResp.json();
       const listaCompleta: Responsavel[] = Array.isArray(dadosResp) ? dadosResp : [];
       setListaResponsaveis(listaCompleta);
 
       // 2. Busca dados do discente
-<<<<<<< HEAD
+
       const response = await fetch(`http://192.168.0.107/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
-=======
-      const response = await fetch(`http://192.168.1.59/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
       const json = await response.json();
 
       if (json.success) {
@@ -250,11 +246,9 @@ export default function InfoDiscente() {
         return;
       }
 
-<<<<<<< HEAD
+
       const response = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/updateDiscente.php", {
-=======
-      const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/updateDiscente.php", {
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -303,11 +297,9 @@ export default function InfoDiscente() {
       const idUsuarioLogado = await obterIdUsuarioLogado();
 
       const response = await fetch(
-<<<<<<< HEAD
+
         `http://192.168.0.107/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
-=======
-        `http://192.168.1.59/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
         { method: "DELETE" }
       );
       const json = await response.json();

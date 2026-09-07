@@ -85,11 +85,8 @@ export default function InfoUsuario() {
             return;
           }
 
-<<<<<<< HEAD
           const response = await fetch(`http://192.168.0.107/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
-=======
-          const response = await fetch(`http://192.168.1.59/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
           const json = await response.json();
 
           if (json.success) {
@@ -140,11 +137,9 @@ export default function InfoUsuario() {
 
     try {
       setSalvando(true);
-<<<<<<< HEAD
+
       const response = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/updateUsuario.php", {
-=======
-      const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/updateUsuario.php", {
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -200,11 +195,9 @@ export default function InfoUsuario() {
       }
 
       const response = await fetch(
-<<<<<<< HEAD
+
         `http://192.168.0.107/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
-=======
-        `http://192.168.1.59/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
         { method: "GET" }
       );
 

@@ -1,7 +1,7 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-<<<<<<< HEAD
+
     Alert,
     FlatList,
     Image,
@@ -17,22 +17,6 @@ import {
     TouchableOpacity,
     TouchableWithoutFeedback,
     View,
-=======
-  Alert,
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Footer from "../../components/Footer";
@@ -67,6 +51,7 @@ interface Discente {
 }
 
 export default function Diario() {
+  const router = useRouter();
   const params = useLocalSearchParams();
 
   // Estados para seleção do Discente
@@ -119,6 +104,21 @@ export default function Diario() {
     return aluno.idDiscente ?? aluno.id_discente ?? aluno.id ?? aluno.codigo ?? aluno.id_aluno ?? 0;
   };
 
+  const handleIrParaHistorico = () => {
+    console.log("-> ID DISCENTE CLICADO NA TELA ANTERIOR:", idDiscente); 
+
+    if (!idDiscente) {
+      Alert.alert("Atenção", "Selecione um discente para consultar o histórico.");
+      return;
+    }
+
+    // Navega para a tela historico.tsx enviando o ID
+    router.push({
+      pathname: '/historico',
+      params: { idDiscente: String(idDiscente) }
+    });
+  };
+
   const obterNomeDiscente = (aluno: any) => {
     if (!aluno) return "Nome não encontrado";
     return aluno.nome ?? aluno.nomeDiscente ?? aluno.nome_discente ?? aluno.aluno ?? "Nome não encontrado";
@@ -148,7 +148,7 @@ export default function Diario() {
         }
 
         if (currentUserId) {
-          const urlAPI = `http://192.168.1.59/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const urlAPI = `http://192.168.0.107/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
           const response = await fetch(urlAPI);
           const result = await response.json();
           
@@ -211,11 +211,9 @@ export default function Diario() {
   const carregarAtividades = async () => {
     try {
       const response = await fetch(
-<<<<<<< HEAD
+
         "http://192.168.0.107/DiarioInclusivo/src/app/listar_atividades.php"
-=======
-        "http://192.168.1.59/DiarioInclusivo/src/app/listar_atividades.php"
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
       );
       const result = await response.json();
 
@@ -238,11 +236,9 @@ export default function Diario() {
     setLoadingRotina(true);
     try {
       const resposta = await fetch(
-<<<<<<< HEAD
+
         `http://192.168.0.107/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
-=======
-        `http://192.168.1.59/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
       );
       const resultado = await resposta.json();
 
@@ -298,14 +294,10 @@ export default function Diario() {
           avaliacao_1_5: a.avaliacao,
         })),
       };
-<<<<<<< HEAD
+
     const response = await fetch(
         `http://192.168.0.107/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
-=======
 
-      const response = await fetch(
-        `http://192.168.1.59/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -373,11 +365,9 @@ export default function Diario() {
     setLoading(true);
     try {
       const response = await fetch(
-<<<<<<< HEAD
+
         "http://192.168.0.107/DiarioInclusivo/src/app/criar_diario.php",
-=======
-        "http://192.168.1.59/DiarioInclusivo/src/app/criar_diario.php",
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -426,11 +416,9 @@ export default function Diario() {
     setLoadingHistorico(true);
     try {
       const response = await fetch(
-<<<<<<< HEAD
+
         `http://192.168.0.107/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
-=======
-        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
       );
       const result = await response.json();
 
@@ -622,14 +610,14 @@ export default function Diario() {
         </Pressable>
 
         <Pressable
-          style={[styles.botaoAcao, styles.botaoAzul]}
-          onPress={handleBuscarHistorico}
-          disabled={loadingHistorico}
-        >
-          <Text style={styles.botaoAcaoTexto}>
-            {loadingHistorico ? "Carregando..." : "Histórico"}
-          </Text>
-        </Pressable>
+        style={[styles.botaoAcao, styles.botaoAzul]}
+        onPress={handleIrParaHistorico}
+        disabled={loadingHistorico}
+      >
+        <Text style={styles.botaoAcaoTexto}>
+          {loadingHistorico ? "Carregando..." : "Histórico"}
+        </Text>
+      </Pressable>
       </View>
 
       {/* Modal para Nova Entrada */}
@@ -806,61 +794,7 @@ export default function Diario() {
         </View>
       </Modal>
 
-      {/* Modal do Histórico */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalHistoricoVisivel}
-        onRequestClose={() => setModalHistoricoVisivel(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { maxHeight: "80%" }]}>
-            <Text style={styles.modalTitulo}>Histórico de Entradas</Text>
-
-            {diarios.length === 0 ? (
-              <Text style={styles.textoVazio}>
-                Nenhum registro encontrado para este aluno.
-              </Text>
-            ) : (
-              <FlatList
-                data={diarios}
-                keyExtractor={(item, index) => item.idDiario ? item.idDiario.toString() : index.toString()}
-                renderItem={({ item }) => (
-                  <View style={styles.cardDiario}>
-                    <View style={styles.cardHeader}>
-                      <Text style={styles.cardData}>{item.data}</Text>
-                      {item.avaliacao_1_5 && (
-                        <Text style={styles.cardNota}>Nota: {item.avaliacao_1_5}/5</Text>
-                      )}
-                    </View>
-
-                    {item.atividade && (
-                      <Text style={styles.cardAtividade}>Atividade: {item.atividade}</Text>
-                    )}
-
-                    {(item.hora_inicial || item.hora_final) && (
-                      <Text style={styles.cardHorario}>
-                        Horário: {item.hora_inicial} - {item.hora_final}
-                      </Text>
-                    )}
-
-                    <Text style={styles.cardTexto}>
-                      {item.complemento || "Sem anotações."}
-                    </Text>
-                  </View>
-                )}
-              />
-            )}
-
-            <TouchableOpacity
-              style={[styles.modalBotao, styles.botaoCancelar, { marginTop: 15 }]}
-              onPress={() => setModalHistoricoVisivel(false)}
-            >
-              <Text style={styles.textoBotaoModal}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      
 
       {/* Modal de Rotinas */}
       <Modal

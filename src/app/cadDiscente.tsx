@@ -61,11 +61,9 @@ export default function CadDiscente() {
   useEffect(() => {
     const buscarResponsaveis = async () => {
       try {
-<<<<<<< HEAD
+
         const response = await fetch('http://192.168.0.107/DiarioInclusivo/src/app/buscar_responsaveis.php');
-=======
-        const response = await fetch('http://192.168.1.59/DiarioInclusivo/src/app/buscar_responsaveis.php');
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
         const dados = await response.json();
         if (Array.isArray(dados)) {
           setListaResponsaveis(dados);
@@ -126,11 +124,8 @@ export default function CadDiscente() {
   const idsResponsaveis = responsaveisSelecionados.map((r) => r.id);
 
   try {
-<<<<<<< HEAD
     const response = await fetch('http://192.168.0.107/DiarioInclusivo/src/app/cadDiscente.php', {
-=======
-    const response = await fetch('http://192.168.1.59/DiarioInclusivo/src/app/cadDiscente.php', {
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 

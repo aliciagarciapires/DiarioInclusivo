@@ -78,7 +78,7 @@ export default function Rotina() {
           /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque em Rotina */
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 

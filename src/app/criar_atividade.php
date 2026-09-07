@@ -28,7 +28,7 @@ if (!empty($dados['novoNomeAtividade'])) {
     $nomeLimpo = $mysqli->real_escape_string($nomeAtividade);
     
     // Insere apenas na tabela geral de ATIVIDADES, igual à estrutura do seu banco
-    $query = "INSERT INTO ATIVIDADES (nome) VALUES ('$nomeLimpo')";
+    $query = "INSERT INTO atividades (nome) VALUES ('$nomeLimpo')";
     
     if ($mysqli->query($query)) {
         // Pega o ID gerado pelo banco de dados

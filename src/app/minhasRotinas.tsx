@@ -50,12 +50,9 @@ export default function VisualizarRotina() {
   const [carregando, setCarregando] = useState<boolean>(true);
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
+  const [idUsuario, setIdUsuario] = useState<string | null>(null);
 
-<<<<<<< HEAD
-  const IP_SERVIDOR = "192.168.0.107" ;
-=======
-  const IP_SERVIDOR = "192.168.1.59" ;
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+  const IP_SERVIDOR = "192.168.0.107";
 
   // --- ESTADOS DO MODAL DE EDIÇÃO ---
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -74,11 +71,10 @@ export default function VisualizarRotina() {
 
   // --- FUNÇÕES DE REQUISIÇÃO (API) ---
 
-  const carregarRotinasDoBanco = async () => {
+  const carregarRotinasDoBanco = async (idUser: string) => {
     try {
       setCarregando(true);
-      const idUsuario = 1;
-      const URL_API = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}&t=${new Date().getTime()}`;
+      const URL_API = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUser}&t=${new Date().getTime()}`;
 
       const resposta = await fetch(URL_API);
       const resultado = await resposta.json();
@@ -109,23 +105,35 @@ export default function VisualizarRotina() {
     }
   };
 
-  // Carrega rotinas, atividades e tipo de usuário quando a tela ganha foco
+  // Carrega rotinas, atividades e tipo/ID de usuário quando a tela ganha foco
   useFocusEffect(
     useCallback(() => {
-      carregarRotinasDoBanco();
       carregarAtividadesMaster();
 
-      const carregarTipoUsuario = async () => {
+      const carregarDadosLocais = async () => {
         try {
-          let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
+          const tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
           if (tipoLogado) {
             setTipoUsuario(String(tipoLogado).trim());
           }
+
+          // Busca o ID do usuário logado dinamicamente
+          const idLogado = await AsyncStorage.getItem("idUsuario");
+          if (idLogado) {
+            const idFormatado = idLogado.trim();
+            setIdUsuario(idFormatado);
+            carregarRotinasDoBanco(idFormatado);
+          } else {
+            setCarregando(false);
+            Alert.alert("Aviso", "Usuário não identificado. Faça login novamente.");
+          }
         } catch (error) {
-          console.error("Erro ao carregar tipo de usuário:", error);
+          console.error("Erro ao carregar dados do usuário:", error);
+          setCarregando(false);
         }
       };
-      carregarTipoUsuario();
+
+      carregarDadosLocais();
     }, [])
   );
 
@@ -153,7 +161,7 @@ export default function VisualizarRotina() {
 
               if (resultado.sucesso) {
                 Alert.alert("Sucesso", "Rotina excluída com sucesso!");
-                carregarRotinasDoBanco();
+                if (idUsuario) carregarRotinasDoBanco(idUsuario);
               } else {
                 Alert.alert("Erro", resultado.mensagem || "Erro ao excluir rotina.");
               }
@@ -257,7 +265,7 @@ export default function VisualizarRotina() {
       const payload = {
         idRotina: rotinaEditandoId,
         nomeRotina: nomeRotinaEdit,
-        idUsuario: 1,
+        idUsuario: idUsuario ? parseInt(idUsuario, 10) : null,
         atividades: atividadesFormatadas,
       };
 
@@ -282,7 +290,7 @@ export default function VisualizarRotina() {
       if (resultado.sucesso) {
         Alert.alert("Sucesso", "Rotina atualizada com sucesso!");
         setModalVisivel(false);
-        carregarRotinasDoBanco();
+        if (idUsuario) carregarRotinasDoBanco(idUsuario);
       } else {
         Alert.alert("Erro ao Salvar", resultado.mensagem || "Não foi possível atualizar.");
       }
@@ -493,7 +501,6 @@ export default function VisualizarRotina() {
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
         {tipoUsuario === "2" ? (
-          /* BARRA PARA O TIPO 2 (ADM) - Destaque no botão Discentes */
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
               <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
@@ -506,7 +513,7 @@ export default function VisualizarRotina() {
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Rotina</Text>
             </Pressable>
 
@@ -516,10 +523,9 @@ export default function VisualizarRotina() {
             </Pressable>
           </>
         ) : (
-          /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque em Início */
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
@@ -529,7 +535,7 @@ export default function VisualizarRotina() {
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Rotina</Text>
             </Pressable>
 
@@ -669,7 +675,7 @@ const styles = StyleSheet.create({
     height: 30,
   },
   tabLabel: {
-    fontSize: 14,                     
+    fontSize: 14,                    
     fontWeight: "500",
     color: "#2F1CA6",
     marginTop: 4,
@@ -681,17 +687,17 @@ const styles = StyleSheet.create({
     resizeMode: "cover",      
   },
   barraMenuGeral: {
-    flexDirection: "row",           
+    flexDirection: "row",          
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "#F5F2E8",    
-    height: 90,                     
+    height: 90,                    
     paddingBottom: 30,             
-    borderTopWidth: 3,              
+    borderTopWidth: 3,             
     borderTopColor: "#F5F2E8",    
     borderTopLeftRadius: 35,      
     borderTopRightRadius: 35,      
-    position: "absolute",           
+    position: "absolute",          
     bottom: 0,
     left: 0,
     right: 0,

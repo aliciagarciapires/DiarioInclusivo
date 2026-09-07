@@ -1,17 +1,8 @@
 <?php
-ob_start();
-
-header("Access-Control-Allow-Origin: *"); 
+header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-header("Content-Type: application/json; charset=UTF-8"); 
-
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit(0);
-}
-
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json; charset=UTF-8");
 
 include_once "conexao.php";
 
@@ -19,49 +10,35 @@ if (isset($mysqli)) {
     $mysqli->set_charset("utf8");
 }
 
-ob_clean();
-
-$idDiscente = isset($_GET['idDiscente']) ? intval($_GET['idDiscente']) : 0;
-
-if ($idDiscente > 0) {
-    try {
-            $query = "SELECT d.idDiario, 
-                 DATE_FORMAT(d.data, '%d/%m/%Y') AS data, 
-                 d.complemento, 
-                 da.idAtividades, 
-                 da.hora_inicial,
-                 da.hora_final,
-                 da.avaliacao_1_5,
-                 a.nome AS atividade
+// Consulta ajustada com base nas suas imagens:
+// - Pega os dados principais da tabela 'diario' (d)
+// - Cruza com 'diario_tem_atividades' (ta) para pegar a avaliação e o idAtividades
+// - Cruza com 'atividades' (a) para comparar o idAtividades e pegar o 'nome'
+$query = "SELECT d.idDiario, d.data, d.complemento, ta.avaliacao_1_5, 
+                 COALESCE(a.nome, 'Atividade não vinculada') AS atividade
           FROM diario d
-          LEFT JOIN diario_tem_atividades da ON d.idDiario = da.idDiario
-          LEFT JOIN atividades a ON da.idAtividades = a.idAtividades
-          WHERE d.idDiscente = $idDiscente 
-          ORDER BY d.data DESC, d.idDiario DESC";
+          LEFT JOIN diario_tem_atividades ta ON d.idDiario = ta.idDiario
+          LEFT JOIN atividades a ON ta.idAtividades = a.idAtividades
+          ORDER BY d.idDiario DESC";
 
-        $resultado = $mysqli->query($query);
-        $diarios = [];
+$resultado = $mysqli->query($query);
 
-        while ($linha = $resultado->fetch_assoc()) {
-            $diarios[] = $linha;
-        }
+$historico = [];
 
-        echo json_encode([
-            "sucesso" => true,
-            "dados" => $diarios
-        ], JSON_UNESCAPED_UNICODE);
-
-    } catch (mysqli_sql_exception $e) {
-        echo json_encode([
-            "sucesso" => false,
-            "mensagem" => "Erro ao buscar registros: " . $e->getMessage()
-        ], JSON_UNESCAPED_UNICODE);
+if ($resultado) {
+    while ($row = $resultado->fetch_assoc()) {
+        $historico[] = [
+            "idDiario" => intval($row['idDiario']),
+            "data" => strval($row['data'] ?? ""),
+            "complemento" => strval($row['complemento'] ?? ""),
+            "avaliacao_1_5" => isset($row['avaliacao_1_5']) ? intval($row['avaliacao_1_5']) : null,
+            "atividade" => strval($row['atividade'])
+        ];
     }
+
+    echo json_encode($historico, JSON_UNESCAPED_UNICODE);
 } else {
-    echo json_encode([
-        "sucesso" => false,
-        "mensagem" => "ID do discente não informado."
-    ], JSON_UNESCAPED_UNICODE);
+    echo json_encode([], JSON_UNESCAPED_UNICODE);
 }
 exit();
 ?>

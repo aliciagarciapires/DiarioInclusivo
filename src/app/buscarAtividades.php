@@ -40,7 +40,7 @@ if (!$db || $db->connect_error) {
 
 // --- EXECUÇÃO DA CONSULTA SQL (QUERY) ---
 // Define o comando SQL para buscar todas as atividades cadastradas na tabela ATIVIDADES, ordenadas por nome
-$sql = "SELECT * FROM ATIVIDADES ORDER BY nome ASC"; 
+$sql = "SELECT * FROM atividades ORDER BY nome ASC"; 
 // Executa a consulta no banco de dados através do MySQLi e guarda os dados em $result
 $result = $db->query($sql);
 

@@ -5,16 +5,8 @@ export default function CadAtividade() {
   const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ⚠️ IMPORTANTE: Substitua 'SEU_IP_OU_TUNEL' pelo endereço onde seu PHP está rodando
-<<<<<<< HEAD
-  // Exemplo local: 'http://192.168.0.107/criar_atividade.php'
-  // Exemplo ngrok/tunnel: 'https://seu-tunnel.ngrok-free.app/criar_atividade.php'
   const API_URL = 'http://192.168.0.107/criar_atividade.php';
-=======
-  // Exemplo local: 'http://192.168.1.59/criar_atividade.php'
-  // Exemplo ngrok/tunnel: 'https://seu-tunnel.ngrok-free.app/criar_atividade.php'
-  const API_URL = 'http://192.168.1.59/criar_atividade.php';
->>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
+
 
   const handleCadastrar = async () => {
     if (!novoNomeAtividade.trim()) {

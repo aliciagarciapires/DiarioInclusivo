@@ -74,7 +74,11 @@ export default function CadResp() {
         }
 
         try {
+<<<<<<< HEAD
             const response = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/cadResp.php", {
+=======
+            const response = await fetch("http://192.168.1.59/DiarioInclusivo/src/app/cadResp.php", {
+>>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -102,7 +106,11 @@ export default function CadResp() {
 
     // Nova função para cadastrar a solicitação do Administrador
     const enviarCadastro = async () => {
+<<<<<<< HEAD
             const urlAPI = 'http://192.168.0.107/DiarioInclusivo/src/app/cadAdm.php'; // Substitua pelo seu IP e pasta
+=======
+            const urlAPI = 'http://192.168.1.59/DiarioInclusivo/src/app/cadAdm.php'; // Substitua pelo seu IP e pasta
+>>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
 
   try {
     const resposta = await fetch(urlAPI, {

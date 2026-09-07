@@ -51,7 +51,11 @@ export default function VisualizarRotina() {
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
+<<<<<<< HEAD
   const IP_SERVIDOR = "192.168.0.107" ;
+=======
+  const IP_SERVIDOR = "192.168.1.59" ;
+>>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
 
   // --- ESTADOS DO MODAL DE EDIÇÃO ---
   const [modalVisivel, setModalVisivel] = useState(false);

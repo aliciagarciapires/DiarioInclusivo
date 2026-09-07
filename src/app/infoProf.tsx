@@ -62,7 +62,11 @@ export default function InfoProf() {
         const idLogado = await AsyncStorage.getItem("idUsuario");
         if (idLogado) {
           const respLogado = await fetch(
+<<<<<<< HEAD
             `http://192.168.0.107/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
+=======
+            `http://192.168.1.59/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
+>>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
           );
           const jsonLogado = await respLogado.json();
           if (jsonLogado.success && jsonLogado.dados?.tipo_de_usuario) {
@@ -79,7 +83,11 @@ export default function InfoProf() {
 
         // 3. Busca os dados do professor selecionado
         const response = await fetch(
+<<<<<<< HEAD
             `http://192.168.0.107/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
+=======
+            `http://192.168.1.59/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
+>>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
         );
         const json = await response.json();
 
@@ -125,7 +133,11 @@ export default function InfoProf() {
     try {
       setSalvando(true);
             const response = await fetch(
+<<<<<<< HEAD
         "http://192.168.0.107/DiarioInclusivo/src/app/updateUsuario.php",
+=======
+        "http://192.168.1.59/DiarioInclusivo/src/app/updateUsuario.php",
+>>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -171,7 +183,11 @@ export default function InfoProf() {
       setLoading(true);
 
             const response = await fetch(
+<<<<<<< HEAD
         `http://192.168.0.107/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
+=======
+        `http://192.168.1.59/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
+>>>>>>> 2831965ebcfe7a3bee050b6eef9ab1c2979e6424
         { method: "GET" }
             );
       const json = await response.json();

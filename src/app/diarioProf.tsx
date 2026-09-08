@@ -150,7 +150,7 @@ export default function Diario() {
         }
 
         if (currentUserId) {
-          const urlAPI = `http://192.168.1.59/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const urlAPI = `http://192.168.0.107/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
           const response = await fetch(urlAPI);
           const result = await response.json();
           
@@ -217,7 +217,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://192.168.1.59/DiarioInclusivo/src/app/listar_atividades.php"
+        "http://192.168.0.107/DiarioInclusivo/src/app/listar_atividades.php"
 
       );
       const result = await response.json();
@@ -264,7 +264,7 @@ export default function Diario() {
     try {
       const resposta = await fetch(
 
-        `http://192.168.1.59/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
+        `http://192.168.0.107/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
 
       );
       const resultado = await resposta.json();
@@ -323,7 +323,7 @@ export default function Diario() {
       };
 
     const response = await fetch(
-        `http://192.168.1.59/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
+        `http://192.168.0.107/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
 
         {
           method: "POST",
@@ -393,7 +393,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://192.168.1.59/DiarioInclusivo/src/app/criar_diario.php",
+        "http://192.168.0.107/DiarioInclusivo/src/app/criar_diario.php",
 
         {
           method: "POST",
@@ -444,7 +444,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://192.168.0.107/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
 
       );
       const result = await response.json();

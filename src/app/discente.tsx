@@ -35,9 +35,9 @@ export default function Discente() {
       // Usamos trim() por garantia, para remover espaços em branco invisíveis
       if (tipoLogado && String(tipoLogado).trim() === "2") {
 
-        url = "http://192.168.1.59/DiarioInclusivo/src/app/discenteAdm.php";
+        url = "http://192.168.0.107/DiarioInclusivo/src/app/discenteAdm.php";
       } else {
-        url = `http://192.168.1.59/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`;
+        url = `http://192.168.0.107/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`;
 
       }
 

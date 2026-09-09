@@ -15,7 +15,8 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
+  View,
+  Image
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -88,6 +89,7 @@ export default function Diario() {
   const [loading, setLoading] = useState(false);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [diarios, setDiarios] = useState<any[]>([]);
+  const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
   // Estados para Sincronizar Rotina
   const [modalRotinaVisivel, setModalRotinaVisivel] = useState(false);
@@ -145,6 +147,11 @@ export default function Diario() {
 
         if (currentUserId && !Number.isNaN(currentUserId)) {
           setIdUsuario(currentUserId);
+        }
+
+        const tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
+        if (tipoLogado) {
+          setTipoUsuario(String(tipoLogado).trim());
         }
 
         if (currentUserId) {
@@ -338,7 +345,6 @@ export default function Diario() {
         setRotinaSelecionada(null);
         setDataRotina("");
         setObsRotina("");
-        handleBuscarHistorico();
       } else {
         Alert.alert("Erro", result.mensagem);
       }
@@ -949,7 +955,58 @@ export default function Diario() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <Footer />
+      <View style={styles.barraMenuGeral}>
+        {tipoUsuario === "2" ? (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discente.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
+      </View>
     </View>
   );
 }
@@ -960,6 +1017,42 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F2E8",
     padding: 16,
     paddingBottom: 95,
+  },
+  barraMenuGeral: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "#F5F2E8",
+    height: 90,
+    paddingBottom: 30,
+    borderTopWidth: 3,
+    borderTopColor: "#F5F2E8",
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,
+    shadowColor: "#000",
+  },
+  botaoMenu: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    height: 30,
+  },
+  tabLabel: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#2F1CA6",
+    marginTop: 4,
+  },
+  iconeCustom: {
+    width: 80,
+    height: 80,
+    borderRadius: 15,
+    resizeMode: "cover",
   },
   header: {
     flexDirection: "row",
@@ -1254,42 +1347,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#2F1CA6",
     marginBottom: 4,
-  },
-  barraMenuGeral: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#FFF",
-    height: 68,
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  botaoMenu: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    height: "100%",
-  },
-  tabLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#2F1CA6",
-    marginTop: 5,
-  },
-  iconeCustom: {
-    width: 24,
-    height: 24,
-    resizeMode: "contain",
   },
 });

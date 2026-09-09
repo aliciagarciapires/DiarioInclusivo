@@ -14,14 +14,27 @@ if (isset($mysqli)) {
 // - Pega os dados principais da tabela 'diario' (d)
 // - Cruza com 'diario_tem_atividades' (ta) para pegar a avaliação e o idAtividades
 // - Cruza com 'atividades' (a) para comparar o idAtividades e pegar o 'nome'
-$query = "SELECT d.idDiario, ta.idAtividades, d.data, d.complemento, ta.avaliacao_1_5, 
+// - Se o parâmetro idDiscente for enviado, filtra somente esse discente
+$idDiscente = isset($_GET['idDiscente']) ? intval($_GET['idDiscente']) : null;
+
+$query = "SELECT d.idDiario, ta.idAtividades, d.data, d.complemento, ta.avaliacao_1_5,
                  COALESCE(a.nome, 'Atividade não vinculada') AS atividade
           FROM diario d
           LEFT JOIN diario_tem_atividades ta ON d.idDiario = ta.idDiario
-          LEFT JOIN atividades a ON ta.idAtividades = a.idAtividades
-          ORDER BY d.idDiario DESC";
+          LEFT JOIN atividades a ON ta.idAtividades = a.idAtividades";
 
-$resultado = $mysqli->query($query);
+if ($idDiscente && $idDiscente > 0) {
+    $query .= " WHERE d.idDiscente = ?";
+    $query .= " ORDER BY d.idDiario DESC";
+
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("i", $idDiscente);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+} else {
+    $query .= " ORDER BY d.idDiario DESC";
+    $resultado = $mysqli->query($query);
+}
 
 $historico = [];
 

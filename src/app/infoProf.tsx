@@ -64,6 +64,7 @@ export default function InfoProf() {
           const respLogado = await fetch(
 
             `http://172.20.10.3/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
+            `http://172.20.10.3/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
 
           );
           const jsonLogado = await respLogado.json();
@@ -82,6 +83,7 @@ export default function InfoProf() {
         // 3. Busca os dados do professor selecionado
         const response = await fetch(
 
+            `http://172.20.10.3/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
             `http://172.20.10.3/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
 
         );
@@ -131,6 +133,7 @@ export default function InfoProf() {
             const response = await fetch(
 
         "http://172.20.10.3/DiarioInclusivo/src/app/updateUsuario.php",
+        "http://172.20.10.3/DiarioInclusivo/src/app/updateUsuario.php",
 
         {
           method: "POST",
@@ -178,6 +181,7 @@ export default function InfoProf() {
 
             const response = await fetch(
 
+        `http://172.20.10.3/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
         `http://172.20.10.3/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
 
         { method: "GET" }

@@ -10,6 +10,7 @@ export default function Professores() {
       try {
 
     const response = await fetch('http://172.20.10.3/DiarioInclusivo/src/app/professores.php');
+    const response = await fetch('http://172.20.10.3/DiarioInclusivo/src/app/professores.php');
 
     const dados = await response.json();
       setListaProfessores(dados);

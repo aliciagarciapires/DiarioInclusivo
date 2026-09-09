@@ -86,6 +86,7 @@ export default function InfoUsuario() {
           }
 
           const response = await fetch(`http://172.20.10.3/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
+          const response = await fetch(`http://172.20.10.3/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
 
           const json = await response.json();
 
@@ -138,6 +139,7 @@ export default function InfoUsuario() {
     try {
       setSalvando(true);
 
+      const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/updateUsuario.php", {
       const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/updateUsuario.php", {
 
         method: "POST",
@@ -196,6 +198,7 @@ export default function InfoUsuario() {
 
       const response = await fetch(
 
+        `http://172.20.10.3/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
         `http://172.20.10.3/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
 
         { method: "GET" }

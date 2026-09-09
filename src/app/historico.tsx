@@ -19,7 +19,7 @@ import {
 } from "react-native";
 
 const { width } = Dimensions.get("window");
-const IP_SERVIDOR = "192.168.1.59";
+const IP_SERVIDOR = "172.20.10.3";
 
 interface DiarioItem {
   idDiario: number;

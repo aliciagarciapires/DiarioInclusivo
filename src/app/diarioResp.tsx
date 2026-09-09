@@ -25,7 +25,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        `http://192.168.1.59/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://172.20.10.3/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
 
       );
       const text = await response.text();

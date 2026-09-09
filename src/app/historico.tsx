@@ -1,25 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    FlatList,
-    Image,
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  FlatList,
+  Image,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 const { width } = Dimensions.get("window");
-const IP_SERVIDOR = "10.0.0.103";
+const IP_SERVIDOR = "192.168.0.107";
 
 interface DiarioItem {
   idDiario: number;
@@ -31,6 +31,7 @@ interface DiarioItem {
 }
 
 interface AtividadeHistorico {
+  idAtividades?: number | null;
   nome: string;
   avaliacao: number | null;
 }
@@ -42,6 +43,10 @@ interface AtividadeOpcao {
 
 export default function HistoricoScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ idDiscente?: string | string[] }>();
+  const idDiscenteSelecionado = Array.isArray(params.idDiscente)
+    ? Number(params.idDiscente[0])
+    : Number(params.idDiscente ?? 0);
   const [historico, setHistorico] = useState<DiarioItem[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
@@ -52,6 +57,7 @@ export default function HistoricoScreen() {
   const [complementoEdit, setComplementoEdit] = useState<string>("");
   const [dataEdit, setDataEdit] = useState<string>("");
   const [avaliacaoEdit, setAvaliacaoEdit] = useState<string>("");
+  const [atividadesEdit, setAtividadesEdit] = useState<Array<{ idAtividades: number | null; nome: string; avaliacao: string }>>([]);
 
   // Lista de atividades vindas do banco para seleção
   const [listaAtividades, setListaAtividades] = useState<AtividadeOpcao[]>([]);
@@ -71,13 +77,19 @@ export default function HistoricoScreen() {
       carregarTipoUsuario();
       buscarHistorico();
       buscarAtividadesDoBanco();
-    }, [])
+    }, [idDiscenteSelecionado])
   );
 
   const buscarHistorico = async () => {
     try {
+      if (!idDiscenteSelecionado || Number.isNaN(idDiscenteSelecionado)) {
+        setHistorico([]);
+        setCarregando(false);
+        return;
+      }
+
       setCarregando(true);
-      const url = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_diario.php`;
+      const url = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscenteSelecionado}`;
       
       const resposta = await fetch(url);
       const textoPuro = await resposta.text();
@@ -102,13 +114,13 @@ export default function HistoricoScreen() {
               complemento: String(registro.complemento || ""),
               avaliacao_1_5: registro.avaliacao_1_5 ?? null,
               atividade: nomeAtividade || "Atividade não vinculada",
-              atividades: nomeAtividade ? [{ nome: nomeAtividade, avaliacao }] : [],
+              atividades: nomeAtividade ? [{ idAtividades: registro.idAtividades ?? null, nome: nomeAtividade, avaliacao }] : [],
             };
           } else if (
             nomeAtividade &&
             !grupos[chave].atividades.some((atividade) => atividade.nome === nomeAtividade)
           ) {
-            grupos[chave].atividades.push({ nome: nomeAtividade, avaliacao });
+            grupos[chave].atividades.push({ idAtividades: registro.idAtividades ?? null, nome: nomeAtividade, avaliacao });
             grupos[chave].atividade = grupos[chave].atividades.map((atividade) => atividade.nome).join(" + ");
           }
 
@@ -178,11 +190,45 @@ export default function HistoricoScreen() {
   };
 
   const iniciarEdicao = (item: DiarioItem) => {
+    const formatarDataEdicao = (dataStr: string) => {
+      if (!dataStr) return "";
+      if (dataStr.includes("/")) return dataStr;
+      const partes = dataStr.split("-");
+      if (partes.length === 3) {
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+      return dataStr;
+    };
+
+    const atividadesParaEditar = (item.atividades || []).length > 0
+      ? (item.atividades || []).map((atividade) => ({
+          idAtividades: atividade.idAtividades ?? null,
+          nome: atividade.nome || "",
+          avaliacao: atividade.avaliacao !== null && atividade.avaliacao !== undefined ? String(atividade.avaliacao) : "5",
+        }))
+      : [{ idAtividades: null, nome: item.atividade || "", avaliacao: item.avaliacao_1_5 !== null && item.avaliacao_1_5 !== undefined ? String(item.avaliacao_1_5) : "5" }];
+
     setIdEditando(item.idDiario);
-    setAtividadeEdit(item.atividade);
+    setAtividadeEdit(atividadesParaEditar[0]?.nome || "");
     setComplementoEdit(item.complemento);
-    setDataEdit(item.data);
-    setAvaliacaoEdit(item.avaliacao_1_5 !== null && item.avaliacao_1_5 !== undefined ? item.avaliacao_1_5.toString() : "");
+    setDataEdit(formatarDataEdicao(item.data));
+    setAvaliacaoEdit(atividadesParaEditar[0]?.avaliacao || "5");
+    setAtividadesEdit(atividadesParaEditar);
+  };
+
+  const getAtividadeKey = (atividade: any, fallbackIndex: number) => {
+    if (!atividade) return `atividade-${fallbackIndex}`;
+    return atividade.idAtividades ?? atividade.id ?? `${atividade.nome ?? 'atividade'}-${fallbackIndex}`;
+  };
+
+  const atualizarAtividadeEditada = (index: number, campo: "nome" | "avaliacao", valor: string) => {
+    setAtividadesEdit((prev) =>
+      prev.map((atividade, idx) =>
+        idx === index
+          ? { ...atividade, [campo]: valor }
+          : atividade
+      )
+    );
   };
 
   const aplicarMascaraData = (text: string) => {
@@ -245,8 +291,24 @@ export default function HistoricoScreen() {
       return;
     }
 
-    if (!atividadeEdit.trim()) {
-      Alert.alert("Erro", "Por favor, selecione uma atividade.");
+    const atividadesParaSalvar = (atividadesEdit.length > 0 ? atividadesEdit : [{ idAtividades: null, nome: atividadeEdit, avaliacao: avaliacaoEdit || "5" }])
+      .map((atividade) => {
+        const nome = atividade.nome?.trim();
+        if (!nome) return null;
+
+        const idAtividadeEncontrada = atividade.idAtividades ?? listaAtividades.find((item) => item.nome.trim().toLowerCase() === nome.toLowerCase())?.id ?? null;
+        const avaliacaoNumero = Number(atividade.avaliacao || 5);
+
+        return {
+          idAtividades: idAtividadeEncontrada,
+          nome,
+          avaliacao_1_5: Number.isFinite(avaliacaoNumero) ? avaliacaoNumero : 5,
+        };
+      })
+      .filter(Boolean);
+
+    if (atividadesParaSalvar.length === 0) {
+      Alert.alert("Erro", "Selecione pelo menos uma atividade para salvar.");
       return;
     }
 
@@ -270,16 +332,12 @@ export default function HistoricoScreen() {
     try {
       setCarregando(true);
 
-      const valorAvaliacaoNumerico = avaliacaoEdit ? parseInt(avaliacaoEdit, 10) : null;
-
       const corpoRequisicao = {
         id: idDiario,
         idDiario: idDiario,
         data: dataFormatada,
-        atividade: atividadeEdit,
-        avaliacao: valorAvaliacaoNumerico,
-        avaliacao_1_5: valorAvaliacaoNumerico,
-        complemento: complementoEdit || ""
+        complemento: complementoEdit || "",
+        atividades: atividadesParaSalvar,
       };
 
       const response = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/update_diario.php`, {
@@ -297,7 +355,6 @@ export default function HistoricoScreen() {
         json = JSON.parse(textoResposta);
       } catch (e) {
         console.error("Resposta inválida do PHP:", textoResposta);
-        // Exibe o texto exato do erro que o PHP retornou para facilitar o diagnóstico
         Alert.alert("Erro de Resposta do PHP", textoResposta.substring(0, 300));
         return;
       }
@@ -345,70 +402,74 @@ export default function HistoricoScreen() {
               maxLength={10}
             />
 
-            <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>Selecione a Atividade:</Text>
-            
-            <View style={styles.containerSelecaoAtividades}>
-              {listaAtividades.length === 0 ? (
-                <Text style={{ color: '#666', fontSize: 13, marginVertical: 5 }}>Carregando opções ou nenhuma atividade cadastrada...</Text>
-              ) : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 6 }}>
-                  {listaAtividades.map((atv) => {
-                    const nomeAtividade = atv.nome || (atv as any).descricao || String(atv.id);
-                    const selecionada = atividadeEdit === nomeAtividade;
+            <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>Atividades do diário:</Text>
+            {atividadesEdit.map((atividade, index) => {
+              const blocoKey = `atividade-edit-${index}-${getAtividadeKey(atividade, index)}`;
 
-                    return (
-                      <TouchableOpacity
-                        key={atv.id}
-                        style={[
-                          styles.opcaoAtividade,
-                          selecionada && styles.opcaoAtividadeSelecionada
-                        ]}
-                        onPress={() => setAtividadeEdit(nomeAtividade)}
-                      >
-                        <Text style={[styles.textoOpcaoAtividade, selecionada && styles.textoOpcaoSelecionada]}>
-                          {nomeAtividade}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              )}
-            </View>
+              return (
+                <View key={blocoKey} style={{ marginBottom: 16, padding: 12, borderWidth: 1, borderColor: '#D8E9F3', borderRadius: 10, backgroundColor: '#F8FCFF' }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#2F1CA6', marginBottom: 8 }}>Atividade {index + 1}</Text>
 
-            <Text style={{ fontSize: 13, color: '#0477BF', marginBottom: 8, fontStyle: 'italic' }}>
-              Selecionada: {atividadeEdit || "Nenhuma"}
-            </Text>
+                  <Text style={styles.textoNomeLabel}>Nome:</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 6 }}>
+                    {listaAtividades.map((atv, atvIndex) => {
+                      const nomeAtividade = atv.nome || (atv as any).descricao || String(atv.id ?? atvIndex);
+                      const selecionada = atividade.nome === nomeAtividade;
 
-            <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>Avaliação (1 a 5):</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10 }}>
-              {[1, 2, 3, 4, 5].map((num) => {
-                const selecionado = avaliacaoEdit === num.toString();
-                return (
-                  <TouchableOpacity
-                    key={num}
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 22,
-                      backgroundColor: selecionado ? '#2F1CA6' : '#E8F4F8',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderWidth: 1,
-                      borderColor: selecionado ? '#2F1CA6' : '#D0D0D0'
-                    }}
-                    onPress={() => setAvaliacaoEdit(num.toString())}
-                  >
-                    <Text style={{
-                      fontSize: 16,
-                      fontWeight: 'bold',
-                      color: selecionado ? '#FFFFFF' : '#333333'
-                    }}>
-                      {num}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+                      return (
+                        <TouchableOpacity
+                          key={`${blocoKey}-nome-${getAtividadeKey(atv, atvIndex)}`}
+                          style={[
+                            styles.opcaoAtividade,
+                            selecionada && styles.opcaoAtividadeSelecionada
+                          ]}
+                          onPress={() => atualizarAtividadeEditada(index, 'nome', nomeAtividade)}
+                        >
+                          <Text style={[styles.textoOpcaoAtividade, selecionada && styles.textoOpcaoSelecionada]}>
+                            {nomeAtividade}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+
+                  <Text style={{ fontSize: 13, color: '#0477BF', marginBottom: 8, fontStyle: 'italic' }}>
+                    Selecionada: {atividade.nome || "Nenhuma"}
+                  </Text>
+
+                  <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>Avaliação (1 a 5):</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10 }}>
+                    {[1, 2, 3, 4, 5].map((num) => {
+                      const selecionado = atividade.avaliacao === num.toString();
+                      return (
+                        <TouchableOpacity
+                          key={`${blocoKey}-nota-${num}`}
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 22,
+                            backgroundColor: selecionado ? '#2F1CA6' : '#E8F4F8',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderWidth: 1,
+                            borderColor: selecionado ? '#2F1CA6' : '#D0D0D0'
+                          }}
+                          onPress={() => atualizarAtividadeEditada(index, 'avaliacao', num.toString())}
+                        >
+                          <Text style={{
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            color: selecionado ? '#FFFFFF' : '#333333'
+                          }}>
+                            {num}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              );
+            })}
 
             <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>Complemento:</Text>
             <TextInput 
@@ -512,13 +573,19 @@ export default function HistoricoScreen() {
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-              <Image source={require("../../assets/images/discenteD.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/discente.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
               <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Rotina</Text>
+
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -529,12 +596,12 @@ export default function HistoricoScreen() {
         ) : (
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 

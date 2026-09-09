@@ -5,7 +5,7 @@ export default function CadAtividade() {
   const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'http://10.0.0.103/criar_atividade.php';
+  const API_URL = 'http://192.168.0.107/criar_atividade.php';
 
 
   const handleCadastrar = async () => {

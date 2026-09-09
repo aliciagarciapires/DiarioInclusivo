@@ -31,8 +31,9 @@ $atividade     = isset($dados['atividade']) ? trim($dados['atividade']) : '';
 $complemento   = isset($dados['complemento']) ? $mysqli->real_escape_string($dados['complemento']) : '';
 $avaliacao     = isset($dados['avaliacao_1_5']) && $dados['avaliacao_1_5'] !== '' ? intval($dados['avaliacao_1_5']) : null;
 $dataBruta     = $dados['data'] ?? null;
+$atividades    = isset($dados['atividades']) && is_array($dados['atividades']) ? $dados['atividades'] : [];
 
-if ($idDiario > 0 && !empty($atividade)) {
+if ($idDiario > 0 && (!empty($atividade) || !empty($atividades))) {
     
     // Formata a data se ela vier preenchida (aceita DD/MM/AAAA ou YYYY-MM-DD)
     $dataSql = null;
@@ -75,17 +76,40 @@ if ($idDiario > 0 && !empty($atividade)) {
             $stmtAtiv->close();
         }
 
-        // 3. Atualiza ou insere na tabela 'diario_tem_atividades' incluindo a avaliação
-        if ($idAtividadeFinal > 0) {
-            $check = $mysqli->query("SELECT idDiario FROM diario_tem_atividades WHERE idDiario = $idDiario LIMIT 1");
-            
-            $sqlAvaliacao = ($avaliacao !== null) ? $avaliacao : "NULL";
+        // 3. Ajusta a relação do diário com as atividades selecionadas.
+        // Em 'diario_tem_atividades' a chave primária é composta por (idDiario, idAtividades),
+        // então remove todos os links antigos do diário antes de gravar a versão atualizada,
+        // evitando o erro 'duplicate entry'.
+        $mysqli->query("DELETE FROM diario_tem_atividades WHERE idDiario = $idDiario");
 
-            if ($check && $check->num_rows > 0) {
-                $mysqli->query("UPDATE diario_tem_atividades SET idAtividades = $idAtividadeFinal, avaliacao_1_5 = $sqlAvaliacao WHERE idDiario = $idDiario");
-            } else {
-                $mysqli->query("INSERT INTO diario_tem_atividades (idDiario, idAtividades, avaliacao_1_5) VALUES ($idDiario, $idAtividadeFinal, $sqlAvaliacao)");
+        if (!empty($atividades)) {
+            foreach ($atividades as $item) {
+                $nomeAtividade = isset($item['nome']) ? trim((string)$item['nome']) : '';
+                $avaliacaoAtividade = isset($item['avaliacao_1_5']) && $item['avaliacao_1_5'] !== '' ? intval($item['avaliacao_1_5']) : (isset($item['avaliacao']) && $item['avaliacao'] !== '' ? intval($item['avaliacao']) : 5);
+
+                $idAtividadeFinal = 0;
+                if (isset($item['idAtividades']) && $item['idAtividades'] !== '' && $item['idAtividades'] !== null) {
+                    $idAtividadeFinal = intval($item['idAtividades']);
+                } elseif (!empty($nomeAtividade)) {
+                    $stmtAtiv = $mysqli->prepare("SELECT idAtividades FROM atividades WHERE nome = ? LIMIT 1");
+                    $stmtAtiv->bind_param("s", $nomeAtividade);
+                    $stmtAtiv->execute();
+                    $resAtiv = $stmtAtiv->get_result();
+                    if ($rowAtiv = $resAtiv->fetch_assoc()) {
+                        $idAtividadeFinal = intval($rowAtiv['idAtividades']);
+                    }
+                    $stmtAtiv->close();
+                }
+
+                if ($idAtividadeFinal > 0) {
+                    $mysqli->query("INSERT INTO diario_tem_atividades (idDiario, idAtividades, avaliacao_1_5)
+                                    VALUES ($idDiario, $idAtividadeFinal, $avaliacaoAtividade)");
+                }
             }
+        } elseif ($idAtividadeFinal > 0) {
+            $sqlAvaliacao = ($avaliacao !== null) ? $avaliacao : "NULL";
+            $mysqli->query("INSERT INTO diario_tem_atividades (idDiario, idAtividades, avaliacao_1_5)
+                            VALUES ($idDiario, $idAtividadeFinal, $sqlAvaliacao)");
         }
 
         echo json_encode([

@@ -19,7 +19,7 @@ import {
 } from "react-native";
 
 const { width } = Dimensions.get("window");
-const IP_SERVIDOR = "172.20.10.3";
+const IP_SERVIDOR = "10.0.0.103";
 
 interface DiarioItem {
   idDiario: number;
@@ -43,10 +43,15 @@ interface AtividadeOpcao {
 
 export default function HistoricoScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ idDiscente?: string | string[] }>();
+  const params = useLocalSearchParams<{ idDiscente?: string | string[]; somenteLeitura?: string }>();
+  
   const idDiscenteSelecionado = Array.isArray(params.idDiscente)
     ? Number(params.idDiscente[0])
     : Number(params.idDiscente ?? 0);
+
+  // Identifica se a tela deve abrir no modo de leitura (responsável)
+  const modoSomenteLeitura = params.somenteLeitura === "true";
+
   const [historico, setHistorico] = useState<DiarioItem[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
@@ -347,14 +352,11 @@ export default function HistoricoScreen() {
       });
 
       const textoResposta = await response.text();
-      console.log("RESPOSTA PURA DO PHP:", textoResposta);
-
       let json;
       
       try {
         json = JSON.parse(textoResposta);
       } catch (e) {
-        console.error("Resposta inválida do PHP:", textoResposta);
         Alert.alert("Erro de Resposta do PHP", textoResposta.substring(0, 300));
         return;
       }
@@ -373,6 +375,9 @@ export default function HistoricoScreen() {
       setCarregando(false);
     }
   };
+
+  // Verifica se o usuário pode editar (apenas se NÃO for responsável "1" ou "3" e nem no modo leitura)
+  const podeEditar = !modoSomenteLeitura && tipoUsuario !== "1";
 
   const renderItem = ({ item }: { item: DiarioItem }) => {
     const editando = idEditando === item.idDiario;
@@ -514,14 +519,18 @@ export default function HistoricoScreen() {
                   </Text>
                 )}
               </View>
-              <View style={styles.acoesHeader}>
-                <TouchableOpacity onPress={() => iniciarEdicao(item)} style={styles.botaoAcao}>
-                  <Ionicons name="create-outline" size={22} color="#2F1CA6" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => confirmarExclusao(item.idDiario)} style={styles.botaoAcao}>
-                  <Ionicons name="trash-outline" size={22} color="#FF3B30" />
-                </TouchableOpacity>
-              </View>
+
+              {/* EXIBE OS BOTOES APENAS SE TIVER PERMISSÃO DE EDIÇÃO */}
+              {podeEditar && (
+                <View style={styles.acoesHeader}>
+                  <TouchableOpacity onPress={() => iniciarEdicao(item)} style={styles.botaoAcao}>
+                    <Ionicons name="create-outline" size={22} color="#2F1CA6" />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => confirmarExclusao(item.idDiario)} style={styles.botaoAcao}>
+                    <Ionicons name="trash-outline" size={22} color="#FF3B30" />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
 
             <View style={styles.linhaInfoTopo}>
@@ -585,7 +594,6 @@ export default function HistoricoScreen() {
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
               <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Rotina</Text>
-
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -728,10 +736,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     color: "#333",
   },
-  containerSelecaoAtividades: {
-    flexDirection: 'row',
-    marginVertical: 4,
-  },
   opcaoAtividade: {
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -820,14 +824,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#F0F0F0",
     paddingBottom: 8,
-  },
-  badgeAvaliacao: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#E8F4F8",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
   },
   textoBadgeRotulo: {
     fontSize: 13,

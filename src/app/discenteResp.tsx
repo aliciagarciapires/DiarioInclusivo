@@ -21,7 +21,7 @@ export default function DiscenteResp() {
     }
 
 
-    const url = `http://172.20.10.3/DiarioInclusivo/src/app/discenteResp.php?idResp=${idUsuarioLogado}`;
+    const url = `http://10.0.0.103/DiarioInclusivo/src/app/discenteResp.php?idResp=${idUsuarioLogado}`;
 
     console.log("URL chamada:", url);
 

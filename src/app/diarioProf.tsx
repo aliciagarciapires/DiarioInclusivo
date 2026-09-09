@@ -2,23 +2,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-  Image
+    Alert,
+    FlatList,
+    Image,
+    Keyboard,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from "react-native";
-import Footer from "../../components/Footer";
 
 interface Atividade {
   idAtividades: number;
@@ -155,7 +154,7 @@ export default function Diario() {
         }
 
         if (currentUserId) {
-          const urlAPI = `http://172.20.10.3/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const urlAPI = `http://10.0.0.103/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
           const response = await fetch(urlAPI);
           const result = await response.json();
           
@@ -222,7 +221,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://172.20.10.3/DiarioInclusivo/src/app/listar_atividades.php"
+        "http://10.0.0.103/DiarioInclusivo/src/app/listar_atividades.php"
 
       );
       const result = await response.json();
@@ -269,7 +268,7 @@ export default function Diario() {
     try {
       const resposta = await fetch(
 
-        `http://172.20.10.3/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
+        `http://10.0.0.103/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
 
       );
       const resultado = await resposta.json();
@@ -328,7 +327,7 @@ export default function Diario() {
       };
 
     const response = await fetch(
-        `http://172.20.10.3/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
+        `http://10.0.0.103/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
 
         {
           method: "POST",
@@ -397,7 +396,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://172.20.10.3/DiarioInclusivo/src/app/criar_diario.php",
+        "http://10.0.0.103/DiarioInclusivo/src/app/criar_diario.php",
 
         {
           method: "POST",
@@ -448,7 +447,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        `http://172.20.10.3/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://10.0.0.103/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
 
       );
       const result = await response.json();

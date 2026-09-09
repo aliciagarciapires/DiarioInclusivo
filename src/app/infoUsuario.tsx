@@ -3,15 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -85,8 +85,7 @@ export default function InfoUsuario() {
             return;
           }
 
-          const response = await fetch(`http://172.20.10.3/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
-          const response = await fetch(`http://172.20.10.3/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
+          const response = await fetch(`http://10.0.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
 
           const json = await response.json();
 
@@ -139,8 +138,7 @@ export default function InfoUsuario() {
     try {
       setSalvando(true);
 
-      const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/updateUsuario.php", {
-      const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/updateUsuario.php", {
+      const response = await fetch("http://10.0.0.103/DiarioInclusivo/src/app/updateUsuario.php", {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -198,8 +196,7 @@ export default function InfoUsuario() {
 
       const response = await fetch(
 
-        `http://172.20.10.3/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
-        `http://172.20.10.3/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
+        `http://10.0.0.103/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
 
         { method: "GET" }
       );

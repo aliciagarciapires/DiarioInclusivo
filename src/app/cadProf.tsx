@@ -3,15 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
@@ -64,9 +64,8 @@ export default function CadProf() {
 
     // 4. Envio para o Backend
     try {
-      const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/cadProf.php",
-      const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/cadProf.php",
-
+      const response = await fetch(
+        "http://10.0.0.103/DiarioInclusivo/src/app/cadProf.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

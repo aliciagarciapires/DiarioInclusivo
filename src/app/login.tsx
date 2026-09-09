@@ -56,7 +56,7 @@ export default function Login() {
 
         try {
 
-            const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/login.php", {
+            const response = await fetch("http://10.0.0.103/DiarioInclusivo/src/app/login.php", {
 
                 method: "POST",
                 headers: {

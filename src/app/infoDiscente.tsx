@@ -3,16 +3,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
@@ -90,8 +90,8 @@ export default function InfoDiscente() {
 
       // 1. Busca todos os responsáveis disponíveis na base
 
-      const resResp = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/buscar_responsaveis.php");
-      const resResp = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/buscar_responsaveis.php");
+      const resResp = await fetch("http://10.0.0.103/DiarioInclusivo/src/app/buscar_responsaveis.php");
+  
 
       const dadosResp = await resResp.json();
       const listaCompleta: Responsavel[] = Array.isArray(dadosResp) ? dadosResp : [];
@@ -99,8 +99,7 @@ export default function InfoDiscente() {
 
       // 2. Busca dados do discente
 
-      const response = await fetch(`http://172.20.10.3/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
-      const response = await fetch(`http://172.20.10.3/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+      const response = await fetch(`http://10.0.0.103/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
 
       const json = await response.json();
 
@@ -249,8 +248,7 @@ export default function InfoDiscente() {
       }
 
 
-      const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/updateDiscente.php", {
-      const response = await fetch("http://172.20.10.3/DiarioInclusivo/src/app/updateDiscente.php", {
+      const response = await fetch("http://10.0.0.103/DiarioInclusivo/src/app/updateDiscente.php", {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -301,8 +299,7 @@ export default function InfoDiscente() {
 
       const response = await fetch(
 
-        `http://172.20.10.3/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
-        `http://172.20.10.3/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
+        `http://10.0.0.103/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
 
         { method: "DELETE" }
       );

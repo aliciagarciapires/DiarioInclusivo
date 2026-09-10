@@ -65,7 +65,7 @@ export default function CadProf() {
     // 4. Envio para o Backend
     try {
       const response = await fetch(
-        "http://172.20.10.4/DiarioInclusivo/src/app/cadProf.php",
+        "https://diarioinclusivo.linceonline.com.br/cadProf.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

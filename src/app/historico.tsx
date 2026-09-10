@@ -94,7 +94,7 @@ export default function HistoricoScreen() {
       }
 
       setCarregando(true);
-      const url = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscenteSelecionado}`;
+      const url = `https://diarioinclusivo.linceonline.com.br/listar_diario.php?idDiscente=${idDiscenteSelecionado}`;
       
       const resposta = await fetch(url);
       const textoPuro = await resposta.text();
@@ -145,7 +145,7 @@ export default function HistoricoScreen() {
 
   const buscarAtividadesDoBanco = async () => {
     try {
-      const url = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_atividades.php`;
+      const url = `https://diarioinclusivo.linceonline.com.br/listar_atividades.php`;
       const resposta = await fetch(url);
       const textoPuro = await resposta.text();
       const json = JSON.parse(textoPuro);
@@ -174,7 +174,7 @@ export default function HistoricoScreen() {
 
   const excluirHistorico = async (idDiario: number) => {
     try {
-      const response = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/deleteHistorico.php`, {
+      const response = await fetch(`https://diarioinclusivo.linceonline.com.br/deleteHistorico.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idDiario }),
@@ -345,7 +345,7 @@ export default function HistoricoScreen() {
         atividades: atividadesParaSalvar,
       };
 
-      const response = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/update_diario.php`, {
+      const response = await fetch(`https://diarioinclusivo.linceonline.com.br/update_diario.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(corpoRequisicao),

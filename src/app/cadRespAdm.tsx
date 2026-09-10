@@ -75,7 +75,7 @@ export default function CadResp() {
 
         try {
 
-            const response = await fetch("http://172.20.10.4/DiarioInclusivo/src/app/cadResp.php", {
+            const response = await fetch("https://diarioinclusivo.linceonline.com.br/cadResp.php", {
 
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -105,7 +105,7 @@ export default function CadResp() {
     // Nova função para cadastrar a solicitação do Administrador
     const enviarCadastro = async () => {
 
-            const urlAPI = 'http://172.20.10.4/DiarioInclusivo/src/app/cadAdm.php'; // Substitua pelo seu IP e pasta
+            const urlAPI = 'https://diarioinclusivo.linceonline.com.br/cadAdm.php'; // Substitua pelo seu IP e pasta
 
   try {
     const resposta = await fetch(urlAPI, {

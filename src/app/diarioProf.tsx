@@ -154,7 +154,7 @@ export default function Diario() {
         }
 
         if (currentUserId) {
-          const urlAPI = `http://172.20.10.4/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const urlAPI = `https://diarioinclusivo.linceonline.com.br/listar_discentes_professor.php?idUsuario=${currentUserId}`;
           const response = await fetch(urlAPI);
           const result = await response.json();
           
@@ -221,7 +221,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://172.20.10.4/DiarioInclusivo/src/app/listar_atividades.php"
+        "https://diarioinclusivo.linceonline.com.br/listar_atividades.php"
 
       );
       const result = await response.json();
@@ -268,7 +268,7 @@ export default function Diario() {
     try {
       const resposta = await fetch(
 
-        `http://172.20.10.4/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
+        `https://diarioinclusivo.linceonline.com.br/listar_rotina.php?idUsuario=${idUsuario}`
 
       );
       const resultado = await resposta.json();
@@ -327,7 +327,7 @@ export default function Diario() {
       };
 
     const response = await fetch(
-        `http://172.20.10.4/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
+        `https://diarioinclusivo.linceonline.com.br/sincronizar_rotina_diario.php`,
 
         {
           method: "POST",
@@ -396,7 +396,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://172.20.10.4/DiarioInclusivo/src/app/criar_diario.php",
+        "https://diarioinclusivo.linceonline.com.br/criar_diario.php",
 
         {
           method: "POST",
@@ -446,7 +446,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        `http://172.20.10.4/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `https://diarioinclusivo.linceonline.com.br/listar_diario.php?idDiscente=${idDiscente}`
 
       );
       const result = await response.json();

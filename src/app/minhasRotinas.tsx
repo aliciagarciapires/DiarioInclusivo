@@ -74,7 +74,7 @@ export default function VisualizarRotina() {
   const carregarRotinasDoBanco = async (idUser: string) => {
     try {
       setCarregando(true);
-      const URL_API = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUser}&t=${new Date().getTime()}`;
+      const URL_API = `https://diarioinclusivo.linceonline.com.br/listar_rotina.php?idUsuario=${idUser}&t=${new Date().getTime()}`;
 
       const resposta = await fetch(URL_API);
       const resultado = await resposta.json();
@@ -93,7 +93,7 @@ export default function VisualizarRotina() {
 
   const carregarAtividadesMaster = async () => {
     try {
-      const URL_MASTER = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php?t=${new Date().getTime()}`;
+      const URL_MASTER = `https://diarioinclusivo.linceonline.com.br/buscarAtividades.php?t=${new Date().getTime()}`;
       const resposta = await fetch(URL_MASTER);
       const dados = await resposta.json();
 
@@ -149,7 +149,7 @@ export default function VisualizarRotina() {
           onPress: async () => {
             try {
               const resposta = await fetch(
-                `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/deletar_rotina.php`,
+                `https://diarioinclusivo.linceonline.com.br/deletar_rotina.php`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -269,7 +269,7 @@ export default function VisualizarRotina() {
         atividades: atividadesFormatadas,
       };
 
-      const URL_UPDATE = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/updateRotina.php`;
+      const URL_UPDATE = `https://diarioinclusivo.linceonline.com.br/updateRotina.php`;
 
       const resposta = await fetch(URL_UPDATE, {
         method: "POST",

@@ -14,7 +14,7 @@ export default function Configuracoes() {
         const idSalvo = await AsyncStorage.getItem("idUsuario");
         if (idSalvo) {
 
-          const response = await fetch(`http://172.20.10.4/DiarioInclusivo/src/app/getUsuario.php?id=${idSalvo}`);
+          const response = await fetch(`https://diarioinclusivo.linceonline.com.br/getUsuario.php?id=${idSalvo}`);
 
           const json = await response.json();
           

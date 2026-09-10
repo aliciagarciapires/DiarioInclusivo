@@ -21,7 +21,7 @@ export default function DiscenteResp() {
     }
 
 
-    const url = `http://172.20.10.4/DiarioInclusivo/src/app/discenteResp.php?idResp=${idUsuarioLogado}`;
+    const url = `https://diarioinclusivo.linceonline.com.br/discenteResp.php?idResp=${idUsuarioLogado}`;
 
     console.log("URL chamada:", url);
 

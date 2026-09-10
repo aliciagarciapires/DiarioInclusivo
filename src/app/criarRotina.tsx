@@ -81,7 +81,7 @@ export default function CriarRotina() {
   useEffect(() => {
     async function carregarAtividadesBanco() {
       try {
-        const resposta = await fetch(`http://${IP_SERVIDOR}/DiarioInclusivo/src/app/buscarAtividades.php`);
+        const resposta = await fetch(`https://diarioinclusivo.linceonline.com.br/buscarAtividades.php`);
         const dados = await resposta.json();
         if (dados && Array.isArray(dados)) {
           setListaMaster(dados);
@@ -179,7 +179,7 @@ export default function CriarRotina() {
         horas_finais: ativ.fim.toLocaleTimeString([], { hour12: false })
       }));
 
-      const URL_SALVAR = `http://${IP_SERVIDOR}/DiarioInclusivo/src/app/salvar_rotina.php`;
+      const URL_SALVAR = `https://diarioinclusivo.linceonline.com.br/salvar_rotina.php`;
 
       const resposta = await fetch(URL_SALVAR, {
         method: 'POST',

@@ -85,7 +85,7 @@ export default function InfoUsuario() {
             return;
           }
 
-          const response = await fetch(`http://172.20.10.4/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
+          const response = await fetch(`https://diarioinclusivo.linceonline.com.br/getUsuario.php?id=${idFinal}`);
 
           const json = await response.json();
 
@@ -138,7 +138,7 @@ export default function InfoUsuario() {
     try {
       setSalvando(true);
 
-      const response = await fetch("http://172.20.10.4/DiarioInclusivo/src/app/updateUsuario.php", {
+      const response = await fetch("https://diarioinclusivo.linceonline.com.br/updateUsuario.php", {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -196,7 +196,7 @@ export default function InfoUsuario() {
 
       const response = await fetch(
 
-        `http://172.20.10.4/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
+        `https://diarioinclusivo.linceonline.com.br/deleteUsuario.php?id=${idParaDeletar}`,
 
         { method: "GET" }
       );

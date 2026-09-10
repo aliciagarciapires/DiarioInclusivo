@@ -35,10 +35,9 @@ export default function Discente() {
       // Usamos trim() por garantia, para remover espaços em branco invisíveis
       if (tipoLogado && String(tipoLogado).trim() === "2") {
 
-        url = "http://172.20.10.4/DiarioInclusivo/src/app/discenteAdm.php";
+        url = "https://diarioinclusivo.linceonline.com.br/discenteAdm.php";
       } else {
-        url = `http://172.20.10.4/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`;
-
+        url = `https://diarioinclusivo.linceonline.com.br/discente.php?idUsuario=${idUsuarioLogado}`;
       }
 
       const response = await fetch(url);

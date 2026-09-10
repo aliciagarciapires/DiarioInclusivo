@@ -56,7 +56,7 @@ export default function Login() {
 
         try {
 
-            const response = await fetch("http://172.20.10.4/DiarioInclusivo/src/app/login.php", {
+            const response = await fetch("https://diarioinclusivo.linceonline.com.br/login.php", {
 
                 method: "POST",
                 headers: {

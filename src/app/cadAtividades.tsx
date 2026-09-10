@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function CadAtividade() {
   const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'http://10.0.0.103/criar_atividade.php';
+  const API_URL = 'http://192.168.0.107/criar_atividade.php';
 
 
   const handleCadastrar = async () => {
     if (!novoNomeAtividade.trim()) {
-      Alert.alert('Atenção', 'Por favor, digite o nome da atividade.');
+      Alert.alert('AtenÃ§Ã£o', 'Por favor, digite o nome da atividade.');
       return;
     }
 
@@ -31,13 +31,13 @@ export default function CadAtividade() {
 
       if (data.sucesso) {
         Alert.alert('Sucesso!', data.mensagem);
-        setNovoNomeAtividade(''); // Limpa o campo após cadastrar
+        setNovoNomeAtividade(''); // Limpa o campo apÃ³s cadastrar
       } else {
-        Alert.alert('Erro', data.mensagem || 'Não foi possível cadastrar.');
+        Alert.alert('Erro', data.mensagem || 'NÃ£o foi possÃ­vel cadastrar.');
       }
     } catch (error) {
-      console.error('Erro na requisição:', error);
-      Alert.alert('Erro de Conexão', 'Não foi possível conectar ao servidor backend.');
+      console.error('Erro na requisiÃ§Ã£o:', error);
+      Alert.alert('Erro de ConexÃ£o', 'NÃ£o foi possÃ­vel conectar ao servidor backend.');
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export default function CadAtividade() {
       <Text style={styles.label}>Nome da Atividade:</Text>
       <TextInput
         style={styles.input}
-        placeholder="Ex: Leitura de Histórias, Pintura..."
+        placeholder="Ex: Leitura de HistÃ³rias, Pintura..."
         value={novoNomeAtividade}
         onChangeText={setNovoNomeAtividade}
         editable={!loading}

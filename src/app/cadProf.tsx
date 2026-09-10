@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+﻿import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -24,17 +24,17 @@ export default function CadProf() {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  // Estados para alternar a exibição da senha
+  // Estados para alternar a exibiÃ§Ã£o da senha
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
-  // Trata o e-mail removendo todos os espaços e transformando em minúsculas em tempo real
+  // Trata o e-mail removendo todos os espaÃ§os e transformando em minÃºsculas em tempo real
   const tratarEmailInput = (texto: string) => {
     const emailFormatado = texto.toLowerCase().replace(/\s+/g, "");
     setEmail(emailFormatado);
   };
 
-  // Validação do formato de e-mail por regex
+  // ValidaÃ§Ã£o do formato de e-mail por regex
   const validarEmail = (emailParaTestar: string) => {
     const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regexEmail.test(emailParaTestar);
@@ -44,28 +44,28 @@ export default function CadProf() {
     const emailTratado = email.toLowerCase().replace(/\s+/g, "");
     const nomeTratado = nome.trim();
 
-    // 1. Validação básica
+    // 1. ValidaÃ§Ã£o bÃ¡sica
     if (!nomeTratado || !emailTratado || !senha || !confirmarSenha) {
       Alert.alert("Erro", "Preencha todos os campos");
       return;
     }
 
-    // 2. Validação de E-mail
+    // 2. ValidaÃ§Ã£o de E-mail
     if (!validarEmail(emailTratado)) {
-      Alert.alert("Erro", "Por favor, digite um e-mail válido");
+      Alert.alert("Erro", "Por favor, digite um e-mail vÃ¡lido");
       return;
     }
 
-    // 3. Validação de Senha
+    // 3. ValidaÃ§Ã£o de Senha
     if (senha !== confirmarSenha) {
-      Alert.alert("Erro", "As senhas não coincidem");
+      Alert.alert("Erro", "As senhas nÃ£o coincidem");
       return;
     }
 
     // 4. Envio para o Backend
     try {
       const response = await fetch(
-        "http://10.0.0.103/DiarioInclusivo/src/app/cadProf.php",
+        "http://192.168.0.107/DiarioInclusivo/src/app/cadProf.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -90,7 +90,7 @@ export default function CadProf() {
         Alert.alert("Erro do Servidor", data.message || "Erro ao cadastrar.");
       }
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível conectar ao servidor");
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel conectar ao servidor");
     }
   };
 
@@ -112,7 +112,7 @@ export default function CadProf() {
             />
           </View>
 
-          {/** FORMULÁRIO */}
+          {/** FORMULÃRIO */}
           <View style={styles.form}>
             <Text style={styles.title}>Cadastro do Professor</Text>
 
@@ -191,7 +191,7 @@ export default function CadProf() {
       </ScrollView>
 
       <Footer>
-        <Text style={styles.textoRodape}>Diário Inclusivo.</Text>
+        <Text style={styles.textoRodape}>DiÃ¡rio Inclusivo.</Text>
       </Footer>
     </KeyboardAvoidingView>
   );

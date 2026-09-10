@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+﻿import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -22,7 +22,7 @@ export default function CadResp() {
 
     const [tipoConta, setTipoConta] = useState("1"); 
     
-    // Estados Responsável
+    // Estados ResponsÃ¡vel
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [telefone, setTelefone] = useState("");
@@ -39,7 +39,7 @@ export default function CadResp() {
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
-    // Tratamento e validação de e-mail
+    // Tratamento e validaÃ§Ã£o de e-mail
     const tratarEmail = (text: string, setter: (val: string) => void) => {
         setter(text.trim().toLowerCase());
     };
@@ -49,7 +49,7 @@ export default function CadResp() {
         return regexEmail.test(emailParaTestar);
     };
 
-    // Máscara de telefone
+    // MÃ¡scara de telefone
     const aplicarMascaraTelefone = (text: string) => {
         const limpo = text.replace(/\D/g, "");
         let formatado = limpo;
@@ -69,13 +69,13 @@ export default function CadResp() {
 
     const cadastrarResponsavel = async () => {
         if (email && !validarEmail(email)) {
-            Alert.alert("Aviso", "Por favor, insira um e-mail válido.");
+            Alert.alert("Aviso", "Por favor, insira um e-mail vÃ¡lido.");
             return;
         }
 
         try {
 
-            const response = await fetch("http://10.0.0.103/DiarioInclusivo/src/app/cadResp.php", {
+            const response = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/cadResp.php", {
 
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -98,14 +98,14 @@ export default function CadResp() {
             }
             
         } catch (error) {
-            Alert.alert("Erro", "Falha na conexão.");
+            Alert.alert("Erro", "Falha na conexÃ£o.");
         }
     };
 
-    // Nova função para cadastrar a solicitação do Administrador
+    // Nova funÃ§Ã£o para cadastrar a solicitaÃ§Ã£o do Administrador
     const enviarCadastro = async () => {
 
-            const urlAPI = 'http://10.0.0.103/DiarioInclusivo/src/app/cadAdm.php'; // Substitua pelo seu IP e pasta
+            const urlAPI = 'http://192.168.0.107/DiarioInclusivo/src/app/cadAdm.php'; // Substitua pelo seu IP e pasta
 
   try {
     const resposta = await fetch(urlAPI, {
@@ -115,8 +115,8 @@ export default function CadResp() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        nome_escola: nomeEscola,             // Certifique-se de que estas variáveis
-        email_institucional: emailInst,       // têm conteúdo preenchido nos inputs
+        nome_escola: nomeEscola,             // Certifique-se de que estas variÃ¡veis
+        email_institucional: emailInst,       // tÃªm conteÃºdo preenchido nos inputs
         email_adm: emailAdm,
         senha_adm: senhaAdm,
       }),
@@ -135,7 +135,7 @@ export default function CadResp() {
 
   } catch (erro) {
     console.error("Erro detalhado do fetch:", erro);
-    alert("Falha na conexão. Verifique se o IP " + urlAPI + " está acessível.");
+    alert("Falha na conexÃ£o. Verifique se o IP " + urlAPI + " estÃ¡ acessÃ­vel.");
   }
 };
 
@@ -160,7 +160,7 @@ export default function CadResp() {
                     </View>
                     
                     <Text style={styles.subtitulo}>
-                        Selecione a opção de cadastro
+                        Selecione a opÃ§Ã£o de cadastro
                     </Text>
 
                     <View style={styles.selectContainer}>
@@ -168,7 +168,7 @@ export default function CadResp() {
                             style={[styles.botaoSelect, tipoConta === "1" && styles.botaoAtivo]} 
                             onPress={() => setTipoConta("1")}
                         > 
-                            <Text style={styles.textoSelect}>Responsável</Text>
+                            <Text style={styles.textoSelect}>ResponsÃ¡vel</Text>
                         </Pressable>
 
                         <Pressable 
@@ -254,12 +254,12 @@ export default function CadResp() {
                     ) : ( 
                         <View style={styles.form}>
                             <Text style={styles.subtitulo2}>
-                                Preencha os campos abaixo para nos enviar a solicitação de cadastro para a equipe do Diário Inclusivo.
+                                Preencha os campos abaixo para nos enviar a solicitaÃ§Ã£o de cadastro para a equipe do DiÃ¡rio Inclusivo.
                             </Text>
                             
                             <Text style={styles.textoInput}>Nome da Escola:</Text>
                             <Input 
-                                placeholder="Nome da Instituição" 
+                                placeholder="Nome da InstituiÃ§Ã£o" 
                                 placeholderTextColor="#0b8cbfd1" 
                                 value={nomeEscola}
                                 onChangeText={setNomeEscola}
@@ -309,13 +309,13 @@ export default function CadResp() {
                             </View>
 
                             <View style={styles.botaoContainer}>
-                                <Button label="Enviar Solicitação" onPress={enviarCadastro} />
+                                <Button label="Enviar SolicitaÃ§Ã£o" onPress={enviarCadastro} />
                             </View>
                         </View>
                     )}
 
                     <View style={styles.loginContainer}>
-                        <Text style={styles.textoJaTemConta}>Já tem uma conta? </Text>
+                        <Text style={styles.textoJaTemConta}>JÃ¡ tem uma conta? </Text>
                         <Pressable onPress={() => router.push("/login")}>
                             <Text style={styles.textoEntrar}>Entrar</Text>
                         </Pressable>
@@ -324,7 +324,7 @@ export default function CadResp() {
                 </View>
             </ScrollView>
             <Footer>
-                <Text style={styles.textoRodape}>Diário Inclusivo.</Text>
+                <Text style={styles.textoRodape}>DiÃ¡rio Inclusivo.</Text>
             </Footer>
         </KeyboardAvoidingView>
     );

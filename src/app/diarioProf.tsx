@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+﻿import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -52,14 +52,14 @@ export default function Diario() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  // Estados para seleção do Discente
+  // Estados para seleÃ§Ã£o do Discente
   const [discentes, setDiscentes] = useState<Discente[]>([]);
   const [idDiscente, setIdDiscente] = useState<number | null>(
     params.idDiscente ? Number(params.idDiscente) : null
   );
   const [modalSelecaoDiscenteVisivel, setModalSelecaoDiscenteVisivel] = useState(false);
 
-  // ID do usuário logado
+  // ID do usuÃ¡rio logado
   const [idUsuario, setIdUsuario] = useState<number | null>(null);
 
   // Estados dos Modais
@@ -67,7 +67,7 @@ export default function Diario() {
   const [modalHistoricoVisivel, setModalHistoricoVisivel] = useState(false);
   const [modalAtividadesVisivel, setModalAtividadesVisivel] = useState(false);
 
-  // Estados do Calendário Dinâmico
+  // Estados do CalendÃ¡rio DinÃ¢mico
   const [dataAtual, setDataAtual] = useState(new Date());
   const [diaSelecionado, setDiaSelecionado] = useState<number>(new Date().getDate());
 
@@ -78,7 +78,7 @@ export default function Diario() {
   const [carregandoAtividades, setCarregandoAtividades] = useState(false);
   const [erroAtividades, setErroAtividades] = useState(false);
 
-  // Demais estados do formulário de Entrada
+  // Demais estados do formulÃ¡rio de Entrada
   const [data, setData] = useState("");
   const [horaInicial, setHoraInicial] = useState("");
   const [horaFinal, setHoraFinal] = useState("");
@@ -99,7 +99,7 @@ export default function Diario() {
   const [obsRotina, setObsRotina] = useState("");
   const [loadingRotina, setLoadingRotina] = useState(false);
 
-  // Funções para capturar IDs e Nomes independentemente da nomenclatura do banco/PHP
+  // FunÃ§Ãµes para capturar IDs e Nomes independentemente da nomenclatura do banco/PHP
   const obterIdDiscente = (aluno: any) => {
     if (!aluno) return 0;
     return aluno.idDiscente ?? aluno.id_discente ?? aluno.id ?? aluno.codigo ?? aluno.id_aluno ?? 0;
@@ -109,7 +109,7 @@ export default function Diario() {
     console.log("-> ID DISCENTE CLICADO NA TELA ANTERIOR:", idDiscente); 
 
     if (!idDiscente) {
-      Alert.alert("Atenção", "Selecione um discente para consultar o histórico.");
+      Alert.alert("AtenÃ§Ã£o", "Selecione um discente para consultar o histÃ³rico.");
       return;
     }
 
@@ -121,11 +121,11 @@ export default function Diario() {
   };
 
   const obterNomeDiscente = (aluno: any) => {
-    if (!aluno) return "Nome não encontrado";
-    return aluno.nome ?? aluno.nomeDiscente ?? aluno.nome_discente ?? aluno.aluno ?? "Nome não encontrado";
+    if (!aluno) return "Nome nÃ£o encontrado";
+    return aluno.nome ?? aluno.nomeDiscente ?? aluno.nome_discente ?? aluno.aluno ?? "Nome nÃ£o encontrado";
   };
 
-  // Carrega o Usuário Logado e a lista de Discentes vinculados de forma totalmente blindada
+  // Carrega o UsuÃ¡rio Logado e a lista de Discentes vinculados de forma totalmente blindada
   useEffect(() => {
     const carregarInicial = async () => {
       try {
@@ -154,7 +154,7 @@ export default function Diario() {
         }
 
         if (currentUserId) {
-          const urlAPI = `http://10.0.0.103/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const urlAPI = `http://192.168.0.107/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
           const response = await fetch(urlAPI);
           const result = await response.json();
           
@@ -182,7 +182,7 @@ export default function Diario() {
     carregarAtividades();
   }, []);
 
-  // Preenche a data do formulário ao clicar em um dia do calendário
+  // Preenche a data do formulÃ¡rio ao clicar em um dia do calendÃ¡rio
   const selecionarDiaCalendario = (dia: number) => {
     setDiaSelecionado(dia);
     const mesFormatado = String(dataAtual.getMonth() + 1).padStart(2, "0");
@@ -221,7 +221,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://10.0.0.103/DiarioInclusivo/src/app/listar_atividades.php"
+        "http://192.168.0.107/DiarioInclusivo/src/app/listar_atividades.php"
 
       );
       const result = await response.json();
@@ -260,7 +260,7 @@ export default function Diario() {
 
   const handleAbrirModalSincronizarRotina = async () => {
     if (!idDiscente) {
-      Alert.alert("Atenção", "Selecione um discente antes de sincronizar a rotina.");
+      Alert.alert("AtenÃ§Ã£o", "Selecione um discente antes de sincronizar a rotina.");
       return;
     }
 
@@ -268,7 +268,7 @@ export default function Diario() {
     try {
       const resposta = await fetch(
 
-        `http://10.0.0.103/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
+        `http://192.168.0.107/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
 
       );
       const resultado = await resposta.json();
@@ -280,7 +280,7 @@ export default function Diario() {
         Alert.alert("Aviso", "Nenhuma rotina cadastrada encontrada.");
       }
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível carregar as rotinas.");
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel carregar as rotinas.");
     } finally {
       setLoadingRotina(false);
     }
@@ -303,11 +303,11 @@ export default function Diario() {
 
   const handleSalvarSincronizacaoRotina = async () => {
     if (!dataRotina) {
-      Alert.alert("Atenção", "Por favor, preencha a data.");
+      Alert.alert("AtenÃ§Ã£o", "Por favor, preencha a data.");
       return;
     }
     if (!rotinaSelecionada || atividadesRotinaEditavel.length === 0) {
-      Alert.alert("Atenção", "Selecione uma rotina com atividades.");
+      Alert.alert("AtenÃ§Ã£o", "Selecione uma rotina com atividades.");
       return;
     }
 
@@ -327,7 +327,7 @@ export default function Diario() {
       };
 
     const response = await fetch(
-        `http://10.0.0.103/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
+        `http://192.168.0.107/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
 
         {
           method: "POST",
@@ -348,7 +348,7 @@ export default function Diario() {
         Alert.alert("Erro", result.mensagem);
       }
     } catch (error) {
-      Alert.alert("Erro de Conexão", "Não foi possível sincronizar a rotina.");
+      Alert.alert("Erro de ConexÃ£o", "NÃ£o foi possÃ­vel sincronizar a rotina.");
     } finally {
       setLoadingRotina(false);
     }
@@ -380,15 +380,15 @@ export default function Diario() {
 
   const handleSalvarDiario = async () => {
     if (!idDiscente) {
-      Alert.alert("Atenção", "Selecione um discente antes de criar o registro.");
+      Alert.alert("AtenÃ§Ã£o", "Selecione um discente antes de criar o registro.");
       return;
     }
     if (!idAtividades) {
-      Alert.alert("Atenção", "Por favor, selecione uma atividade.");
+      Alert.alert("AtenÃ§Ã£o", "Por favor, selecione uma atividade.");
       return;
     }
     if (!data || data.length < 10) {
-      Alert.alert("Atenção", "Por favor, digite a data completa (DD/MM/AAAA).");
+      Alert.alert("AtenÃ§Ã£o", "Por favor, digite a data completa (DD/MM/AAAA).");
       return;
     }
 
@@ -396,7 +396,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "http://10.0.0.103/DiarioInclusivo/src/app/criar_diario.php",
+        "http://192.168.0.107/DiarioInclusivo/src/app/criar_diario.php",
 
         {
           method: "POST",
@@ -431,7 +431,7 @@ export default function Diario() {
         Alert.alert("Erro", result.mensagem);
       }
     } catch (error) {
-      Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
+      Alert.alert("Erro de ConexÃ£o", "NÃ£o foi possÃ­vel conectar ao servidor.");
     } finally {
       setLoading(false);
     }
@@ -439,7 +439,7 @@ export default function Diario() {
 
   const handleBuscarHistorico = async () => {
     if (!idDiscente) {
-      Alert.alert("Atenção", "Selecione um discente para consultar o histórico.");
+      Alert.alert("AtenÃ§Ã£o", "Selecione um discente para consultar o histÃ³rico.");
       return;
     }
 
@@ -447,7 +447,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        `http://10.0.0.103/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
+        `http://192.168.0.107/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
 
       );
       const result = await response.json();
@@ -456,17 +456,17 @@ export default function Diario() {
         setDiarios(result.dados);
         setModalHistoricoVisivel(true);
       } else {
-        Alert.alert("Erro", result.mensagem || "Erro ao carregar histórico.");
+        Alert.alert("Erro", result.mensagem || "Erro ao carregar histÃ³rico.");
       }
     } catch (error) {
-      Alert.alert("Erro de Conexão", "Não foi possível buscar o histórico.");
+      Alert.alert("Erro de ConexÃ£o", "NÃ£o foi possÃ­vel buscar o histÃ³rico.");
     } finally {
       setLoadingHistorico(false);
     }
   };
 
   const mesesAno = [
-    "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
+    "JANEIRO", "FEVEREIRO", "MARÃ‡O", "ABRIL", "MAIO", "JUNHO",
     "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
   ];
 
@@ -477,7 +477,7 @@ export default function Diario() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text>
+          <Text style={{ fontSize: 24, color: "#2F1CA6" }}>â†</Text>
         </TouchableOpacity>
         
         <View style={styles.navegacaoMes}>
@@ -502,11 +502,11 @@ export default function Diario() {
               ? obterNomeDiscente(discentes.find((d) => obterIdDiscente(d) === idDiscente))
               : "Selecione um Aluno..."}
           </Text>
-          <Text style={{ color: "#2F1CA6", fontSize: 12 }}>▼</Text>
+          <Text style={{ color: "#2F1CA6", fontSize: 12 }}>â–¼</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Modal Seguro para Seleção do Discente */}
+      {/* Modal Seguro para SeleÃ§Ã£o do Discente */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -566,7 +566,7 @@ export default function Diario() {
         </View>
       </Modal>
 
-      {/* Calendário Dinâmico */}
+      {/* CalendÃ¡rio DinÃ¢mico */}
       <View style={styles.calendarioContainer}>
         <View style={styles.semanaContainer}>
           {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
@@ -614,13 +614,13 @@ export default function Diario() {
         </View>
       </View>
 
-      {/* Botões de Ação */}
+      {/* BotÃµes de AÃ§Ã£o */}
       <View style={styles.botoesAcaoContainer}>
         <Pressable
           style={[styles.botaoAcao, styles.botaoRoxo]}
           onPress={() => {
             if (!idDiscente) {
-              Alert.alert("Atenção", "Selecione um discente antes de abrir uma nova entrada.");
+              Alert.alert("AtenÃ§Ã£o", "Selecione um discente antes de abrir uma nova entrada.");
               return;
             }
             setModalVisivel(true);
@@ -645,7 +645,7 @@ export default function Diario() {
         disabled={loadingHistorico}
       >
         <Text style={styles.botaoAcaoTexto}>
-          {loadingHistorico ? "Carregando..." : "Histórico"}
+          {loadingHistorico ? "Carregando..." : "HistÃ³rico"}
         </Text>
       </Pressable>
       </View>
@@ -665,7 +665,7 @@ export default function Diario() {
             >
               <View style={styles.modalContent}>
                 <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                  <Text style={styles.modalTitulo}>Nova Entrada no Diário</Text>
+                  <Text style={styles.modalTitulo}>Nova Entrada no DiÃ¡rio</Text>
 
                   <TouchableOpacity
                     style={styles.seletorAtividade}
@@ -694,7 +694,7 @@ export default function Diario() {
                   <View style={styles.horasRow}>
                     <TextInput
                       style={[styles.input, styles.inputMetade]}
-                      placeholder="Início (08:00)"
+                      placeholder="InÃ­cio (08:00)"
                       placeholderTextColor="#888"
                       value={horaInicial}
                       onChangeText={(text) => handleHoraChange(text, setHoraInicial)}
@@ -713,7 +713,7 @@ export default function Diario() {
                   </View>
 
                   <Text style={styles.labelAvaliacao}>
-                    Avaliação do desempenho (1 a 5):
+                    AvaliaÃ§Ã£o do desempenho (1 a 5):
                   </Text>
                   <View style={styles.notasContainer}>
                     {[1, 2, 3, 4, 5].map((num) => (
@@ -739,7 +739,7 @@ export default function Diario() {
 
                   <TextInput
                     style={[styles.input, styles.textArea]}
-                    placeholder="Observações do professor..."
+                    placeholder="ObservaÃ§Ãµes do professor..."
                     placeholderTextColor="#888"
                     value={complemento}
                     onChangeText={setComplemento}
@@ -787,7 +787,7 @@ export default function Diario() {
               <Text style={styles.textoVazio}>Carregando atividades...</Text>
             ) : erroAtividades ? (
               <TouchableOpacity onPress={carregarAtividades}>
-                <Text style={styles.textoVazio}>Não foi possível carregar. Toque para tentar novamente.</Text>
+                <Text style={styles.textoVazio}>NÃ£o foi possÃ­vel carregar. Toque para tentar novamente.</Text>
               </TouchableOpacity>
             ) : listaAtividades.length === 0 ? (
               <Text style={styles.textoVazio}>Nenhuma atividade cadastrada.</Text>
@@ -843,7 +843,7 @@ export default function Diario() {
           <View style={styles.modalOverlay}>
             <View style={[styles.modalContent, { maxHeight: "85%" }]}>
               <ScrollView showsVerticalScrollIndicator={false}>
-                <Text style={styles.modalTitulo}>Sincronizar Rotina no Diário</Text>
+                <Text style={styles.modalTitulo}>Sincronizar Rotina no DiÃ¡rio</Text>
 
                 <TextInput
                   style={styles.input}
@@ -892,7 +892,7 @@ export default function Diario() {
                       <View key={idx} style={styles.cardDiario}>
                         <Text style={styles.cardAtividade}>{ativ.nome || `Atividade #${ativ.id}`}</Text>
                         <Text style={styles.cardHorario}>
-                          Horário: {ativ.inicio} - {ativ.fim}
+                          HorÃ¡rio: {ativ.inicio} - {ativ.fim}
                         </Text>
                         <View style={styles.notasContainer}>
                           {[1, 2, 3, 4, 5].map((num) => (
@@ -920,7 +920,7 @@ export default function Diario() {
 
                     <TextInput
                       style={[styles.input, styles.textArea]}
-                      placeholder="Observações da rotina..."
+                      placeholder="ObservaÃ§Ãµes da rotina..."
                       placeholderTextColor="#888"
                       value={obsRotina}
                       onChangeText={setObsRotina}
@@ -969,7 +969,7 @@ export default function Diario() {
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Diário</Text>
+              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
@@ -986,12 +986,12 @@ export default function Diario() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Início</Text>
+              <Text style={styles.tabLabel}>InÃ­cio</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Diário</Text>
+              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+﻿import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -27,33 +27,33 @@ export default function DiarioResp() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  // Estados para seleção/carregamento do Discente (Filho)
+  // Estados para seleÃ§Ã£o/carregamento do Discente (Filho)
   const [discentes, setDiscentes] = useState<Discente[]>([]);
   const [idDiscente, setIdDiscente] = useState<number | null>(
     params.idDiscente ? Number(params.idDiscente) : null
   );
   const [modalSelecaoDiscenteVisivel, setModalSelecaoDiscenteVisivel] = useState(false);
 
-  // ID do usuário logado
+  // ID do usuÃ¡rio logado
   const [idUsuario, setIdUsuario] = useState<number | null>(null);
 
-  // Estados do Calendário Dinâmico
+  // Estados do CalendÃ¡rio DinÃ¢mico
   const [dataAtual, setDataAtual] = useState(new Date());
   const [diaSelecionado, setDiaSelecionado] = useState<number>(new Date().getDate());
 
-  // Funções para capturar IDs e Nomes
+  // FunÃ§Ãµes para capturar IDs e Nomes
   const obterIdDiscente = (aluno: any) => {
     if (!aluno) return 0;
     return aluno.idDiscente ?? aluno.id_discente ?? aluno.id ?? aluno.codigo ?? aluno.id_aluno ?? 0;
   };
 
   const obterNomeDiscente = (aluno: any) => {
-    if (!aluno) return "Nome não encontrado";
-    return aluno.nome ?? aluno.nomeDiscente ?? aluno.nome_discente ?? aluno.aluno ?? "Nome não encontrado";
+    if (!aluno) return "Nome nÃ£o encontrado";
+    return aluno.nome ?? aluno.nomeDiscente ?? aluno.nome_discente ?? aluno.aluno ?? "Nome nÃ£o encontrado";
   };
 
-  // Carrega o usuário logado e busca os discentes (filhos) associados
-// DENTRO DO SEU ARCHIVO DE DIÁRIO DO RESPONSÁVEL:
+  // Carrega o usuÃ¡rio logado e busca os discentes (filhos) associados
+// DENTRO DO SEU ARCHIVO DE DIÃRIO DO RESPONSÃVEL:
 
 useEffect(() => {
   const carregarInicial = async () => {
@@ -73,7 +73,7 @@ useEffect(() => {
         }
       }
 
-      // Recebe o idDiscente se tiver sido passado pela navegação
+      // Recebe o idDiscente se tiver sido passado pela navegaÃ§Ã£o
       const idParam = params.idDiscente || params.id;
       if (idParam) {
         setIdDiscente(Number(idParam));
@@ -82,8 +82,8 @@ useEffect(() => {
       if (currentUserId && !Number.isNaN(currentUserId)) {
         setIdUsuario(currentUserId);
 
-        // CORREÇÃO: Usando o endpoint correto 'discenteResp.php' em vez do de professores
-        const urlAPI = `http://10.0.0.103/DiarioInclusivo/src/app/discenteResp.php?idResp=${currentUserId}`;
+        // CORREÃ‡ÃƒO: Usando o endpoint correto 'discenteResp.php' em vez do de professores
+        const urlAPI = `http://192.168.0.107/DiarioInclusivo/src/app/discenteResp.php?idResp=${currentUserId}`;
         const response = await fetch(urlAPI);
         const result = await response.json();
 
@@ -96,7 +96,7 @@ useEffect(() => {
 
         setDiscentes(listaBruta);
 
-        // Se nenhum ID veio via rota/URL, seleciona o primeiro discente da lista por padrão
+        // Se nenhum ID veio via rota/URL, seleciona o primeiro discente da lista por padrÃ£o
         if (!idParam && listaBruta.length > 0) {
           const primeiroId = obterIdDiscente(listaBruta[0]);
           if (primeiroId) setIdDiscente(primeiroId);
@@ -110,10 +110,10 @@ useEffect(() => {
   carregarInicial();
 }, [params.idDiscente, params.id]);
 
-  // Redireciona para a tela dedicada de histórico passando o ID do discente
+  // Redireciona para a tela dedicada de histÃ³rico passando o ID do discente
   const handleIrParaHistorico = () => {
     if (!idDiscente) {
-      Alert.alert("Atenção", "Selecione um discente para consultar o histórico.");
+      Alert.alert("AtenÃ§Ã£o", "Selecione um discente para consultar o histÃ³rico.");
       return;
     }
 
@@ -123,12 +123,12 @@ useEffect(() => {
     });
   };
 
-  // Seleção de dia no calendário
+  // SeleÃ§Ã£o de dia no calendÃ¡rio
   const selecionarDiaCalendario = (dia: number) => {
     setDiaSelecionado(dia);
   };
 
-  // Geração da grade de dias do mês
+  // GeraÃ§Ã£o da grade de dias do mÃªs
   const gerarGradeCalendario = () => {
     const ano = dataAtual.getFullYear();
     const mes = dataAtual.getMonth();
@@ -150,7 +150,7 @@ useEffect(() => {
   };
 
   const mesesAno = [
-    "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
+    "JANEIRO", "FEVEREIRO", "MARÃ‡O", "ABRIL", "MAIO", "JUNHO",
     "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
   ];
 
@@ -161,7 +161,7 @@ useEffect(() => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ fontSize: 24, color: "#2F1CA6" }}>←</Text>
+          <Text style={{ fontSize: 24, color: "#2F1CA6" }}>â†</Text>
         </TouchableOpacity>
 
         <View style={styles.navegacaoMes}>
@@ -186,11 +186,11 @@ useEffect(() => {
               ? obterNomeDiscente(discentes.find((d) => obterIdDiscente(d) === idDiscente))
               : "Selecione um Aluno..."}
           </Text>
-          <Text style={{ color: "#2F1CA6", fontSize: 12 }}>▼</Text>
+          <Text style={{ color: "#2F1CA6", fontSize: 12 }}>â–¼</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Modal para Seleção do Discente */}
+      {/* Modal para SeleÃ§Ã£o do Discente */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -250,7 +250,7 @@ useEffect(() => {
         </View>
       </Modal>
 
-      {/* Calendário Dinâmico */}
+      {/* CalendÃ¡rio DinÃ¢mico */}
       <View style={styles.calendarioContainer}>
         <View style={styles.semanaContainer}>
           {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, i) => (
@@ -298,17 +298,17 @@ useEffect(() => {
         </View>
       </View>
 
-      {/* Botão de Ação Único para o Responsável */}
+      {/* BotÃ£o de AÃ§Ã£o Ãšnico para o ResponsÃ¡vel */}
       <View style={styles.botoesAcaoContainer}>
         <Pressable
           style={[styles.botaoAcao, styles.botaoAzul]}
           onPress={handleIrParaHistorico}
         >
-          <Text style={styles.botaoAcaoTexto}>Histórico</Text>
+          <Text style={styles.botaoAcaoTexto}>HistÃ³rico</Text>
         </Pressable>
       </View>
 
-      {/* Footer Padrão */}
+      {/* Footer PadrÃ£o */}
       <Footer />
     </View>
   );

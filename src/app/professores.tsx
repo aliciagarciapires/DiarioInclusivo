@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from "expo-router";
+﻿import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
@@ -9,7 +9,7 @@ export default function Professores() {
     const buscarProfessores = async () => {
       try {
 
-    const response = await fetch('http://10.0.0.103/DiarioInclusivo/src/app/professores.php');
+    const response = await fetch('http://192.168.0.107/DiarioInclusivo/src/app/professores.php');
 
     const dados = await response.json();
       setListaProfessores(dados);
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2F1CA6",
     borderRadius: 20,
     paddingHorizontal: 25, // Aumenta a largura das laterais
-    paddingVertical: 12,  // Aumenta a altura do botão
+    paddingVertical: 12,  // Aumenta a altura do botÃ£o
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -167,8 +167,8 @@ const styles = StyleSheet.create({
     resizeMode: "cover" 
   },
   barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    flexDirection: "row",          // Alinha os botÃµes na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaÃ§o entre eles
     alignItems: "center",
     backgroundColor: "#F5F2E8",    
     height: 90,                    
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#F5F2E8",     
     borderTopLeftRadius: 35,       
     borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
+    position: "absolute",          // Fixa no rodapÃ©
     bottom: 0,
     left: 0,
     right: 0,
@@ -196,3 +196,4 @@ const styles = StyleSheet.create({
     marginTop: 35
   },
 });
+

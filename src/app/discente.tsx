@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+﻿import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -6,7 +6,7 @@ import Footer from "../../components/Footer";
 
 export default function Discente() {
   const [listaDiscentes, setListaDiscentes] = useState<any[]>([]);
-  // Estado para guardar qual é o TIPO de usuário (2 = Adm, 3 = Prof)
+  // Estado para guardar qual Ã© o TIPO de usuÃ¡rio (2 = Adm, 3 = Prof)
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
   const buscarDiscentes = async () => {
@@ -19,12 +19,12 @@ export default function Discente() {
       // Tenta pegar o tipo_de_usuario
       let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
       
-      // ESPIÃO: Mostra no terminal o que ele encontrou
-      console.log("ID do usuário logado:", idUsuarioLogado);
-      console.log("Tipo do usuário logado:", tipoLogado);
+      // ESPIÃƒO: Mostra no terminal o que ele encontrou
+      console.log("ID do usuÃ¡rio logado:", idUsuarioLogado);
+      console.log("Tipo do usuÃ¡rio logado:", tipoLogado);
       
       if (!idUsuarioLogado) {
-        console.error("Usuário não autenticado no AsyncStorage.");
+        console.error("UsuÃ¡rio nÃ£o autenticado no AsyncStorage.");
         setListaDiscentes([]);
         return;
       }
@@ -32,12 +32,12 @@ export default function Discente() {
       setTipoUsuario(String(tipoLogado));
 
       let url = "";
-      // Usamos trim() por garantia, para remover espaços em branco invisíveis
+      // Usamos trim() por garantia, para remover espaÃ§os em branco invisÃ­veis
       if (tipoLogado && String(tipoLogado).trim() === "2") {
 
-        url = "http://10.0.0.103/DiarioInclusivo/src/app/discenteAdm.php";
+        url = "http://192.168.0.107/DiarioInclusivo/src/app/discenteAdm.php";
       } else {
-        url = `http://10.0.0.103/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`;
+        url = `http://192.168.0.107/DiarioInclusivo/src/app/discente.php?idUsuario=${idUsuarioLogado}`;
 
       }
 
@@ -108,7 +108,7 @@ export default function Discente() {
       
       <Footer children={undefined} />
 
-      {/* Renderização Condicional da Barra Inferior pelo TIPO DE USUÁRIO */}
+      {/* RenderizaÃ§Ã£o Condicional da Barra Inferior pelo TIPO DE USUÃRIO */}
       <View style={styles.barraMenuGeral}>
         {tipoUsuario === "2" ? (
           /* BARRA PARA O TIPO 2 (ADM) */
@@ -138,12 +138,12 @@ export default function Discente() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
               <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Início</Text>
+              <Text style={styles.tabLabel}>InÃ­cio</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Diário</Text>
+              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

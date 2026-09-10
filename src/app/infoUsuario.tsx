@@ -1,17 +1,17 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -30,7 +30,7 @@ export default function InfoUsuario() {
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
 
-  // Estados do formulÃ¡rio / ediÃ§Ã£o
+  // Estados do formulário / edição
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -38,7 +38,7 @@ export default function InfoUsuario() {
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
-  // --- VALIDAÃ‡Ã•ES E MÃSCARAS ---
+  // --- VALIDAÇÕES E MÁSCARAS ---
   const tratarEmail = (text: string) => {
     const emailTratado = text.trim().toLowerCase();
     setEmail(emailTratado);
@@ -66,7 +66,7 @@ export default function InfoUsuario() {
     setTelefone(formatado);
   };
 
-  // ðŸ’¡ EXECUTA TODA VEZ QUE A TELA RECEBE FOCO
+  // 💡 EXECUTA TODA VEZ QUE A TELA RECEBE FOCO
   useFocusEffect(
     useCallback(() => {
       const buscarDadosContaLogada = async () => {
@@ -80,12 +80,12 @@ export default function InfoUsuario() {
           }
 
           if (!idFinal) {
-            Alert.alert("Aviso", "Nenhum usuÃ¡rio logado encontrado.");
+            Alert.alert("Aviso", "Nenhum usuário logado encontrado.");
             setLoading(false);
             return;
           }
 
-          const response = await fetch(`http://192.168.0.107/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
+          const response = await fetch(`http://172.20.10.4/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
 
           const json = await response.json();
 
@@ -100,7 +100,7 @@ export default function InfoUsuario() {
             Alert.alert("Erro", json.message);
           }
         } catch (error) {
-          Alert.alert("Erro", "NÃ£o foi possÃ­vel carregar as informaÃ§Ãµes do servidor.");
+          Alert.alert("Erro", "Não foi possível carregar as informações do servidor.");
         } finally {
           setLoading(false);
         }
@@ -113,32 +113,32 @@ export default function InfoUsuario() {
   const salvarEdicao = async () => {
     if (!usuario) return;
 
-    // --- VERIFICAÃ‡ÃƒO DE CAMPOS ---
+    // --- VERIFICAÇÃO DE CAMPOS ---
     if (!nome.trim()) {
-      Alert.alert("Aviso", "O nome nÃ£o pode ficar em branco.");
+      Alert.alert("Aviso", "O nome não pode ficar em branco.");
       return;
     }
 
     if (!email.trim()) {
-      Alert.alert("Aviso", "O e-mail nÃ£o pode ficar em branco.");
+      Alert.alert("Aviso", "O e-mail não pode ficar em branco.");
       return;
     }
 
     if (!validarEmail(email)) {
-      Alert.alert("Aviso", "Por favor, insira um e-mail vÃ¡lido.");
+      Alert.alert("Aviso", "Por favor, insira um e-mail válido.");
       return;
     }
 
     const telefoneLimpo = telefone.replace(/\D/g, "");
     if (telefoneLimpo && (telefoneLimpo.length < 10 || telefoneLimpo.length > 11)) {
-      Alert.alert("Aviso", "Por favor, insira um nÃºmero de telefone/celular vÃ¡lido com DDD.");
+      Alert.alert("Aviso", "Por favor, insira um número de telefone/celular válido com DDD.");
       return;
     }
 
     try {
       setSalvando(true);
 
-      const response = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/updateUsuario.php", {
+      const response = await fetch("http://172.20.10.4/DiarioInclusivo/src/app/updateUsuario.php", {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -154,14 +154,14 @@ export default function InfoUsuario() {
       const json = await response.json();
 
       if (json.success) {
-        Alert.alert("Sucesso", "InformaÃ§Ãµes atualizadas com sucesso!");
+        Alert.alert("Sucesso", "Informações atualizadas com sucesso!");
         setUsuario({ ...usuario, nome: nome.trim(), email, telefone, senha });
         setEditando(false);
       } else {
-        Alert.alert("Erro", json.message || "Erro ao salvar alteraÃ§Ãµes.");
+        Alert.alert("Erro", json.message || "Erro ao salvar alterações.");
       }
     } catch (error) {
-      Alert.alert("Erro", "NÃ£o foi possÃ­vel salvar as alteraÃ§Ãµes no servidor.");
+      Alert.alert("Erro", "Não foi possível salvar as alterações no servidor.");
     } finally {
       setSalvando(false);
     }
@@ -169,7 +169,7 @@ export default function InfoUsuario() {
 
   const confirmarExclusao = () => {
     Alert.alert(
-      "Confirmar ExclusÃ£o",
+      "Confirmar Exclusão",
       "Tem certeza que deseja apagar a sua conta?",
       [
         { text: "Cancelar", style: "cancel" },
@@ -189,14 +189,14 @@ export default function InfoUsuario() {
       }
 
       if (!idParaDeletar) {
-        Alert.alert("Erro", "NÃ£o foi possÃ­vel identificar o ID do usuÃ¡rio.");
+        Alert.alert("Erro", "Não foi possível identificar o ID do usuário.");
         setLoading(false);
         return;
       }
 
       const response = await fetch(
 
-        `http://192.168.0.107/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
+        `http://172.20.10.4/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
 
         { method: "GET" }
       );
@@ -205,14 +205,14 @@ export default function InfoUsuario() {
 
       if (json.success) {
         await AsyncStorage.removeItem("idUsuario");
-        Alert.alert("Sucesso", json.message || "Conta excluÃ­da com sucesso!", [
+        Alert.alert("Sucesso", json.message || "Conta excluída com sucesso!", [
           { text: "OK", onPress: () => router.replace("/login") }
         ]);
       } else {
-        Alert.alert("Erro", json.message || "NÃ£o foi possÃ­vel excluir a conta.");
+        Alert.alert("Erro", json.message || "Não foi possível excluir a conta.");
       }
     } catch (error) {
-      Alert.alert("Erro de ConexÃ£o", "NÃ£o foi possÃ­vel conectar ao servidor.");
+      Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
     } finally {
       setLoading(false);
     }
@@ -237,14 +237,14 @@ export default function InfoUsuario() {
 
       {usuario ? (
         <View style={styles.card}>
-          {/* CabeÃ§alho no padrÃ£o Discente/Professor */}
+          {/* Cabeçalho no padrão Discente/Professor */}
           <View style={styles.cardHeader}>
             {editando ? (
               <TextInput
                 style={[styles.input, styles.inputTitulo]}
                 value={nome}
                 onChangeText={setNome}
-                placeholder="Nome do usuÃ¡rio"
+                placeholder="Nome do usuário"
               />
             ) : (
               <Text style={styles.tituloHeader}>{usuario.nome}</Text>
@@ -300,7 +300,7 @@ export default function InfoUsuario() {
                 maxLength={15}
               />
             ) : (
-              <Text style={styles.value}>{usuario.telefone || "NÃ£o informado"}</Text>
+              <Text style={styles.value}>{usuario.telefone || "Não informado"}</Text>
             )}
           </View>
 
@@ -319,7 +319,7 @@ export default function InfoUsuario() {
                 />
               ) : (
                 <Text style={styles.value}>
-                  {mostrarSenha ? usuario.senha : "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"}
+                  {mostrarSenha ? usuario.senha : "••••••••"}
                 </Text>
               )}
               <TouchableOpacity 
@@ -335,7 +335,7 @@ export default function InfoUsuario() {
             </View>
           </View>
 
-          {/* BOTÃƒO SALVAR (Exibido apenas quando estiver editando) */}
+          {/* BOTÃO SALVAR (Exibido apenas quando estiver editando) */}
           {editando && (
             <TouchableOpacity 
               style={styles.botaoSalvar} 
@@ -345,17 +345,17 @@ export default function InfoUsuario() {
               {salvando ? (
                 <ActivityIndicator color="#FFF" />
               ) : (
-                <Text style={styles.textoSalvar}>Salvar AlteraÃ§Ãµes</Text>
+                <Text style={styles.textoSalvar}>Salvar Alterações</Text>
               )}
             </TouchableOpacity>
           )}
 
         </View>
       ) : (
-        <Text style={styles.erro}>Dados do usuÃ¡rio indisponÃ­veis.</Text>
+        <Text style={styles.erro}>Dados do usuário indisponíveis.</Text>
       )}
 
-      {/* Menu Inferior Condicional por Tipo de UsuÃ¡rio */}
+      {/* Menu Inferior Condicional por Tipo de Usuário */}
       <Footer children={undefined} />
       
       <View style={styles.barraMenuGeral}>
@@ -363,12 +363,12 @@ export default function InfoUsuario() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>InÃ­cio</Text>
+              <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -406,12 +406,12 @@ export default function InfoUsuario() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>InÃ­cio</Text>
+              <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

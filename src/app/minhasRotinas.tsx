@@ -1,4 +1,4 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useFocusEffect } from "expo-router";
@@ -21,7 +21,7 @@ import {
 } from "react-native";
 import Footer from "../../components/Footer";
 
-// ObtÃ©m a largura da tela do dispositivo (Ãºtil para layouts responsivos)
+// Obtém a largura da tela do dispositivo (útil para layouts responsivos)
 const { width } = Dimensions.get("window");
 
 // --- INTERFACES (TIPAGEM TYPESCRIPT) ---
@@ -52,9 +52,9 @@ export default function VisualizarRotina() {
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
   const [idUsuario, setIdUsuario] = useState<string | null>(null);
 
-  const IP_SERVIDOR = "192.168.0.107";
+  const IP_SERVIDOR = "172.20.10.4";
 
-  // --- ESTADOS DO MODAL DE EDIÃ‡ÃƒO ---
+  // --- ESTADOS DO MODAL DE EDIÇÃO ---
   const [modalVisivel, setModalVisivel] = useState(false);
   const [abaModal, setAbaModal] = useState<'editar' | 'selecionar'>('editar');
 
@@ -64,12 +64,12 @@ export default function VisualizarRotina() {
 
   const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]);
 
-  // --- ESTADOS DO RELÃ“GIO (SELETOR DE HORA) ---
+  // --- ESTADOS DO RELÓGIO (SELETOR DE HORA) ---
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio');
   const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null);
 
-  // --- FUNÃ‡Ã•ES DE REQUISIÃ‡ÃƒO (API) ---
+  // --- FUNÇÕES DE REQUISIÇÃO (API) ---
 
   const carregarRotinasDoBanco = async (idUser: string) => {
     try {
@@ -105,7 +105,7 @@ export default function VisualizarRotina() {
     }
   };
 
-  // Carrega rotinas, atividades e tipo/ID de usuÃ¡rio quando a tela ganha foco
+  // Carrega rotinas, atividades e tipo/ID de usuário quando a tela ganha foco
   useFocusEffect(
     useCallback(() => {
       carregarAtividadesMaster();
@@ -117,7 +117,7 @@ export default function VisualizarRotina() {
             setTipoUsuario(String(tipoLogado).trim());
           }
 
-          // Busca o ID do usuÃ¡rio logado dinamicamente
+          // Busca o ID do usuário logado dinamicamente
           const idLogado = await AsyncStorage.getItem("idUsuario");
           if (idLogado) {
             const idFormatado = idLogado.trim();
@@ -125,10 +125,10 @@ export default function VisualizarRotina() {
             carregarRotinasDoBanco(idFormatado);
           } else {
             setCarregando(false);
-            Alert.alert("Aviso", "UsuÃ¡rio nÃ£o identificado. FaÃ§a login novamente.");
+            Alert.alert("Aviso", "Usuário não identificado. Faça login novamente.");
           }
         } catch (error) {
-          console.error("Erro ao carregar dados do usuÃ¡rio:", error);
+          console.error("Erro ao carregar dados do usuário:", error);
           setCarregando(false);
         }
       };
@@ -160,13 +160,13 @@ export default function VisualizarRotina() {
               const resultado = await resposta.json();
 
               if (resultado.sucesso) {
-                Alert.alert("Sucesso", "Rotina excluÃ­da com sucesso!");
+                Alert.alert("Sucesso", "Rotina excluída com sucesso!");
                 if (idUsuario) carregarRotinasDoBanco(idUsuario);
               } else {
                 Alert.alert("Erro", resultado.mensagem || "Erro ao excluir rotina.");
               }
             } catch (error) {
-              Alert.alert("Erro de ConexÃ£o", "NÃ£o foi possÃ­vel conectar ao servidor.");
+              Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
             }
           },
         },
@@ -283,7 +283,7 @@ export default function VisualizarRotina() {
       try {
         resultado = JSON.parse(textoResposta);
       } catch (e) {
-        Alert.alert("Erro no Servidor", "O PHP retornou uma resposta invÃ¡lida.");
+        Alert.alert("Erro no Servidor", "O PHP retornou uma resposta inválida.");
         return;
       }
 
@@ -292,10 +292,10 @@ export default function VisualizarRotina() {
         setModalVisivel(false);
         if (idUsuario) carregarRotinasDoBanco(idUsuario);
       } else {
-        Alert.alert("Erro ao Salvar", resultado.mensagem || "NÃ£o foi possÃ­vel atualizar.");
+        Alert.alert("Erro ao Salvar", resultado.mensagem || "Não foi possível atualizar.");
       }
     } catch (error) {
-      Alert.alert("Erro de ConexÃ£o", "NÃ£o foi possÃ­vel conectar ao servidor.");
+      Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
     }
   };
 
@@ -309,12 +309,12 @@ export default function VisualizarRotina() {
 
   return (
     <View style={styles.container}>
-      {/* CABEÃ‡ALHO */}
+      {/* CABEÇALHO */}
       <View style={styles.areaCriarTopo}>
         <Text style={styles.subtitulo}>Minhas rotinas</Text>
       </View>
 
-      {/* RENDERIZAÃ‡ÃƒO CONDICIONAL */}
+      {/* RENDERIZAÇÃO CONDICIONAL */}
       {carregando ? (
         <ActivityIndicator size="large" color="#2F1CA6" style={{ marginTop: 40 }} />
       ) : (
@@ -388,7 +388,7 @@ export default function VisualizarRotina() {
         />
       )}
 
-      {/* BOTÃƒO FLUTUANTE PARA CRIAR NOVA ROTINA */}
+      {/* BOTÃO FLUTUANTE PARA CRIAR NOVA ROTINA */}
       <View style={styles.botaoAdicionarContainer}>
         <TouchableOpacity
           style={styles.botaoAdicionar}
@@ -431,7 +431,7 @@ export default function VisualizarRotina() {
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <TouchableOpacity onPress={() => abrirRelogio(idx, 'inicio')} style={styles.btnHoraModal}>
                           <Text style={styles.txtHoraModal}>
-                            InÃ­cio: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </Text>
                         </TouchableOpacity>
 
@@ -446,7 +446,7 @@ export default function VisualizarRotina() {
                 </ScrollView>
 
                 <TouchableOpacity style={styles.btnSalvarModal} onPress={salvarEdicaoRotina}>
-                  <Text style={styles.txtSalvarModal}>Salvar AlteraÃ§Ãµes</Text>
+                  <Text style={styles.txtSalvarModal}>Salvar Alterações</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.btnFecharModal} onPress={() => setModalVisivel(false)}>
@@ -497,7 +497,7 @@ export default function VisualizarRotina() {
         </View>
       </Modal>
 
-      {/* --- RODAPÃ‰ E MENU GERAL CONDICIONAL --- */}
+      {/* --- RODAPÉ E MENU GERAL CONDICIONAL --- */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
         {tipoUsuario === "2" ? (
@@ -526,12 +526,12 @@ export default function VisualizarRotina() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>InÃ­cio</Text>
+              <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

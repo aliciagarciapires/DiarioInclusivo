@@ -54,19 +54,42 @@ if (!empty($dataBruta) && $idUsuario > 0 && $idDiscente > 0) {
         exit();
     }
 
-    // 1. Verifica se já existe um diário para este discente na mesma data
-    $checkQuery = "SELECT idDiario FROM diario WHERE idDiscente = $idDiscente AND data = '$data'";
-    $checkResult = $mysqli->query($checkQuery);
-
-    if ($checkResult && $checkResult->num_rows > 0) {
-        echo json_encode([
-            "sucesso" => false,
-            "mensagem" => "Já existe um diário cadastrado para este discente nesta data."
-        ], JSON_UNESCAPED_UNICODE);
-        exit();
-    }
-
+    // 1. Permite vários diários na mesma data, desde que os horários não se sobreponham.
     $complemento = isset($dados['complemento']) ? $mysqli->real_escape_string($dados['complemento']) : '';
+
+    $horaInicialTexto = !empty($dados['hora_inicial']) ? trim($dados['hora_inicial']) : null;
+    $horaFinalTexto = !empty($dados['hora_final']) ? trim($dados['hora_final']) : null;
+
+    if ($horaInicialTexto && $horaFinalTexto) {
+        $checkQuery = "SELECT idDiario, hora_inicial, hora_final FROM diario WHERE idDiscente = $idDiscente AND data = '$data'";
+        $checkResult = $mysqli->query($checkQuery);
+
+        if ($checkResult) {
+            while ($registro = $checkResult->fetch_assoc()) {
+                $horaExistenteInicio = $registro['hora_inicial'];
+                $horaExistenteFim = $registro['hora_final'];
+
+                if (!$horaExistenteInicio || !$horaExistenteFim) {
+                    continue;
+                }
+
+                $inicioNovo = strtotime($horaInicialTexto);
+                $fimNovo = strtotime($horaFinalTexto);
+                $inicioAntigo = strtotime($horaExistenteInicio);
+                $fimAntigo = strtotime($horaExistenteFim);
+
+                $sobrepoe = $inicioNovo < $fimAntigo && $fimNovo > $inicioAntigo;
+
+                if ($sobrepoe) {
+                    echo json_encode([
+                        "sucesso" => false,
+                        "mensagem" => "Já existe um diário neste mesmo horário para este discente na data selecionada."
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit();
+                }
+            }
+        }
+    }
     
     try {
         // 2. Salva na tabela DIARIO

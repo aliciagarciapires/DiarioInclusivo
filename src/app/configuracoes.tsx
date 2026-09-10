@@ -1,4 +1,4 @@
-﻿import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -14,7 +14,7 @@ export default function Configuracoes() {
         const idSalvo = await AsyncStorage.getItem("idUsuario");
         if (idSalvo) {
 
-          const response = await fetch(`http://192.168.0.107/DiarioInclusivo/src/app/getUsuario.php?id=${idSalvo}`);
+          const response = await fetch(`http://172.20.10.4/DiarioInclusivo/src/app/getUsuario.php?id=${idSalvo}`);
 
           const json = await response.json();
           
@@ -23,7 +23,7 @@ export default function Configuracoes() {
           }
         }
       } catch (error) {
-        console.error("Erro ao carregar tipo de usuÃ¡rio nas configuraÃ§Ãµes:", error);
+        console.error("Erro ao carregar tipo de usuário nas configurações:", error);
       } finally {
         setLoading(false);
       }
@@ -32,7 +32,7 @@ export default function Configuracoes() {
     carregarTipoUsuario();
   }, []);
 
-  // ðŸ’¡ LÃ“GICA DE LOGOUT
+  // 💡 LÓGICA DE LOGOUT
   const handleSair = () => {
     Alert.alert(
       "Sair da Conta",
@@ -44,13 +44,13 @@ export default function Configuracoes() {
           style: "destructive", 
           onPress: async () => {
             try {
-              // 1. Apaga a chave do usuÃ¡rio logado
+              // 1. Apaga a chave do usuário logado
               await AsyncStorage.removeItem("idUsuario");
               
-              // 2. Redireciona para a tela inicial / login substituindo o histÃ³rico
+              // 2. Redireciona para a tela inicial / login substituindo o histórico
               router.replace("/cadRespAdm"); 
             } catch (error) {
-              Alert.alert("Erro", "NÃ£o foi possÃ­vel encerrar a sessÃ£o.");
+              Alert.alert("Erro", "Não foi possível encerrar a sessão.");
             }
           } 
         }
@@ -69,23 +69,23 @@ export default function Configuracoes() {
   return (
     <View style={styles.container}>
       
-      {/* Lista de OpÃ§Ãµes */}
+      {/* Lista de Opções */}
       <View style={styles.opcoesContainer}>
         <Pressable 
           style={styles.opcaoItem} 
           onPress={() => router.push("/infoUsuario")}
         >
-          <Text style={styles.opcaoTexto}>InformaÃ§Ãµes da conta</Text>
+          <Text style={styles.opcaoTexto}>Informações da conta</Text>
         </Pressable>
 
         <Pressable 
           style={styles.opcaoItem} 
           onPress={() => router.push("/discenteResp")}
         >
-          <Text style={styles.opcaoTexto}>AlteraÃ§Ã£o de senha</Text>
+          <Text style={styles.opcaoTexto}>Alteração de senha</Text>
         </Pressable>
 
-        {/* BOTÃƒO DE SAIR / LOGOUT */}
+        {/* BOTÃO DE SAIR / LOGOUT */}
         <Pressable 
           style={styles.opcaoItem} 
           onPress={handleSair}
@@ -94,7 +94,7 @@ export default function Configuracoes() {
         </Pressable>
       </View>
 
-      {/* Menu Inferior Condicional por Tipo de UsuÃ¡rio */}
+      {/* Menu Inferior Condicional por Tipo de Usuário */}
       <Footer children={undefined} />
       
       <View style={styles.barraMenuGeral}>
@@ -102,12 +102,12 @@ export default function Configuracoes() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>InÃ­cio</Text>
+              <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -145,12 +145,12 @@ export default function Configuracoes() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>InÃ­cio</Text>
+              <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

@@ -1,4 +1,4 @@
-﻿import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useFocusEffect, useRouter } from 'expo-router';
@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import Footer from '../../components/Footer';
 
-// Define o formato de uma atividade que jÃ¡ foi adicionada Ã  rotina atual
+// Define o formato de uma atividade que já foi adicionada à rotina atual
 interface Atividade {
   id: string;
   nome: string;
@@ -37,7 +37,7 @@ export default function CriarRotina() {
   
   // IP do seu servidor
 
-  const IP_SERVIDOR = "192.168.0.107";
+  const IP_SERVIDOR = "172.20.10.4";
 
 
   // --- ESTADOS DA TELA ---
@@ -50,16 +50,16 @@ export default function CriarRotina() {
   const [nome, setNome] = useState(''); // Guarda o nome digitado para a rotina
   const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]); // Lista de atividades montadas na rotina
   
-  // Lista de atividades prÃ©-cadastradas trazidas do banco de dados
+  // Lista de atividades pré-cadastradas trazidas do banco de dados
   const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]);
 
-  // Controle de visibilidade dos Modais e do RelÃ³gio
+  // Controle de visibilidade dos Modais e do Relógio
   const [modalVisivel, setModalVisivel] = useState(false); // Modal de escolher atividade
-  const [showPicker, setShowPicker] = useState(false); // Modal do relÃ³gio
-  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); // Define se o relÃ³gio ajusta 'inicio' ou 'fim'
-  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); // PosiÃ§Ã£o (Ã­ndice) da atividade na lista que estÃ¡ tendo o horÃ¡rio alterado
+  const [showPicker, setShowPicker] = useState(false); // Modal do relógio
+  const [pickerMode, setPickerMode] = useState<'inicio' | 'fim'>('inicio'); // Define se o relógio ajusta 'inicio' ou 'fim'
+  const [indexSendoEditado, setIndexSendoEditado] = useState<number | null>(null); // Posição (índice) da atividade na lista que está tendo o horário alterado
 
-  // Verifica o tipo de usuÃ¡rio toda vez que a tela entra em foco
+  // Verifica o tipo de usuário toda vez que a tela entra em foco
   useFocusEffect(
     useCallback(() => {
       const carregarTipoUsuario = async () => {
@@ -69,14 +69,14 @@ export default function CriarRotina() {
             setTipoUsuario(String(tipoLogado).trim());
           }
         } catch (error) {
-          console.error("Erro ao carregar tipo de usuÃ¡rio:", error);
+          console.error("Erro ao carregar tipo de usuário:", error);
         }
       };
       carregarTipoUsuario();
     }, [])
   );
 
-  // useEffect roda apenas UMA VEZ quando a tela Ã© montada ([])
+  // useEffect roda apenas UMA VEZ quando a tela é montada ([])
   // Busca todas as atividades cadastradas no banco para preencher a lista do modal
   useEffect(() => {
     async function carregarAtividadesBanco() {
@@ -98,12 +98,12 @@ export default function CriarRotina() {
     const novaAtiv: Atividade = {
       id: atividade.idAtividades.toString(),
       nome: atividade.nome,
-      inicio: new Date(), // Inicia por padrÃ£o com a hora atual
-      fim: new Date(),    // Inicia por padrÃ£o com a hora atual
+      inicio: new Date(), // Inicia por padrão com a hora atual
+      fim: new Date(),    // Inicia por padrão com a hora atual
     };
     // Adiciona o novo item mantendo os itens anteriores (...atividadesSelecionadas)
     setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
-    setModalVisivel(false); // Fecha o modal apÃ³s selecionar
+    setModalVisivel(false); // Fecha o modal após selecionar
   };
 
   // Remove um item da lista local da rotina
@@ -126,7 +126,7 @@ export default function CriarRotina() {
     );
   };
 
-  // Prepara e abre o seletor de relÃ³gio para um item especÃ­fico da lista
+  // Prepara e abre o seletor de relógio para um item específico da lista
   const abrirRelogio = (index: number, modo: 'inicio' | 'fim') => {
     setIndexSendoEditado(index);
     setPickerMode(modo);
@@ -136,7 +136,7 @@ export default function CriarRotina() {
   // Atualiza a hora da atividade editada respeitando a imutabilidade do React
   const aoMudarHora = (event: any, selectedDate?: Date) => {
     if (event.type === 'set' && selectedDate && indexSendoEditado !== null) {
-      const novasAtividades = [...atividadesSelecionadas]; // Cria uma cÃ³pia do array original
+      const novasAtividades = [...atividadesSelecionadas]; // Cria uma cópia do array original
       novasAtividades[indexSendoEditado][pickerMode] = selectedDate; // Atualiza o campo dinamicamente ('inicio' ou 'fim')
       setAtividadesSelecionadas(novasAtividades);
       setShowPicker(false);
@@ -155,7 +155,7 @@ export default function CriarRotina() {
 
   // Envia os dados completos da rotina via POST para a API em PHP
   const finalizarRotina = async () => {
-    // ValidaÃ§Ãµes de campos obrigatÃ³rios
+    // Validações de campos obrigatórios
     if (nome.trim() === '') {
       Alert.alert("Aviso", "Por favor, digite um nome para a rotina.");
       return;
@@ -166,13 +166,13 @@ export default function CriarRotina() {
     }
 
     try {
-      // TODO: Substituir o ID '1' estÃ¡tico pelo ID vindo do sistema/contexto de Login
+      // TODO: Substituir o ID '1' estático pelo ID vindo do sistema/contexto de Login
       let idUsuarioLogado = await AsyncStorage.getItem("idUsuario");
       if (!idUsuarioLogado) {
         idUsuarioLogado = await AsyncStorage.getItem("id");
       }
 
-      // Formata os objetos Date para strings simples de horÃ¡rio (ex: "14:30:00")
+      // Formata os objetos Date para strings simples de horário (ex: "14:30:00")
       const atividadesFormatadas = atividadesSelecionadas.map(ativ => ({
         idAtividades: ativ.id,
         horas_iniciais: ativ.inicio.toLocaleTimeString([], { hour12: false }),
@@ -188,7 +188,7 @@ export default function CriarRotina() {
         },
         body: JSON.stringify({
           nome: nome,
-          idUsuario: idUsuarioLogado || 1, // Se nÃ£o achar ID, manda 1 (fallback)
+          idUsuario: idUsuarioLogado || 1, // Se não achar ID, manda 1 (fallback)
           atividades: atividadesFormatadas
         }),
       });
@@ -199,39 +199,39 @@ export default function CriarRotina() {
         Alert.alert("Sucesso!", "Sua rotina foi criada e salva com sucesso!");
         router.push("/minhasRotinas" as Href); // Redireciona para a tela de rotinas salvas
       } else {
-        Alert.alert("Erro ao salvar", resultado.mensagem || "NÃ£o foi possÃ­vel salvar a nova rotina.");
+        Alert.alert("Erro ao salvar", resultado.mensagem || "Não foi possível salvar a nova rotina.");
       }
 
     } catch (error: any) {
       console.error("Erro detalhado ao salvar rotina:", error);
-      Alert.alert("Erro de ConexÃ£o", "NÃ£o foi possÃ­vel conectar ao servidor para salvar a rotina.");
+      Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor para salvar a rotina.");
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* --- CABEÃ‡ALHO --- */}
+      {/* --- CABEÇALHO --- */}
       <View style={styles.header}>
         <View style={{ alignItems: 'center', flex: 1 }}>
           <Text style={styles.subtitulo}>Criar rotina</Text>
         </View>
       </View>
 
-      {/* --- CONTEÃšDO PRINCIPAL --- */}
+      {/* --- CONTEÚDO PRINCIPAL --- */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Campo de Texto: Nome da Rotina */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Nome da rotina</Text>
           <TextInput 
             style={styles.input} 
-            placeholder="Ex: Aula de PortuguÃªs"
+            placeholder="Ex: Aula de Português"
             placeholderTextColor="#0b8cbfd1"
             value={nome}
             onChangeText={setNome}
           />
         </View>
 
-        {/* BotÃ£o para abrir o Modal de SeleÃ§Ã£o de Atividade */}
+        {/* Botão para abrir o Modal de Seleção de Atividade */}
         <TouchableOpacity 
           style={styles.botaoMaster} 
           onPress={() => setModalVisivel(true)}
@@ -240,23 +240,23 @@ export default function CriarRotina() {
           <Text style={styles.textoBotaoMaster}>Selecionar Atividade</Text>
         </TouchableOpacity>
 
-        {/* Renderiza a lista de atividades que jÃ¡ foram adicionadas pelo usuÃ¡rio */}
+        {/* Renderiza a lista de atividades que já foram adicionadas pelo usuário */}
         {atividadesSelecionadas.map((item, index) => (
-          // key Ãºnica usando id + index para evitar problemas com itens duplicados
+          // key única usando id + index para evitar problemas com itens duplicados
           <View key={`${item.id}-${index}`} style={styles.cardAtividade}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <Text style={styles.nomeAtividade}>{item.nome}</Text>
               
-              {/* BotÃ£o de Excluir */}
+              {/* Botão de Excluir */}
               <TouchableOpacity onPress={() => apagarAtividade(item.id)}>
                 <Ionicons name="trash-outline" size={22} color="#FF4444" />
               </TouchableOpacity>
             </View>
             
-            {/* BotÃµes de SeleÃ§Ã£o de HorÃ¡rios */}
+            {/* Botões de Seleção de Horários */}
             <View style={styles.containerHorarios}>
               <TouchableOpacity onPress={() => abrirRelogio(index, 'inicio')} style={styles.botaoHora}>
-                <Text style={styles.textoHora}>InÃ­cio: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                <Text style={styles.textoHora}>Início: {item.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={() => abrirRelogio(index, 'fim')} style={styles.botaoHora}>
@@ -267,19 +267,19 @@ export default function CriarRotina() {
         ))}
       </ScrollView>
 
-      {/* BotÃ£o para Enviar os dados ao Banco */}
+      {/* Botão para Enviar os dados ao Banco */}
       <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarRotina}>
         <Text style={styles.textoFinalizar}>Salvar Rotina</Text>
       </TouchableOpacity>
 
-      {/* --- MODAL 1: SELEÃ‡ÃƒO DE ATIVIDADES EXISTENTES --- */}
+      {/* --- MODAL 1: SELEÇÃO DE ATIVIDADES EXISTENTES --- */}
       <Modal visible={modalVisivel} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             
             <Text style={styles.modalTitulo}>Escolha uma Atividade</Text>
 
-            {/* Lista otimizada para exibir as opÃ§Ãµes vinda do servidor */}
+            {/* Lista otimizada para exibir as opções vinda do servidor */}
             <FlatList 
               data={listaMaster}
               keyExtractor={(item) => item.idAtividades.toString()} 
@@ -306,12 +306,12 @@ export default function CriarRotina() {
         </View>
       </Modal>
 
-      {/* --- MODAL 2: SELETOR DE RELÃ“GIO (DATETIMEPICKER) --- */}
+      {/* --- MODAL 2: SELETOR DE RELÓGIO (DATETIMEPICKER) --- */}
       <Modal visible={showPicker && indexSendoEditado !== null} animationType="fade" transparent={true}>
         <View style={styles.modalOverlayRelogio}>
           <View style={styles.modalContentRelogio}>
             <Text style={styles.modalTituloRelogio}>
-              Selecionar HorÃ¡rio de {pickerMode === 'inicio' ? 'InÃ­cio' : 'Fim'}
+              Selecionar Horário de {pickerMode === 'inicio' ? 'Início' : 'Fim'}
             </Text>
 
             {showPicker && indexSendoEditado !== null && (
@@ -333,13 +333,13 @@ export default function CriarRotina() {
               style={styles.botaoConfirmarHora} 
               onPress={() => setShowPicker(false)}
             >
-              <Text style={{ color: '#F5F2E8', fontWeight: 'bold', fontSize: 16 }}>Confirmar HorÃ¡rio</Text>
+              <Text style={{ color: '#F5F2E8', fontWeight: 'bold', fontSize: 16 }}>Confirmar Horário</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* --- NAVEGAÃ‡ÃƒO E RODAPÃ‰ CONDICIONAL --- */}
+      {/* --- NAVEGAÇÃO E RODAPÉ CONDICIONAL --- */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
         {tipoUsuario === "2" ? (
@@ -370,12 +370,12 @@ export default function CriarRotina() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>InÃ­cio</Text>
+              <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

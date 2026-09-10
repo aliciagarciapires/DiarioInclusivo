@@ -1,17 +1,17 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
@@ -24,17 +24,17 @@ export default function CadProf() {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  // Estados para alternar a exibiÃ§Ã£o da senha
+  // Estados para alternar a exibição da senha
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
-  // Trata o e-mail removendo todos os espaÃ§os e transformando em minÃºsculas em tempo real
+  // Trata o e-mail removendo todos os espaços e transformando em minúsculas em tempo real
   const tratarEmailInput = (texto: string) => {
     const emailFormatado = texto.toLowerCase().replace(/\s+/g, "");
     setEmail(emailFormatado);
   };
 
-  // ValidaÃ§Ã£o do formato de e-mail por regex
+  // Validação do formato de e-mail por regex
   const validarEmail = (emailParaTestar: string) => {
     const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regexEmail.test(emailParaTestar);
@@ -44,28 +44,28 @@ export default function CadProf() {
     const emailTratado = email.toLowerCase().replace(/\s+/g, "");
     const nomeTratado = nome.trim();
 
-    // 1. ValidaÃ§Ã£o bÃ¡sica
+    // 1. Validação básica
     if (!nomeTratado || !emailTratado || !senha || !confirmarSenha) {
       Alert.alert("Erro", "Preencha todos os campos");
       return;
     }
 
-    // 2. ValidaÃ§Ã£o de E-mail
+    // 2. Validação de E-mail
     if (!validarEmail(emailTratado)) {
-      Alert.alert("Erro", "Por favor, digite um e-mail vÃ¡lido");
+      Alert.alert("Erro", "Por favor, digite um e-mail válido");
       return;
     }
 
-    // 3. ValidaÃ§Ã£o de Senha
+    // 3. Validação de Senha
     if (senha !== confirmarSenha) {
-      Alert.alert("Erro", "As senhas nÃ£o coincidem");
+      Alert.alert("Erro", "As senhas não coincidem");
       return;
     }
 
     // 4. Envio para o Backend
     try {
       const response = await fetch(
-        "http://192.168.0.107/DiarioInclusivo/src/app/cadProf.php",
+        "http://172.20.10.4/DiarioInclusivo/src/app/cadProf.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -90,7 +90,7 @@ export default function CadProf() {
         Alert.alert("Erro do Servidor", data.message || "Erro ao cadastrar.");
       }
     } catch (error) {
-      Alert.alert("Erro", "NÃ£o foi possÃ­vel conectar ao servidor");
+      Alert.alert("Erro", "Não foi possível conectar ao servidor");
     }
   };
 
@@ -112,7 +112,7 @@ export default function CadProf() {
             />
           </View>
 
-          {/** FORMULÃRIO */}
+          {/** FORMULÁRIO */}
           <View style={styles.form}>
             <Text style={styles.title}>Cadastro do Professor</Text>
 
@@ -191,7 +191,7 @@ export default function CadProf() {
       </ScrollView>
 
       <Footer>
-        <Text style={styles.textoRodape}>DiÃ¡rio Inclusivo.</Text>
+        <Text style={styles.textoRodape}>Diário Inclusivo.</Text>
       </Footer>
     </KeyboardAvoidingView>
   );

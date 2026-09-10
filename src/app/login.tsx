@@ -1,4 +1,4 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -25,27 +25,27 @@ export default function Login() {
     // Estado para controlar a visibilidade da senha
     const [mostrarSenha, setMostrarSenha] = useState(false);
 
-    // Tratamento para o campo de e-mail (remove espaÃ§os e forÃ§a minÃºsculas)
+    // Tratamento para o campo de e-mail (remove espaços e força minúsculas)
     const tratarEmail = (text: string) => {
         const emailTratado = text.trim().toLowerCase();
         setEmail(emailTratado);
     };
 
-    // ValidaÃ§Ã£o de formato de e-mail usando Regex simples
+    // Validação de formato de e-mail usando Regex simples
     const validarEmail = (emailParaTestar: string) => {
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regexEmail.test(emailParaTestar);
     };
 
     const handleLogin = async () => {
-        // --- VERIFICAÃ‡ÃƒO DE E-MAIL E CAMPOS VAZIOS ---
+        // --- VERIFICAÇÃO DE E-MAIL E CAMPOS VAZIOS ---
         if (!email) {
             Alert.alert("Aviso", "Por favor, preencha o campo de e-mail.");
             return;
         }
 
         if (!validarEmail(email)) {
-            Alert.alert("Aviso", "Por favor, insira um e-mail vÃ¡lido.");
+            Alert.alert("Aviso", "Por favor, insira um e-mail válido.");
             return;
         }
 
@@ -56,7 +56,7 @@ export default function Login() {
 
         try {
 
-            const response = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/login.php", {
+            const response = await fetch("http://172.20.10.4/DiarioInclusivo/src/app/login.php", {
 
                 method: "POST",
                 headers: {
@@ -77,11 +77,11 @@ export default function Login() {
                 }
                 Alert.alert("Sucesso", data.mensagem);
 
-                // --- DIRECIONAMENTO POR TIPO DE USUÃRIO ---
+                // --- DIRECIONAMENTO POR TIPO DE USUÁRIO ---
                 const tipo = Number(data.tipo_de_usuario);
 
                 if (tipo === 1) {
-                    // Tipo 1: ResponsÃ¡vel
+                    // Tipo 1: Responsável
                     router.replace("/discenteResp");
                 } else if (tipo === 2) {
                     // Tipo 2: Admin/Professor
@@ -90,7 +90,7 @@ export default function Login() {
                     // Tipo 3: Professor
                     router.replace("/discente");
                 } else {
-                    // Caso receba um tipo nÃ£o mapeado
+                    // Caso receba um tipo não mapeado
                     router.replace("/inicio");
                 }
 
@@ -98,7 +98,7 @@ export default function Login() {
                 Alert.alert("Erro", data.mensagem);
             }
         } catch (error) {
-            Alert.alert("Erro", "Falha na conexÃ£o com o servidor.");
+            Alert.alert("Erro", "Falha na conexão com o servidor.");
         }
     };
 
@@ -158,7 +158,7 @@ export default function Login() {
                         </View>
                     </View>
 
-                    {/* BOTÃƒO | LINK: ESQUECER A SENHA */}
+                    {/* BOTÃO | LINK: ESQUECER A SENHA */}
                     <Pressable 
                         style={styles.esqueceuSenhaBotao} 
                         onPress={() => router.push("/inicio")}
@@ -173,7 +173,7 @@ export default function Login() {
 
             <Footer>
                 <Text style={styles.textoRodape}>
-                    DiÃ¡rio Inclusivo.
+                    Diário Inclusivo.
                 </Text>
             </Footer>
         </KeyboardAvoidingView>

@@ -1,25 +1,25 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  FlatList,
-  Image,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    FlatList,
+    Image,
+    Pressable,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 const { width } = Dimensions.get("window");
-const IP_SERVIDOR = "192.168.0.107";
+const IP_SERVIDOR = "172.20.10.4";
 
 interface DiarioItem {
   idDiario: number;
@@ -49,14 +49,14 @@ export default function HistoricoScreen() {
     ? Number(params.idDiscente[0])
     : Number(params.idDiscente ?? 0);
 
-  // Identifica se a tela deve abrir no modo de leitura (responsÃ¡vel)
+  // Identifica se a tela deve abrir no modo de leitura (responsável)
   const modoSomenteLeitura = params.somenteLeitura === "true";
 
   const [historico, setHistorico] = useState<DiarioItem[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
-  // Estados de EdiÃ§Ã£o
+  // Estados de Edição
   const [idEditando, setIdEditando] = useState<number | null>(null);
   const [atividadeEdit, setAtividadeEdit] = useState<string>("");
   const [complementoEdit, setComplementoEdit] = useState<string>("");
@@ -64,7 +64,7 @@ export default function HistoricoScreen() {
   const [avaliacaoEdit, setAvaliacaoEdit] = useState<string>("");
   const [atividadesEdit, setAtividadesEdit] = useState<Array<{ idAtividades: number | null; nome: string; avaliacao: string }>>([]);
 
-  // Lista de atividades vindas do banco para seleÃ§Ã£o
+  // Lista de atividades vindas do banco para seleção
   const [listaAtividades, setListaAtividades] = useState<AtividadeOpcao[]>([]);
 
   useFocusEffect(
@@ -76,7 +76,7 @@ export default function HistoricoScreen() {
             setTipoUsuario(String(tipoLogado).trim());
           }
         } catch (error) {
-          console.error("Erro ao carregar tipo de usuÃ¡rio:", error);
+          console.error("Erro ao carregar tipo de usuário:", error);
         }
       };
       carregarTipoUsuario();
@@ -105,7 +105,7 @@ export default function HistoricoScreen() {
         (grupos: Record<string, DiarioItem>, registro: any) => {
           const idDiario = Number(registro.idDiario);
           const chave = String(idDiario);
-          const nomeAtividade = registro.atividade && registro.atividade !== "Atividade nÃ£o vinculada"
+          const nomeAtividade = registro.atividade && registro.atividade !== "Atividade não vinculada"
             ? String(registro.atividade)
             : null;
           const avaliacao = registro.avaliacao_1_5 !== null && registro.avaliacao_1_5 !== undefined
@@ -118,7 +118,7 @@ export default function HistoricoScreen() {
               data: String(registro.data || ""),
               complemento: String(registro.complemento || ""),
               avaliacao_1_5: registro.avaliacao_1_5 ?? null,
-              atividade: nomeAtividade || "Atividade nÃ£o vinculada",
+              atividade: nomeAtividade || "Atividade não vinculada",
               atividades: nomeAtividade ? [{ idAtividades: registro.idAtividades ?? null, nome: nomeAtividade, avaliacao }] : [],
             };
           } else if (
@@ -136,8 +136,8 @@ export default function HistoricoScreen() {
 
       setHistorico(Object.values(registrosAgrupados));
     } catch (error) {
-      console.error("Erro ao buscar histÃ³rico:", error);
-      Alert.alert("Erro", "NÃ£o foi possÃ­vel carregar o histÃ³rico.");
+      console.error("Erro ao buscar histórico:", error);
+      Alert.alert("Erro", "Não foi possível carregar o histórico.");
     } finally {
       setCarregando(false);
     }
@@ -153,18 +153,18 @@ export default function HistoricoScreen() {
       const dados = Array.isArray(json) ? json : (json.dados || []);
       setListaAtividades(Array.isArray(dados) ? dados : []);
     } catch (error) {
-      console.error("Erro ao buscar opÃ§Ãµes de atividades:", error);
+      console.error("Erro ao buscar opções de atividades:", error);
     }
   };
 
   const confirmarExclusao = (idDiario: number) => {
     Alert.alert(
-      "Excluir diÃ¡rio",
-      "Este diÃ¡rio possui atividades vinculadas. Todas elas serÃ£o excluÃ­das juntas.",
+      "Excluir diário",
+      "Este diário possui atividades vinculadas. Todas elas serão excluídas juntas.",
       [
         { text: "Cancelar", style: "cancel" },
         {
-          text: "Excluir diÃ¡rio e atividades",
+          text: "Excluir diário e atividades",
           style: "destructive",
           onPress: () => excluirHistorico(idDiario),
         },
@@ -184,10 +184,10 @@ export default function HistoricoScreen() {
       const json = JSON.parse(textoPuro);
 
       if (json.sucesso || json.success) {
-        Alert.alert("Sucesso", json.mensagem || "ExclusÃ£o realizada!");
+        Alert.alert("Sucesso", json.mensagem || "Exclusão realizada!");
         buscarHistorico();
       } else {
-        Alert.alert("Erro", json.mensagem || "NÃ£o foi possÃ­vel excluir.");
+        Alert.alert("Erro", json.mensagem || "Não foi possível excluir.");
       }
     } catch (error) {
       console.error("Erro ao excluir:", error);
@@ -256,7 +256,7 @@ export default function HistoricoScreen() {
 
     const partes = dataString.split('/');
     if (partes.length !== 3) {
-      return { valida: false, mensagem: 'Formato de data invÃ¡lido.' };
+      return { valida: false, mensagem: 'Formato de data inválido.' };
     }
 
     const dia = parseInt(partes[0], 10);
@@ -264,7 +264,7 @@ export default function HistoricoScreen() {
     const ano = parseInt(partes[2], 10);
 
     if (mes < 1 || mes > 12) {
-      return { valida: false, mensagem: 'MÃªs invÃ¡lido.' };
+      return { valida: false, mensagem: 'Mês inválido.' };
     }
 
     const dataObjeto = new Date(ano, mes - 1, dia);
@@ -274,17 +274,17 @@ export default function HistoricoScreen() {
       dataObjeto.getMonth() !== mes - 1 ||
       dataObjeto.getDate() !== dia
     ) {
-      return { valida: false, mensagem: 'Data inexistente (verifique o dia, mÃªs e se o ano Ã© bissexto).' };
+      return { valida: false, mensagem: 'Data inexistente (verifique o dia, mês e se o ano é bissexto).' };
     }
 
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     if (dataObjeto > hoje) {
-      return { valida: false, mensagem: 'A data nÃ£o pode ser no futuro.' };
+      return { valida: false, mensagem: 'A data não pode ser no futuro.' };
     }
 
     if (ano < 1900) {
-      return { valida: false, mensagem: 'Ano invÃ¡lido.' };
+      return { valida: false, mensagem: 'Ano inválido.' };
     }
 
     return { valida: true };
@@ -292,7 +292,7 @@ export default function HistoricoScreen() {
 
   const salvarEdicao = async (idDiario: any) => {
     if (!idDiario) {
-      Alert.alert("Erro", "ID do diÃ¡rio nÃ£o encontrado.");
+      Alert.alert("Erro", "ID do diário não encontrado.");
       return;
     }
 
@@ -318,13 +318,13 @@ export default function HistoricoScreen() {
     }
 
     if (!dataEdit.trim()) {
-      Alert.alert("Erro", "O campo data Ã© obrigatÃ³rio.");
+      Alert.alert("Erro", "O campo data é obrigatório.");
       return;
     }
 
     const validacaoData = validarDataNascimento(dataEdit);
     if (!validacaoData.valida) {
-      Alert.alert('Data InvÃ¡lida', validacaoData.mensagem);
+      Alert.alert('Data Inválida', validacaoData.mensagem);
       return;
     }
 
@@ -366,24 +366,24 @@ export default function HistoricoScreen() {
         setIdEditando(null); 
         buscarHistorico();     
       } else {
-        Alert.alert("Erro", json.message || json.mensagem || "NÃ£o foi possÃ­vel atualizar o registro.");
+        Alert.alert("Erro", json.message || json.mensagem || "Não foi possível atualizar o registro.");
       }
     } catch (error) {
       console.error("Erro ao salvar:", error);
-      Alert.alert("Erro", "Falha de conexÃ£o ao salvar alteraÃ§Ãµes.");
+      Alert.alert("Erro", "Falha de conexão ao salvar alterações.");
     } finally {
       setCarregando(false);
     }
   };
 
-  // Verifica se o usuÃ¡rio pode editar (apenas se NÃƒO for responsÃ¡vel "1" ou "3" e nem no modo leitura)
+  // Verifica se o usuário pode editar (apenas se NÃO for responsável "1" ou "3" e nem no modo leitura)
   const podeEditar = !modoSomenteLeitura && tipoUsuario !== "1";
 
   const renderItem = ({ item }: { item: DiarioItem }) => {
     const editando = idEditando === item.idDiario;
 
     const formatarData = (dataStr: string) => {
-      if (!dataStr) return "Data nÃ£o informada";
+      if (!dataStr) return "Data não informada";
       if (dataStr.includes("/")) return dataStr;
       const partes = dataStr.split("-");
       if (partes.length === 3) {
@@ -407,7 +407,7 @@ export default function HistoricoScreen() {
               maxLength={10}
             />
 
-            <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>Atividades do diÃ¡rio:</Text>
+            <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>Atividades do diário:</Text>
             {atividadesEdit.map((atividade, index) => {
               const blocoKey = `atividade-edit-${index}-${getAtividadeKey(atividade, index)}`;
 
@@ -442,7 +442,7 @@ export default function HistoricoScreen() {
                     Selecionada: {atividade.nome || "Nenhuma"}
                   </Text>
 
-                  <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>AvaliaÃ§Ã£o (1 a 5):</Text>
+                  <Text style={[styles.textoNomeLabel, { marginTop: 8 }]}>Avaliação (1 a 5):</Text>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10 }}>
                     {[1, 2, 3, 4, 5].map((num) => {
                       const selecionado = atividade.avaliacao === num.toString();
@@ -487,7 +487,7 @@ export default function HistoricoScreen() {
 
             <View style={styles.botoesRow}>
               <TouchableOpacity style={styles.botaoSalvar} onPress={() => salvarEdicao(item.idDiario)}>
-                <Text style={styles.textoBotaoSalvar}>Salvar AlteraÃ§Ãµes</Text>
+                <Text style={styles.textoBotaoSalvar}>Salvar Alterações</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.botaoSalvar, { backgroundColor: "#8E8E93", marginLeft: 8 }]} onPress={() => setIdEditando(null)}>
                 <Text style={styles.textoBotaoSalvar}>Cancelar</Text>
@@ -498,15 +498,15 @@ export default function HistoricoScreen() {
           <View>
             <View style={styles.headerCard}>
               <View style={styles.listaAtividadesHistorico}>
-                <Text style={styles.rotuloAtividades}>Atividades deste diÃ¡rio:</Text>
+                <Text style={styles.rotuloAtividades}>Atividades deste diário:</Text>
                 {item.atividades.length > 0 ? (
                   item.atividades.map((atividade, index) => (
                     <View key={`${item.idDiario}-${index}`} style={styles.atividadeHistoricoLinha}>
                       <Text numberOfLines={1} ellipsizeMode="tail" style={styles.nomeRotina}>
-                        â€¢ {atividade.nome}
+                        • {atividade.nome}
                       </Text>
                       <View style={styles.badgeAvaliacaoAtividade}>
-                        <Text style={styles.textoBadgeRotulo}>AvaliaÃ§Ã£o: </Text>
+                        <Text style={styles.textoBadgeRotulo}>Avaliação: </Text>
                         <Text style={styles.textoBadgeValor}>
                           {atividade.avaliacao !== null ? `${atividade.avaliacao}/5` : "N/A"}
                         </Text>
@@ -515,12 +515,12 @@ export default function HistoricoScreen() {
                   ))
                 ) : (
                   <Text numberOfLines={1} ellipsizeMode="tail" style={styles.nomeRotina}>
-                    â€¢ Atividade nÃ£o vinculada
+                    • Atividade não vinculada
                   </Text>
                 )}
               </View>
 
-              {/* EXIBE OS BOTOES APENAS SE TIVER PERMISSÃƒO DE EDIÃ‡ÃƒO */}
+              {/* EXIBE OS BOTOES APENAS SE TIVER PERMISSÃO DE EDIÇÃO */}
               {podeEditar && (
                 <View style={styles.acoesHeader}>
                   <TouchableOpacity onPress={() => iniciarEdicao(item)} style={styles.botaoAcao}>
@@ -588,7 +588,7 @@ export default function HistoricoScreen() {
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
@@ -605,12 +605,12 @@ export default function HistoricoScreen() {
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>InÃ­cio</Text>
+              <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

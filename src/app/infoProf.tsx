@@ -1,20 +1,20 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -27,7 +27,7 @@ type Professor = {
 
 export default function InfoProf() {
   const params = useLocalSearchParams();
-  // Pega o ID passado via parÃ¢metro na rota
+  // Pega o ID passado via parâmetro na rota
   const idRaw = params.id || params.idUsuario;
   const idFinal = Array.isArray(idRaw) ? idRaw[0] : idRaw;
 
@@ -36,20 +36,20 @@ export default function InfoProf() {
   const [salvando, setSalvando] = useState(false);
   const [tipoUsuarioLogado, setTipoUsuarioLogado] = useState<number | null>(null);
 
-  // Estados de ediÃ§Ã£o dos campos
+  // Estados de edição dos campos
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
-  // Sanitiza o e-mail em tempo real (sem espaÃ§os e em minÃºsculo)
+  // Sanitiza o e-mail em tempo real (sem espaços e em minúsculo)
   const tratarEmailInput = (texto: string) => {
     const emailFormatado = texto.toLowerCase().replace(/\s+/g, "");
     setEmail(emailFormatado);
   };
 
-  // FunÃ§Ã£o para validar o formato do e-mail por Regex
+  // Função para validar o formato do e-mail por Regex
   const validarEmail = (emailParaTestar: string) => {
     const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regexEmail.test(emailParaTestar);
@@ -58,12 +58,12 @@ export default function InfoProf() {
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        // 1. Identifica o usuÃ¡rio logado no storage
+        // 1. Identifica o usuário logado no storage
         const idLogado = await AsyncStorage.getItem("idUsuario");
         if (idLogado) {
           const respLogado = await fetch(
 
-            `http://192.168.0.107/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
+            `http://172.20.10.4/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
 
           );
           const jsonLogado = await respLogado.json();
@@ -74,7 +74,7 @@ export default function InfoProf() {
 
         // 2. Valida o ID do professor recebido
         if (!idFinal) {
-          Alert.alert("Erro", "ID do professor nÃ£o informado.");
+          Alert.alert("Erro", "ID do professor não informado.");
           setLoading(false);
           return;
         }
@@ -82,7 +82,7 @@ export default function InfoProf() {
         // 3. Busca os dados do professor selecionado
         const response = await fetch(
 
-            `http://192.168.0.107/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
+            `http://172.20.10.4/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
 
         );
         const json = await response.json();
@@ -93,10 +93,10 @@ export default function InfoProf() {
           setEmail((json.dados.email || "").toLowerCase().replace(/\s+/g, ""));
           setSenha(json.dados.senha || "");
         } else {
-          Alert.alert("Erro", json.message || "Professor nÃ£o encontrado.");
+          Alert.alert("Erro", json.message || "Professor não encontrado.");
         }
       } catch (error) {
-        Alert.alert("Erro", "Falha de conexÃ£o ao carregar dados do professor.");
+        Alert.alert("Erro", "Falha de conexão ao carregar dados do professor.");
       } finally {
         setLoading(false);
       }
@@ -111,17 +111,17 @@ export default function InfoProf() {
     const emailTratado = email.toLowerCase().replace(/\s+/g, "");
     const nomeTratado = nome.trim();
 
-    // 1. ValidaÃ§Ã£o de campos vazios
+    // 1. Validação de campos vazios
     if (!nomeTratado || !emailTratado) {
-      Alert.alert("Aviso", "Nome e E-mail nÃ£o podem ficar vazios.");
+      Alert.alert("Aviso", "Nome e E-mail não podem ficar vazios.");
       return;
     }
 
-    // 2. ValidaÃ§Ã£o do formato do e-mail
+    // 2. Validação do formato do e-mail
     if (!validarEmail(emailTratado)) {
       Alert.alert(
-        "E-mail InvÃ¡lido",
-        "Por favor, digite um e-mail vÃ¡lido (ex: professor@exemplo.com)."
+        "E-mail Inválido",
+        "Por favor, digite um e-mail válido (ex: professor@exemplo.com)."
       );
       return;
     }
@@ -130,7 +130,7 @@ export default function InfoProf() {
       setSalvando(true);
             const response = await fetch(
 
-        "http://192.168.0.107/DiarioInclusivo/src/app/updateUsuario.php",
+        "http://172.20.10.4/DiarioInclusivo/src/app/updateUsuario.php",
 
         {
           method: "POST",
@@ -147,11 +147,11 @@ export default function InfoProf() {
       const json = await response.json();
 
       if (json.success) {
-        Alert.alert("Sucesso", "InformaÃ§Ãµes do professor atualizadas!");
+        Alert.alert("Sucesso", "Informações do professor atualizadas!");
         setProf({ ...prof, nome: nomeTratado, email: emailTratado, senha });
         setEditando(false);
       } else {
-        Alert.alert("Erro", json.message || "NÃ£o foi possÃ­vel salvar os dados.");
+        Alert.alert("Erro", json.message || "Não foi possível salvar os dados.");
       }
     } catch (error) {
       Alert.alert("Erro", "Erro ao conectar ao servidor.");
@@ -162,7 +162,7 @@ export default function InfoProf() {
 
   const confirmarExclusao = () => {
     Alert.alert(
-      "Confirmar ExclusÃ£o",
+      "Confirmar Exclusão",
       "Tem certeza que deseja apagar o registro deste professor?",
       [
         { text: "Cancelar", style: "cancel" },
@@ -178,21 +178,21 @@ export default function InfoProf() {
 
             const response = await fetch(
 
-        `http://192.168.0.107/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
+        `http://172.20.10.4/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
 
         { method: "GET" }
             );
       const json = await response.json();
 
       if (json.success) {
-        Alert.alert("Sucesso", json.message || "Professor excluÃ­do com sucesso!", [
+        Alert.alert("Sucesso", json.message || "Professor excluído com sucesso!", [
           { text: "OK", onPress: () => router.back() },
         ]);
       } else {
-        Alert.alert("Erro", json.message || "NÃ£o foi possÃ­vel excluir o professor.");
+        Alert.alert("Erro", json.message || "Não foi possível excluir o professor.");
       }
     } catch (error) {
-      Alert.alert("Erro", "NÃ£o foi possÃ­vel conectar ao servidor.");
+      Alert.alert("Erro", "Não foi possível conectar ao servidor.");
     } finally {
       setLoading(false);
     }
@@ -224,7 +224,7 @@ export default function InfoProf() {
             />
           </View>
 
-          {/* CARD DE INFORMAÃ‡Ã•ES */}
+          {/* CARD DE INFORMAÇÕES */}
           {prof ? (
             <View style={styles.card}>
               <View style={styles.cardHeader}>
@@ -293,7 +293,7 @@ export default function InfoProf() {
                     />
                   ) : (
                     <Text style={styles.value}>
-                      {mostrarSenha ? prof.senha || "Sem senha" : "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"}
+                      {mostrarSenha ? prof.senha || "Sem senha" : "••••••••"}
                     </Text>
                   )}
                   <TouchableOpacity
@@ -309,7 +309,7 @@ export default function InfoProf() {
                 </View>
               </View>
 
-              {/* BOTÃƒO SALVAR */}
+              {/* BOTÃO SALVAR */}
               {editando && (
                 <TouchableOpacity
                   style={styles.botaoSalvar}
@@ -319,18 +319,18 @@ export default function InfoProf() {
                   {salvando ? (
                     <ActivityIndicator color="#FFF" />
                   ) : (
-                    <Text style={styles.textoSalvar}>Salvar AlteraÃ§Ãµes</Text>
+                    <Text style={styles.textoSalvar}>Salvar Alterações</Text>
                   )}
                 </TouchableOpacity>
               )}
             </View>
           ) : (
-            <Text style={styles.erro}>Dados do professor indisponÃ­veis.</Text>
+            <Text style={styles.erro}>Dados do professor indisponíveis.</Text>
           )}
         </View>
       </ScrollView>
 
-      {/* RODAPÃ‰ E BARRA DE NAVEGAÃ‡ÃƒO FIXA */}
+      {/* RODAPÉ E BARRA DE NAVEGAÇÃO FIXA */}
       <Footer children={undefined} />
                                       <View style={styles.barraMenuGeral}>
                                       
@@ -462,8 +462,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botÃµes na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaÃ§o entre eles
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
     alignItems: "center",
     backgroundColor: "#F5F2E8",    
     height: 90,                    
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#F5F2E8",     
     borderTopLeftRadius: 35,       
     borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapÃ©
+    position: "absolute",          // Fixa no rodapé
     bottom: 0,
     left: 0,
     right: 0,

@@ -1,18 +1,18 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
@@ -36,16 +36,16 @@ export default function InfoDiscente() {
   const [discente, setDiscente] = useState<Discente | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Estado para armazenar o tipo de usuÃ¡rio logado (RenderizaÃ§Ã£o da Navbar)
+  // Estado para armazenar o tipo de usuário logado (Renderização da Navbar)
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
-  // Estados de ediÃ§Ã£o do discente
+  // Estados de edição do discente
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState("");
   const [dataNasc, setDataNasc] = useState("");
   const [grau, setGrau] = useState("Selecione o grau de suporte");
 
-  // Estados dos ResponsÃ¡veis
+  // Estados dos Responsáveis
   const [editandoResponsaveis, setEditandoResponsaveis] = useState(false);
   const [responsaveisSelecionados, setResponsaveisSelecionados] = useState<Responsavel[]>([]);
   const [listaResponsaveis, setListaResponsaveis] = useState<Responsavel[]>([]);
@@ -54,7 +54,7 @@ export default function InfoDiscente() {
   // Estado do Dropdown de Grau
   const [abertoGrau, setAbertoGrau] = useState(false);
 
-  // Verifica o tipo de usuÃ¡rio toda vez que a tela entra em foco
+  // Verifica o tipo de usuário toda vez que a tela entra em foco
   useFocusEffect(
     useCallback(() => {
       const carregarTipoUsuario = async () => {
@@ -64,14 +64,14 @@ export default function InfoDiscente() {
             setTipoUsuario(String(tipoLogado).trim());
           }
         } catch (error) {
-          console.error("Erro ao carregar tipo de usuÃ¡rio:", error);
+          console.error("Erro ao carregar tipo de usuário:", error);
         }
       };
       carregarTipoUsuario();
     }, [])
   );
 
-  // FunÃ§Ã£o auxiliar para recuperar o ID do usuÃ¡rio logado
+  // Função auxiliar para recuperar o ID do usuário logado
   const obterIdUsuarioLogado = async () => {
     let idUser = await AsyncStorage.getItem("idUsuario");
     if (!idUser) {
@@ -88,9 +88,9 @@ export default function InfoDiscente() {
     try {
       setLoading(true);
 
-      // 1. Busca todos os responsÃ¡veis disponÃ­veis na base
+      // 1. Busca todos os responsáveis disponíveis na base
 
-      const resResp = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/buscar_responsaveis.php");
+      const resResp = await fetch("http://172.20.10.4/DiarioInclusivo/src/app/buscar_responsaveis.php");
   
 
       const dadosResp = await resResp.json();
@@ -99,7 +99,7 @@ export default function InfoDiscente() {
 
       // 2. Busca dados do discente
 
-      const response = await fetch(`http://192.168.0.107/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
+      const response = await fetch(`http://172.20.10.4/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
 
       const json = await response.json();
 
@@ -122,22 +122,22 @@ export default function InfoDiscente() {
 
         setGrau(d.grau_de_suporte ? String(d.grau_de_suporte) : "Selecione o grau de suporte");
 
-        // Associa os IDs jÃ¡ cadastrados aos objetos da lista de responsÃ¡veis
+        // Associa os IDs já cadastrados aos objetos da lista de responsáveis
         if (d.ids_responsaveis && Array.isArray(d.ids_responsaveis)) {
           const vinculados = listaCompleta.filter((r) => d.ids_responsaveis.includes(Number(r.id)));
           setResponsaveisSelecionados(vinculados);
         }
       } else {
-        Alert.alert("Erro", json.message || "Discente nÃ£o encontrado.");
+        Alert.alert("Erro", json.message || "Discente não encontrado.");
       }
     } catch (error) {
-      Alert.alert("Erro", "NÃ£o foi possÃ­vel conectar ao servidor.");
+      Alert.alert("Erro", "Não foi possível conectar ao servidor.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Aplica mÃ¡scara de data DD/MM/AAAA
+  // Aplica máscara de data DD/MM/AAAA
   const aplicarMascaraData = (text: string) => {
     const limpo = text.replace(/\D/g, "");
     let formatado = limpo;
@@ -151,7 +151,7 @@ export default function InfoDiscente() {
     setDataNasc(formatado);
   };
 
-  // ValidaÃ§Ã£o de data real
+  // Validação de data real
   const validarDataNascimento = (dataString: string): { valida: boolean; mensagem?: string } => {
     if (dataString.length < 10) {
       return { valida: false, mensagem: 'Digite a data completa no formato DD/MM/AAAA.' };
@@ -159,7 +159,7 @@ export default function InfoDiscente() {
 
     const partes = dataString.split('/');
     if (partes.length !== 3) {
-      return { valida: false, mensagem: 'Formato de data invÃ¡lido.' };
+      return { valida: false, mensagem: 'Formato de data inválido.' };
     }
 
     const dia = parseInt(partes[0], 10);
@@ -167,7 +167,7 @@ export default function InfoDiscente() {
     const ano = parseInt(partes[2], 10);
 
     if (mes < 1 || mes > 12) {
-      return { valida: false, mensagem: 'MÃªs invÃ¡lido.' };
+      return { valida: false, mensagem: 'Mês inválido.' };
     }
 
     const dataObjeto = new Date(ano, mes - 1, dia);
@@ -177,23 +177,23 @@ export default function InfoDiscente() {
       dataObjeto.getMonth() !== mes - 1 ||
       dataObjeto.getDate() !== dia
     ) {
-      return { valida: false, mensagem: 'Data inexistente (verifique o dia, mÃªs e se o ano Ã© bissexto).' };
+      return { valida: false, mensagem: 'Data inexistente (verifique o dia, mês e se o ano é bissexto).' };
     }
 
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     if (dataObjeto > hoje) {
-      return { valida: false, mensagem: 'A data de nascimento nÃ£o pode ser no futuro.' };
+      return { valida: false, mensagem: 'A data de nascimento não pode ser no futuro.' };
     }
 
     if (ano < 1900) {
-      return { valida: false, mensagem: 'Ano de nascimento invÃ¡lido.' };
+      return { valida: false, mensagem: 'Ano de nascimento inválido.' };
     }
 
     return { valida: true };
   };
 
-  // Alterna seleÃ§Ã£o do responsÃ¡vel
+  // Alterna seleção do responsável
   const alternarSelecao = (item: Responsavel) => {
     const jaSelecionado = responsaveisSelecionados.some((r) => r.id === item.id);
     if (jaSelecionado) {
@@ -203,14 +203,14 @@ export default function InfoDiscente() {
     }
   };
 
-  // Filtro de busca dos responsÃ¡veis
+  // Filtro de busca dos responsáveis
   const listaSegura = Array.isArray(listaResponsaveis) ? listaResponsaveis : [];
   const filtrados = listaSegura.filter((r) => {
     if (!busca || busca.trim() === "") return true;
     return r.nome ? r.nome.toLowerCase().includes(busca.toLowerCase()) : false;
   });
 
-  // Salvar alteraÃ§Ãµes
+  // Salvar alterações
   const salvarAlteracoes = async () => {
     if (!nome.trim() || !dataNasc.trim() || grau === "Selecione o grau de suporte") {
       Alert.alert("Erro", "Por favor, preencha todos os campos corretamente.");
@@ -219,12 +219,12 @@ export default function InfoDiscente() {
 
     const validacaoData = validarDataNascimento(dataNasc);
     if (!validacaoData.valida) {
-      Alert.alert('Data InvÃ¡lida', validacaoData.mensagem);
+      Alert.alert('Data Inválida', validacaoData.mensagem);
       return;
     }
 
     if (responsaveisSelecionados.length === 0) {
-      Alert.alert("Erro", "Selecione pelo menos um responsÃ¡vel.");
+      Alert.alert("Erro", "Selecione pelo menos um responsável.");
       return;
     }
 
@@ -242,13 +242,13 @@ export default function InfoDiscente() {
       const idUsuarioLogado = await obterIdUsuarioLogado();
 
       if (!idUsuarioLogado) {
-        Alert.alert("Erro de AutenticaÃ§Ã£o", "SessÃ£o expirada ou nÃ£o encontrada. FaÃ§a login novamente.");
+        Alert.alert("Erro de Autenticação", "Sessão expirada ou não encontrada. Faça login novamente.");
         setLoading(false);
         return;
       }
 
 
-      const response = await fetch("http://192.168.0.107/DiarioInclusivo/src/app/updateDiscente.php", {
+      const response = await fetch("http://172.20.10.4/DiarioInclusivo/src/app/updateDiscente.php", {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -271,10 +271,10 @@ export default function InfoDiscente() {
         setAbertoGrau(false);
         carregarDados();
       } else {
-        Alert.alert("Erro", json.message || "NÃ£o foi possÃ­vel atualizar.");
+        Alert.alert("Erro", json.message || "Não foi possível atualizar.");
       }
     } catch (error) {
-      Alert.alert("Erro", "Falha de conexÃ£o ao salvar alteraÃ§Ãµes.");
+      Alert.alert("Erro", "Falha de conexão ao salvar alterações.");
     } finally {
       setLoading(false);
     }
@@ -282,8 +282,8 @@ export default function InfoDiscente() {
 
   const confirmarExclusao = () => {
     Alert.alert(
-      "Confirmar ExclusÃ£o",
-      "Tem certeza que deseja excluir este discente? Esta aÃ§Ã£o nÃ£o pode ser desfeita.",
+      "Confirmar Exclusão",
+      "Tem certeza que deseja excluir este discente? Esta ação não pode ser desfeita.",
       [
         { text: "Cancelar", style: "cancel" },
         { text: "Excluir", style: "destructive", onPress: deletarDiscente },
@@ -299,14 +299,14 @@ export default function InfoDiscente() {
 
       const response = await fetch(
 
-        `http://192.168.0.107/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
+        `http://172.20.10.4/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
 
         { method: "DELETE" }
       );
       const json = await response.json();
 
       if (json.success) {
-        Alert.alert("Sucesso", json.message || "Discente excluÃ­do com sucesso!", [
+        Alert.alert("Sucesso", json.message || "Discente excluído com sucesso!", [
           { text: "OK", onPress: () => router.push("/discente") },
         ]);
       } else {
@@ -321,7 +321,7 @@ export default function InfoDiscente() {
 
   const nomesEscritos = responsaveisSelecionados.length > 0
     ? responsaveisSelecionados.map((r) => r.nome).join(", ")
-    : discente?.nomes_responsaveis || "Nenhum responsÃ¡vel vinculado";
+    : discente?.nomes_responsaveis || "Nenhum responsável vinculado";
 
   if (loading) {
     return (
@@ -340,7 +340,7 @@ export default function InfoDiscente() {
 
         {discente ? (
           <View style={styles.card}>
-            {/* CabeÃ§alho */}
+            {/* Cabeçalho */}
             <View style={styles.cardHeader}>
               {editando ? (
                 <TextInput
@@ -377,9 +377,9 @@ export default function InfoDiscente() {
 
             <View style={styles.divider} />
 
-            {/* RESPONSÃVEIS */}
+            {/* RESPONSÁVEIS */}
             <View style={styles.infoRow}>
-              <Text style={styles.label}>ResponsÃ¡vel(is):</Text>
+              <Text style={styles.label}>Responsável(is):</Text>
 
               {editando ? (
                 <>
@@ -388,7 +388,7 @@ export default function InfoDiscente() {
                       <View key={item.id} style={styles.tag}>
                         <Text style={styles.tagTexto}>{item.nome}</Text>
                         <Pressable onPress={() => alternarSelecao(item)}>
-                          <Text style={styles.tagFechar}> âœ•</Text>
+                          <Text style={styles.tagFechar}> ✕</Text>
                         </Pressable>
                       </View>
                     ))}
@@ -396,7 +396,7 @@ export default function InfoDiscente() {
 
                   {editandoResponsaveis ? (
                     <Input
-                      placeholder="Digite para buscar responsÃ¡vel..."
+                      placeholder="Digite para buscar responsável..."
                       placeholderTextColor="#0b8cbfd1"
                       value={busca}
                       onChangeText={setBusca}
@@ -405,7 +405,7 @@ export default function InfoDiscente() {
                   ) : (
                     <Pressable style={styles.select} onPress={() => setEditandoResponsaveis(true)}>
                       <Text style={styles.selectTexto}>
-                        + Adicionar ou remover responsÃ¡veis
+                        + Adicionar ou remover responsáveis
                       </Text>
                     </Pressable>
                   )}
@@ -428,13 +428,13 @@ export default function InfoDiscente() {
                                     fontWeight: selecionado ? "bold" : "normal",
                                   }}
                                 >
-                                  {selecionado ? `âœ“ ${item.nome}` : item.nome}
+                                  {selecionado ? `✓ ${item.nome}` : item.nome}
                                 </Text>
                               </Pressable>
                             );
                           })
                         ) : (
-                          <Text style={{ padding: 15, color: "#0b8cbf5b" }}>Nenhum responsÃ¡vel encontrado</Text>
+                          <Text style={{ padding: 15, color: "#0b8cbf5b" }}>Nenhum responsável encontrado</Text>
                         )}
                       </ScrollView>
                       <Pressable
@@ -444,7 +444,7 @@ export default function InfoDiscente() {
                           setBusca("");
                         }}
                       >
-                        <Text style={styles.textoConcluir}>Concluir SeleÃ§Ã£o</Text>
+                        <Text style={styles.textoConcluir}>Concluir Seleção</Text>
                       </Pressable>
                     </View>
                   )}
@@ -505,23 +505,23 @@ export default function InfoDiscente() {
               )}
             </View>
 
-            {/* BOTÃƒO SALVAR */}
+            {/* BOTÃO SALVAR */}
             {editando && (
               <TouchableOpacity style={styles.botaoSalvar} onPress={salvarAlteracoes}>
-                <Text style={styles.textoBotaoSalvar}>Salvar AlteraÃ§Ãµes</Text>
+                <Text style={styles.textoBotaoSalvar}>Salvar Alterações</Text>
               </TouchableOpacity>
             )}
           </View>
         ) : (
-          <Text style={styles.erro}>Discente nÃ£o encontrado.</Text>
+          <Text style={styles.erro}>Discente não encontrado.</Text>
         )}
       </ScrollView>
 
-      {/* --- RODAPÃ‰ E MENU GERAL CONDICIONAL --- */}
+      {/* --- RODAPÉ E MENU GERAL CONDICIONAL --- */}
       <Footer children={undefined} />
       <View style={styles.barraMenuGeral}>
         {tipoUsuario === "2" ? (
-          /* BARRA PARA O TIPO 2 (ADM) - Destaque no botÃ£o Discentes */
+          /* BARRA PARA O TIPO 2 (ADM) - Destaque no botão Discentes */
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
               <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
@@ -544,16 +544,16 @@ export default function InfoDiscente() {
             </Pressable>
           </>
         ) : (
-          /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque em InÃ­cio */
+          /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque em Início */
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
               <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>InÃ­cio</Text>
+              <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>DiÃ¡rio</Text>
+              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

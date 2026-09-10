@@ -1,4 +1,4 @@
-﻿import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -13,15 +13,15 @@ export default function DiscenteResp() {
 
     // 1. VEJA ISSO NO TERMINAL DO EXPO:
     console.log("--- DEBUG DISCENTE RESP ---");
-    console.log("ID do ResponsÃ¡vel Logado:", idUsuarioLogado);
+    console.log("ID do Responsável Logado:", idUsuarioLogado);
 
     if (!idUsuarioLogado) {
-      console.error("ID do responsÃ¡vel nÃ£o encontrado no AsyncStorage.");
+      console.error("ID do responsável não encontrado no AsyncStorage.");
       return;
     }
 
 
-    const url = `http://192.168.0.107/DiarioInclusivo/src/app/discenteResp.php?idResp=${idUsuarioLogado}`;
+    const url = `http://172.20.10.4/DiarioInclusivo/src/app/discenteResp.php?idResp=${idUsuarioLogado}`;
 
     console.log("URL chamada:", url);
 
@@ -37,7 +37,7 @@ export default function DiscenteResp() {
       setListaDiscentes([]);
     }
   } catch (error) {
-    console.error("Erro ao buscar discentes do responsÃ¡vel:", error);
+    console.error("Erro ao buscar discentes do responsável:", error);
   }
 };
 
@@ -74,7 +74,7 @@ export default function DiscenteResp() {
               </View>
             ))
           ) : (
-            <Text style={styles.textoVazio}>Nenhum discente vinculado a este responsÃ¡vel.</Text>
+            <Text style={styles.textoVazio}>Nenhum discente vinculado a este responsável.</Text>
           )}
         </View>
       </ScrollView>
@@ -84,7 +84,7 @@ export default function DiscenteResp() {
       <View style={styles.barraMenuGeral}>
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
           <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>InÃ­cio</Text>
+          <Text style={styles.tabLabel}>Início</Text>
         </Pressable>
 
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>

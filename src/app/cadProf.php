@@ -65,11 +65,12 @@ if ($stmtCheck) {
 // =========================================================================
 
 // 4. Inserção no banco de dados usando Prepared Statements
+$senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 $stmt = $mysqli->prepare("INSERT INTO usuario (nome, email, senha, tipo_de_usuario) VALUES (?, ?, ?, ?)");
 
 if ($stmt) {
     // Vincula os dados (s = string, i = inteiro)
-    $stmt->bind_param("sssi", $nome, $email, $senha, $tipoConta);
+    $stmt->bind_param("sssi", $nome, $email, $senhaHash, $tipoConta);
 
     if ($stmt->execute()) {
         echo json_encode([

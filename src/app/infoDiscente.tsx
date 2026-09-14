@@ -90,7 +90,7 @@ export default function InfoDiscente() {
 
       // 1. Busca todos os responsáveis disponíveis na base
 
-      const resResp = await fetch("https://diarioinclusivo.linceonline.com.br/buscar_responsaveis.php");
+      const resResp = await fetch("http://192.168.0.103/DiarioInclusivo/src/app/buscar_responsaveis.php");
   
 
       const dadosResp = await resResp.json();
@@ -99,7 +99,7 @@ export default function InfoDiscente() {
 
       // 2. Busca dados do discente
 
-      const response = await fetch(`https://diarioinclusivo.linceonline.com.br/getDiscente.php?id=${id}`);
+      const response = await fetch(`http://192.168.0.103/DiarioInclusivo/src/app/getDiscente.php?id=${id}`);
 
       const json = await response.json();
 
@@ -248,7 +248,7 @@ export default function InfoDiscente() {
       }
 
 
-      const response = await fetch("https://diarioinclusivo.linceonline.com.br/updateDiscente.php", {
+      const response = await fetch("http://192.168.0.103/DiarioInclusivo/src/app/updateDiscente.php", {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -299,7 +299,7 @@ export default function InfoDiscente() {
 
       const response = await fetch(
 
-        `https://diarioinclusivo.linceonline.com.br/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
+        `http://192.168.0.103/DiarioInclusivo/src/app/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
 
         { method: "DELETE" }
       );

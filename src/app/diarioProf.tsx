@@ -154,7 +154,7 @@ export default function Diario() {
         }
 
         if (currentUserId) {
-          const urlAPI = `https://diarioinclusivo.linceonline.com.br/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const urlAPI = `http://192.168.0.103/DiarioInclusivo/src/app/listar_discentes_professor.php?idUsuario=${currentUserId}`;
           const response = await fetch(urlAPI);
           const result = await response.json();
           
@@ -221,7 +221,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "https://diarioinclusivo.linceonline.com.br/listar_atividades.php"
+        "http://192.168.0.103/DiarioInclusivo/src/app/listar_atividades.php"
 
       );
       const result = await response.json();
@@ -268,7 +268,7 @@ export default function Diario() {
     try {
       const resposta = await fetch(
 
-        `https://diarioinclusivo.linceonline.com.br/listar_rotina.php?idUsuario=${idUsuario}`
+        `http://192.168.0.103/DiarioInclusivo/src/app/listar_rotina.php?idUsuario=${idUsuario}`
 
       );
       const resultado = await resposta.json();
@@ -327,8 +327,7 @@ export default function Diario() {
       };
 
     const response = await fetch(
-        `https://diarioinclusivo.linceonline.com.br/sincronizar_rotina_diario.php`,
-
+        `http://192.168.0.103/DiarioInclusivo/src/app/sincronizar_rotina_diario.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -396,7 +395,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "https://diarioinclusivo.linceonline.com.br/criar_diario.php",
+        "http://192.168.0.103/DiarioInclusivo/src/app/criar_diario.php",
 
         {
           method: "POST",
@@ -446,7 +445,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        `https://diarioinclusivo.linceonline.com.br/listar_diario.php?idDiscente=${idDiscente}`
+        `http://192.168.0.103/DiarioInclusivo/src/app/listar_diario.php?idDiscente=${idDiscente}`
 
       );
       const result = await response.json();

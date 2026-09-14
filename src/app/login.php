@@ -23,13 +23,12 @@ $resultado = $stmt->get_result();
 if ($resultado->num_rows > 0) {
     $usuario = $resultado->fetch_assoc();
     
-    // Comparação direta (Texto puro)
-    if ($senha === $usuario['senha']) {
+    if (password_verify($senha, $usuario['senha'])) {
         echo json_encode([
             "sucesso" => true, 
             "mensagem" => "Login realizado com sucesso!",
             "userId" => $usuario['idUsuario'],
-            "tipo_de_usuario" => (int)$usuario['tipo_de_usuario'] // 2. Retornamos o tipo para o React
+            "tipo_de_usuario" => (int)$usuario['tipo_de_usuario']
         ]);
     } else {
         echo json_encode(["sucesso" => false, "mensagem" => "Senha incorreta."]);

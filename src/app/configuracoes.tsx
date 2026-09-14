@@ -14,7 +14,7 @@ export default function Configuracoes() {
         const idSalvo = await AsyncStorage.getItem("idUsuario");
         if (idSalvo) {
 
-          const response = await fetch(`https://diarioinclusivo.linceonline.com.br/getUsuario.php?id=${idSalvo}`);
+          const response = await fetch(`http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idSalvo}`);
 
           const json = await response.json();
           
@@ -80,7 +80,7 @@ export default function Configuracoes() {
 
         <Pressable 
           style={styles.opcaoItem} 
-          onPress={() => router.push("/discenteResp")}
+          onPress={() => router.push("/alterar_senha")}
         >
           <Text style={styles.opcaoTexto}>Alteração de senha</Text>
         </Pressable>

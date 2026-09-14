@@ -18,6 +18,11 @@ import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
 
+const BASE_API_URL =
+    Platform.OS === "android"
+        ? "http://10.0.2.2/DiarioInclusivo/src/app"
+        : "http://192.168.0.103/DiarioInclusivo/src/app";
+
 export default function Login() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
@@ -55,12 +60,13 @@ export default function Login() {
         }
 
         try {
+            const urlLogin = `${BASE_API_URL}/login.php`;
 
-            const response = await fetch("https://diarioinclusivo.linceonline.com.br/login.php", {
-
+            const response = await fetch(urlLogin, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 },
                 body: JSON.stringify({
                     email: email,
@@ -68,7 +74,15 @@ export default function Login() {
                 })
             });
 
-            const data = await response.json();
+            const text = await response.text();
+            console.log("RESPOSTA LOGIN:", response.status, text);
+
+            let data;
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (parseError) {
+                throw new Error(`Resposta do servidor não é JSON. Status: ${response.status}. Resposta: ${text.slice(0, 250)}`);
+            }
 
             if (data.sucesso) {
                 if (data.userId) {
@@ -98,7 +112,8 @@ export default function Login() {
                 Alert.alert("Erro", data.mensagem);
             }
         } catch (error) {
-            Alert.alert("Erro", "Falha na conexão com o servidor.");
+            console.log("ERRO COMPLETO DO FETCH:", error);
+            Alert.alert("Erro", "Falha: " + (error instanceof Error ? error.message : String(error)));
         }
     };
 
@@ -161,7 +176,7 @@ export default function Login() {
                     {/* BOTÃO | LINK: ESQUECER A SENHA */}
                     <Pressable 
                         style={styles.esqueceuSenhaBotao} 
-                        onPress={() => router.push("/inicio")}
+                        onPress={() => router.push("/recuperar_senha")}
                     >
                         <Text style={styles.esqueceuSenhaTexto}>
                             Esqueceu sua senha? Clique aqui para recuperar

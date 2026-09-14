@@ -13,10 +13,16 @@ if (isset($dados['idUsuario']) && isset($dados['nome']) && isset($dados['email']
     $nome = $dados['nome'];
     $email = $dados['email'];
     $telefone = $dados['telefone'] ?? '';
-    $senha = $dados['senha'] ?? '';
+    $senha = $dados['senha'] ?? null;
 
-    $stmt = $mysqli->prepare("UPDATE usuario SET nome = ?, email = ?, telefone = ?, senha = ? WHERE idUsuario = ?");
-    $stmt->bind_param("ssssi", $nome, $email, $telefone, $senha, $id);
+    if ($senha !== null && $senha !== '') {
+        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+        $stmt = $mysqli->prepare("UPDATE usuario SET nome = ?, email = ?, telefone = ?, senha = ? WHERE idUsuario = ?");
+        $stmt->bind_param("ssssi", $nome, $email, $telefone, $senhaHash, $id);
+    } else {
+        $stmt = $mysqli->prepare("UPDATE usuario SET nome = ?, email = ?, telefone = ? WHERE idUsuario = ?");
+        $stmt->bind_param("sssi", $nome, $email, $telefone, $id);
+    }
 
     if ($stmt->execute()) {
         echo json_encode(["success" => true, "message" => "Dados atualizados com sucesso."]);

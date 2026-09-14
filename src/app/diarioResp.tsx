@@ -83,7 +83,7 @@ useEffect(() => {
         setIdUsuario(currentUserId);
 
         // CORREÇÃO: Usando o endpoint correto 'discenteResp.php' em vez do de professores
-        const urlAPI = `https://diarioinclusivo.linceonline.com.br/discenteResp.php?idResp=${currentUserId}`;
+        const urlAPI = `http://192.168.0.103/DiarioInclusivo/src/app/discenteResp.php?idResp=${currentUserId}`;
         const response = await fetch(urlAPI);
         const result = await response.json();
 

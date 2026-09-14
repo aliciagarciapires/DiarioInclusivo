@@ -75,6 +75,7 @@ if ($stmtCheck) {
 
 // 7. Garante que $tipoConta nunca seja null (se não vier no JSON, assume 1)
 $tipoConta = isset($dados['tipoConta']) && !empty($dados['tipoConta']) ? (int)$dados['tipoConta'] : 1;
+$senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
 // 8. Query com o nome correto da coluna para INSERT
 $sql = "INSERT INTO usuario (nome, email, telefone, senha, tipo_de_usuario) VALUES (?, ?, ?, ?, ?)";
@@ -90,7 +91,7 @@ if (!$stmt) {
 }
 
 // Garanta que a variável $tipoConta é o último parâmetro
-$stmt->bind_param("ssssi", $nome, $email, $telefone, $senha, $tipoConta);
+$stmt->bind_param("ssssi", $nome, $email, $telefone, $senhaHash, $tipoConta);
 
 if ($stmt->execute()) {
     $idInserido = $mysqli->insert_id;

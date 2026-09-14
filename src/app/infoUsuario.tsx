@@ -3,15 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import Footer from "../../components/Footer";
 
@@ -36,7 +36,7 @@ export default function InfoUsuario() {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
-  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [senhaOriginal, setSenhaOriginal] = useState("");
 
   // --- VALIDAÇÕES E MÁSCARAS ---
   const tratarEmail = (text: string) => {
@@ -85,7 +85,7 @@ export default function InfoUsuario() {
             return;
           }
 
-          const response = await fetch(`https://diarioinclusivo.linceonline.com.br/getUsuario.php?id=${idFinal}`);
+          const response = await fetch(`http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`);
 
           const json = await response.json();
 
@@ -95,7 +95,10 @@ export default function InfoUsuario() {
             setNome(json.dados.nome || "");
             setEmail(json.dados.email || "");
             setTelefone(json.dados.telefone || "");
-            setSenha(json.dados.senha || "");
+            // A senha não pode ser reconstruída do hash salvo no banco.
+            // Mantemos o valor apenas no estado local da tela para exibição/edição.
+            setSenhaOriginal("");
+            setSenha("");
           } else {
             Alert.alert("Erro", json.message);
           }
@@ -138,24 +141,31 @@ export default function InfoUsuario() {
     try {
       setSalvando(true);
 
-      const response = await fetch("https://diarioinclusivo.linceonline.com.br/updateUsuario.php", {
+      const payload: any = {
+        idUsuario: usuario.idUsuario,
+        nome: nome.trim(),
+        email: email,
+        telefone: telefone
+      };
+
+      if (senha.trim() && senha !== senhaOriginal) {
+        payload.senha = senha.trim();
+      }
+
+      const response = await fetch("http://192.168.0.103/DiarioInclusivo/src/app/updateUsuario.php", {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          idUsuario: usuario.idUsuario,
-          nome: nome.trim(),
-          email: email,
-          telefone: telefone,
-          senha: senha
-        })
+        body: JSON.stringify(payload)
       });
 
       const json = await response.json();
 
       if (json.success) {
         Alert.alert("Sucesso", "Informações atualizadas com sucesso!");
-        setUsuario({ ...usuario, nome: nome.trim(), email, telefone, senha });
+        setUsuario({ ...usuario, nome: nome.trim(), email, telefone, senha: senhaOriginal });
+        setSenhaOriginal(senha.trim() && senha !== senhaOriginal ? senha.trim() : senhaOriginal);
+        setSenha(senha.trim() && senha !== senhaOriginal ? senha.trim() : senhaOriginal);
         setEditando(false);
       } else {
         Alert.alert("Erro", json.message || "Erro ao salvar alterações.");
@@ -196,7 +206,7 @@ export default function InfoUsuario() {
 
       const response = await fetch(
 
-        `https://diarioinclusivo.linceonline.com.br/deleteUsuario.php?id=${idParaDeletar}`,
+        `http://192.168.0.103/DiarioInclusivo/src/app/deleteUsuario.php?id=${idParaDeletar}`,
 
         { method: "GET" }
       );
@@ -302,37 +312,6 @@ export default function InfoUsuario() {
             ) : (
               <Text style={styles.value}>{usuario.telefone || "Não informado"}</Text>
             )}
-          </View>
-
-          {/* CAMPO SENHA */}
-          <View style={styles.infoRow}>
-            <View style={styles.labelContainer}>
-              <Text style={styles.label}>Senha:</Text>
-            </View>
-            <View style={styles.senhaContainer}>
-              {editando ? (
-                <TextInput
-                  style={[styles.input, { flex: 1 }]}
-                  value={senha}
-                  onChangeText={setSenha}
-                  secureTextEntry={!mostrarSenha}
-                />
-              ) : (
-                <Text style={styles.value}>
-                  {mostrarSenha ? usuario.senha : "••••••••"}
-                </Text>
-              )}
-              <TouchableOpacity 
-                onPress={() => setMostrarSenha(!mostrarSenha)}
-                style={styles.botaoOlho}
-              >
-                <Ionicons 
-                  name={mostrarSenha ? "eye-off-outline" : "eye-outline"} 
-                  size={20} 
-                  color="#2F1CA6" 
-                />
-              </TouchableOpacity>
-            </View>
           </View>
 
           {/* BOTÃO SALVAR (Exibido apenas quando estiver editando) */}

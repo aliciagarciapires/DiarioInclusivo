@@ -33,6 +33,11 @@ if (empty($email)) {
     exit();
 }
 
+if (!preg_match('/^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/', $senha)) {
+    echo json_encode(["success" => false, "message" => "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."]);
+    exit();
+}
+
 // =========================================================================
 // 3. Checa se o e-mail já existe na tabela 'usuario'
 // =========================================================================

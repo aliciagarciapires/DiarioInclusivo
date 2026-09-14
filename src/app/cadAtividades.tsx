@@ -5,7 +5,7 @@ export default function CadAtividade() {
   const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'http://192.168.0.103/DiarioInclusivo/src/app/criar_atividade.php';
+  const API_URL = 'https://diarioinclusivo.linceonline.com.br/criar_atividade.php';
 
 
   const handleCadastrar = async () => {

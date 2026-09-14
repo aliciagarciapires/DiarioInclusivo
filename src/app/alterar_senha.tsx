@@ -17,10 +17,7 @@ import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
 
-const BASE_API_URL =
-    Platform.OS === "android"
-        ? "http://10.0.2.2/DiarioInclusivo/src/app"
-        : "http://192.168.0.103/DiarioInclusivo/src/app";
+const BASE_API_URL = "https://diarioinclusivo.linceonline.com.br";
 
 export default function AtualizarSenha() {
     const [senhaAtual, setSenhaAtual] = useState("");
@@ -33,9 +30,21 @@ export default function AtualizarSenha() {
     
     const [loading, setLoading] = useState(false);
 
+    const validarSenha = (senhaParaTestar: string) => {
+        return /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
+    };
+
     const handleSalvarSenha = async () => {
         if (!senhaAtual || !novaSenha || !confirmarSenha) {
             Alert.alert("Aviso", "Por favor, preencha todos os campos.");
+            return;
+        }
+
+        if (!validarSenha(novaSenha)) {
+            Alert.alert(
+                "Aviso",
+                "A nova senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."
+            );
             return;
         }
 

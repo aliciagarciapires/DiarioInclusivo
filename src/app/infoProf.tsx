@@ -63,7 +63,7 @@ export default function InfoProf() {
         if (idLogado) {
           const respLogado = await fetch(
 
-            `http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idLogado}`
+            `https://diarioinclusivo.linceonline.com.br/getUsuario.php?id=${idLogado}`
 
           );
           const jsonLogado = await respLogado.json();
@@ -82,7 +82,7 @@ export default function InfoProf() {
         // 3. Busca os dados do professor selecionado
         const response = await fetch(
 
-            `http://192.168.0.103/DiarioInclusivo/src/app/getUsuario.php?id=${idFinal}`
+            `https://diarioinclusivo.linceonline.com.br/getUsuario.php?id=${idFinal}`
 
         );
         const json = await response.json();
@@ -143,7 +143,7 @@ export default function InfoProf() {
 
       const response = await fetch(
 
-        "http://192.168.0.103/DiarioInclusivo/src/app/updateUsuario.php",
+        "https://diarioinclusivo.linceonline.com.br/updateUsuario.php",
 
         {
           method: "POST",
@@ -188,7 +188,7 @@ export default function InfoProf() {
 
             const response = await fetch(
 
-        `http://192.168.0.103/DiarioInclusivo/src/app/deleteUsuario.php?id=${prof.idUsuario}`,
+        `https://diarioinclusivo.linceonline.com.br/deleteUsuario.php?id=${prof.idUsuario}`,
 
         { method: "GET" }
             );

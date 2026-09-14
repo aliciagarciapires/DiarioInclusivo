@@ -4,17 +4,17 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import Footer from '../../components/Footer';
 
@@ -81,7 +81,7 @@ export default function CriarRotina() {
   useEffect(() => {
     async function carregarAtividadesBanco() {
       try {
-        const resposta = await fetch(`http://192.168.0.103/DiarioInclusivo/src/app/buscarAtividades.php`);
+        const resposta = await fetch(`https://diarioinclusivo.linceonline.com.br/buscarAtividades.php`);
         const dados = await resposta.json();
         if (dados && Array.isArray(dados)) {
           setListaMaster(dados);
@@ -179,7 +179,7 @@ export default function CriarRotina() {
         horas_finais: ativ.fim.toLocaleTimeString([], { hour12: false })
       }));
 
-      const URL_SALVAR = `http://192.168.0.103/DiarioInclusivo/src/app/salvar_rotina.php`;
+      const URL_SALVAR = `https://diarioinclusivo.linceonline.com.br/salvar_rotina.php`;
 
       const resposta = await fetch(URL_SALVAR, {
         method: 'POST',

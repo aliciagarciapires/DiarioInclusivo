@@ -30,6 +30,11 @@ if (empty($userId) || empty($senhaAtual) || empty($novaSenha)) {
     exit;
 }
 
+if (!preg_match('/^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/', $novaSenha)) {
+    echo json_encode(["sucesso" => false, "mensagem" => "A nova senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."]);
+    exit;
+}
+
 // 1. Busca o usuário no banco pelo ID
 $stmt = $mysqli->prepare("SELECT senha FROM usuario WHERE idUsuario = ?");
 $stmt->bind_param("i", $userId);

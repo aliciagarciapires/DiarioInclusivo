@@ -18,10 +18,7 @@ import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
 
-const BASE_API_URL =
-    Platform.OS === "android"
-        ? "http://10.0.2.2/DiarioInclusivo/src/app"
-        : "http://192.168.0.103/DiarioInclusivo/src/app";
+const BASE_API_URL = "https://diarioinclusivo.linceonline.com.br";
 
 export default function Login() {
     const [email, setEmail] = useState("");

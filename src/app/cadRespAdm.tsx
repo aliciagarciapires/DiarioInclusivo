@@ -49,6 +49,10 @@ export default function CadResp() {
         return regexEmail.test(emailParaTestar);
     };
 
+    const validarSenha = (senhaParaTestar: string) => {
+        return /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
+    };
+
     // Máscara de telefone
     const aplicarMascaraTelefone = (text: string) => {
         const limpo = text.replace(/\D/g, "");
@@ -73,9 +77,22 @@ export default function CadResp() {
             return;
         }
 
+        if (!validarSenha(senha)) {
+            Alert.alert(
+                "Aviso",
+                "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."
+            );
+            return;
+        }
+
+        if (senha !== confirmarSenha) {
+            Alert.alert("Aviso", "As senhas não coincidem.");
+            return;
+        }
+
         try {
 
-            const response = await fetch("http://192.168.0.103/DiarioInclusivo/src/app/cadResp.php", {
+            const response = await fetch("https://diarioinclusivo.linceonline.com.br/cadResp.php", {
 
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -105,7 +122,7 @@ export default function CadResp() {
     // Nova função para cadastrar a solicitação do Administrador
     const enviarCadastro = async () => {
 
-            const urlAPI = 'http://192.168.0.103/DiarioInclusivo/src/app/cadAdm.php'; // Substitua pelo seu IP e pasta
+            const urlAPI = 'https://diarioinclusivo.linceonline.com.br/cadAdm.php';
 
   try {
     const resposta = await fetch(urlAPI, {

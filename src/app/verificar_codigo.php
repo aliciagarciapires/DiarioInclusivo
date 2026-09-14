@@ -21,6 +21,11 @@ if (empty($email) || empty($codigoInformado)) {
     exit;
 }
 
+if (!empty($novaSenha) && !preg_match('/^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/', $novaSenha)) {
+    echo json_encode(["sucesso" => false, "mensagem" => "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."]);
+    exit;
+}
+
 $nomeArquivo = __DIR__ . '/tokens/' . md5($email) . '.json';
 
 if (!file_exists($nomeArquivo)) {

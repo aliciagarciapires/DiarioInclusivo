@@ -40,6 +40,10 @@ export default function CadProf() {
     return regexEmail.test(emailParaTestar);
   };
 
+  const validarSenha = (senhaParaTestar: string) => {
+    return /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
+  };
+
   const cadastrarProfessor = async () => {
     const emailTratado = email.toLowerCase().replace(/\s+/g, "");
     const nomeTratado = nome.trim();
@@ -57,6 +61,14 @@ export default function CadProf() {
     }
 
     // 3. Validação de Senha
+    if (!validarSenha(senha)) {
+      Alert.alert(
+        "Erro",
+        "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."
+      );
+      return;
+    }
+
     if (senha !== confirmarSenha) {
       Alert.alert("Erro", "As senhas não coincidem");
       return;
@@ -65,7 +77,7 @@ export default function CadProf() {
     // 4. Envio para o Backend
     try {
       const response = await fetch(
-        "http://192.168.0.103/DiarioInclusivo/src/app/cadProf.php",
+        "https://diarioinclusivo.linceonline.com.br/cadProf.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

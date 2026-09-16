@@ -1,2 +1,2 @@
 export const API_URL =
-  "http://192.168.1.59/DiarioInclusivo/src/app";
+  "https://diarioinclusivo.linceonline.com.br";

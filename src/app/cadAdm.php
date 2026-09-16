@@ -166,6 +166,9 @@ if (!$emailInst || !$emailAdm) {
     exit;
 }
 
+// GERA O HASH DA SENHA PARA ENVIO SEGURO NO E-MAIL
+$senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
 // 5. Configuração e Envio do PHPMailer
 try {
 
@@ -242,9 +245,10 @@ try {
         htmlspecialchars($emailAdm) .
         "</p>";
 
+    // ALTERADO PARA ENVIAR A SENHA JÁ HASHEADA
     $bodyHtml .=
-        "<p><b>Senha Solicitada:</b> " .
-        htmlspecialchars($senha) .
+        "<p><b>Senha Hasheada:</b> " .
+        htmlspecialchars($senhaHash) .
         "</p>";
 
     $mail->Body = $bodyHtml;

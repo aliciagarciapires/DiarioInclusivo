@@ -103,6 +103,48 @@ export default function CriarRotina() {
     setModalVisivel(false); // Fecha o modal após selecionar
   };
 
+  // Permite somente ao ADM cadastrar uma nova atividade sem sair da criação da rotina
+  const criarNovaAtividade = async () => {
+    const nomeLimpo = novoNomeAtividade.trim();
+
+    if (!nomeLimpo) {
+      Alert.alert('Aviso', 'Digite o nome da atividade.');
+      return;
+    }
+
+    setCadastrandoAtividade(true);
+
+    try {
+      const resposta = await fetch(`${API_URL}/criar_atividade.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ novoNomeAtividade: nomeLimpo }),
+      });
+
+      const resultado: { sucesso?: boolean; idAtividades?: number; mensagem?: string } =
+        await resposta.json();
+
+      if (!resposta.ok || !resultado.sucesso || !resultado.idAtividades) {
+        throw new Error(resultado.mensagem || 'Não foi possível cadastrar a atividade.');
+      }
+
+      const atividadeCriada: AtividadeMaster = {
+        idAtividades: resultado.idAtividades,
+        nome: nomeLimpo,
+      };
+
+      // Atualiza a lista local para que a atividade recém-criada já possa ser selecionada.
+      setListaMaster((listaAtual) => [...listaAtual, atividadeCriada].sort((a, b) => a.nome.localeCompare(b.nome)));
+      setNovoNomeAtividade('');
+      Alert.alert('Sucesso!', 'Atividade cadastrada. Agora selecione-a na lista.');
+    } catch (error: any) {
+      console.error('Erro ao criar atividade:', error);
+      Alert.alert('Erro ao cadastrar', error?.message || 'Não foi possível cadastrar a atividade.');
+    } finally {
+      setCadastrandoAtividade(false);
+    }
+  };
+
   // Remove um item da lista local da rotina
   const apagarAtividade = (idParaApagar: string) => {
     Alert.alert(
@@ -291,6 +333,29 @@ export default function CriarRotina() {
           <View style={styles.modalContent}>
             
             <Text style={styles.modalTitulo}>Escolha uma Atividade</Text>
+
+            {tipoUsuario === '2' && (
+              <View style={styles.criarAtividadeContainer}>
+                <TextInput
+                  style={styles.inputNovaAtividade}
+                  placeholder="Nome da nova atividade"
+                  placeholderTextColor="#0b8cbfd1"
+                  value={novoNomeAtividade}
+                  onChangeText={setNovoNomeAtividade}
+                  editable={!cadastrandoAtividade}
+                />
+                <TouchableOpacity
+                  style={[styles.botaoCriarAtividade, cadastrandoAtividade && styles.botaoDesabilitado]}
+                  onPress={criarNovaAtividade}
+                  disabled={cadastrandoAtividade}
+                >
+                  <Ionicons name="add-circle" size={20} color="#F5F2E8" />
+                  <Text style={styles.textoBotaoCriarAtividade}>
+                    {cadastrandoAtividade ? 'Cadastrando...' : 'Criar atividade'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             {/* Lista otimizada para exibir as opções vinda do servidor */}
             <FlatList 
@@ -520,6 +585,39 @@ const styles = StyleSheet.create({
     marginBottom: 15, 
     color: '#2F1CA6', 
     textAlign: 'center' 
+  },
+  criarAtividadeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  inputNovaAtividade: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#2F1CA6',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#2F1CA6',
+  },
+  botaoCriarAtividade: {
+    backgroundColor: '#2F1CA6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 11,
+  },
+  botaoDesabilitado: {
+    opacity: 0.6,
+  },
+  textoBotaoCriarAtividade: {
+    color: '#F5F2E8',
+    fontWeight: 'bold',
+    fontSize: 13,
   },
   containerMaster: {
     flexDirection: "row", 

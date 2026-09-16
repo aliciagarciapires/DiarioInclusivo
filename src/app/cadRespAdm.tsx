@@ -54,6 +54,9 @@ export default function CadResp() {
     };
 
     // Máscara de telefone
+    const validarSenha = (senhaParaTestar: string) =>
+        /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
+
     const aplicarMascaraTelefone = (text: string) => {
         const limpo = text.replace(/\D/g, "");
         let formatado = limpo;

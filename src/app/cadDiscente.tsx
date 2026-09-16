@@ -5,6 +5,7 @@ import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "rea
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
+import { API_URL } from "./api";
 
 interface Responsavel {
   id: number;
@@ -62,7 +63,7 @@ export default function CadDiscente() {
     const buscarResponsaveis = async () => {
       try {
 
-        const response = await fetch('https://diarioinclusivo.linceonline.com.br/buscar_responsaveis.php');
+        const response = await fetch(`${API_URL}/buscar_responsaveis.php`);
 
         const dados = await response.json();
         if (Array.isArray(dados)) {
@@ -124,7 +125,7 @@ export default function CadDiscente() {
   const idsResponsaveis = responsaveisSelecionados.map((r) => r.id);
 
   try {
-    const response = await fetch('https://diarioinclusivo.linceonline.com.br/cadDiscente.php', {
+    const response = await fetch(`${API_URL}/cadDiscente.php`, {
 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

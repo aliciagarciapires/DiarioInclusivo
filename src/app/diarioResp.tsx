@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "./api";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -83,7 +84,7 @@ useEffect(() => {
         setIdUsuario(currentUserId);
 
         // CORREÇÃO: Usando o endpoint correto 'discenteResp.php' em vez do de professores
-        const urlAPI = `https://diarioinclusivo.linceonline.com.br/discenteResp.php?idResp=${currentUserId}`;
+        const urlAPI = `${API_URL}/discenteResp.php?idResp=${currentUserId}`;
         const response = await fetch(urlAPI);
         const result = await response.json();
 

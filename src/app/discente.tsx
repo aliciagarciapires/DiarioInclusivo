@@ -3,6 +3,7 @@ import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
+import { API_URL } from "./api";
 
 export default function Discente() {
   const [listaDiscentes, setListaDiscentes] = useState<any[]>([]);
@@ -35,9 +36,9 @@ export default function Discente() {
       // Usamos trim() por garantia, para remover espaços em branco invisíveis
       if (tipoLogado && String(tipoLogado).trim() === "2") {
 
-        url = "https://diarioinclusivo.linceonline.com.br/discenteAdm.php";
+        url = `${API_URL}/discenteAdm.php`;
       } else {
-        url = `https://diarioinclusivo.linceonline.com.br/discente.php?idUsuario=${idUsuarioLogado}`;
+        url = `${API_URL}/discente.php?idUsuario=${idUsuarioLogado}`;
       }
 
       const response = await fetch(url);

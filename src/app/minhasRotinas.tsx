@@ -20,6 +20,7 @@ import {
     View
 } from "react-native";
 import Footer from "../../components/Footer";
+import { API_URL } from "./api";
 
 // Obtém a largura da tela do dispositivo (útil para layouts responsivos)
 const { width } = Dimensions.get("window");
@@ -52,7 +53,6 @@ export default function VisualizarRotina() {
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
   const [idUsuario, setIdUsuario] = useState<string | null>(null);
 
-  const IP_SERVIDOR = "172.20.10.4";
 
   // --- ESTADOS DO MODAL DE EDIÇÃO ---
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -74,7 +74,7 @@ export default function VisualizarRotina() {
   const carregarRotinasDoBanco = async (idUser: string) => {
     try {
       setCarregando(true);
-      const URL_API = `https://diarioinclusivo.linceonline.com.br/listar_rotina.php?idUsuario=${idUser}&t=${new Date().getTime()}`;
+      const URL_API = `${API_URL}/listar_rotina.php?idUsuario=${idUser}&t=${new Date().getTime()}`;
 
       const resposta = await fetch(URL_API);
       const resultado = await resposta.json();
@@ -93,7 +93,7 @@ export default function VisualizarRotina() {
 
   const carregarAtividadesMaster = async () => {
     try {
-      const URL_MASTER = `https://diarioinclusivo.linceonline.com.br/buscarAtividades.php?t=${new Date().getTime()}`;
+      const URL_MASTER = `${API_URL}/buscarAtividades.php?t=${new Date().getTime()}`;
       const resposta = await fetch(URL_MASTER);
       const dados = await resposta.json();
 
@@ -149,7 +149,7 @@ export default function VisualizarRotina() {
           onPress: async () => {
             try {
               const resposta = await fetch(
-                `https://diarioinclusivo.linceonline.com.br/deletar_rotina.php`,
+                `${API_URL}/deletar_rotina.php`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -269,7 +269,7 @@ export default function VisualizarRotina() {
         atividades: atividadesFormatadas,
       };
 
-      const URL_UPDATE = `https://diarioinclusivo.linceonline.com.br/updateRotina.php`;
+      const URL_UPDATE = `${API_URL}/updateRotina.php`;
 
       const resposta = await fetch(URL_UPDATE, {
         method: "POST",

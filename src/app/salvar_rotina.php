@@ -17,10 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // Inclui a sua conexão com o banco de dados
+try {
 include_once "conexao.php";
-
-$mysqli->query("SET FOREIGN_KEY_CHECKS = 0;"); //ignorar temporaraiamente o idUsuario
-
 
 // Define o fuso horário padrão
 date_default_timezone_set('America/Sao_Paulo');
@@ -87,6 +85,18 @@ if (!empty($dados['nome']) && !empty($dados['atividades']) && !empty($dados['idU
     echo json_encode([
         "sucesso" => false,
         "mensagem" => "Dados incompletos. Certifique-se de preencher o nome, selecionar atividades e enviar o usuário."
+    ]);
+}
+} catch (Throwable $erro) {
+    if (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    http_response_code(500);
+    error_log("Erro em salvar_rotina.php: " . $erro->getMessage());
+    echo json_encode([
+        "sucesso" => false,
+        "mensagem" => "Erro interno ao salvar a rotina: " . $erro->getMessage()
     ]);
 }
 ?>

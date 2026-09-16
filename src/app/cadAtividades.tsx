@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { API_URL } from "./api";
 
 export default function CadAtividade() {
   const [novoNomeAtividade, setNovoNomeAtividade] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const API_URL = 'https://diarioinclusivo.linceonline.com.br/criar_atividade.php';
 
 
   const handleCadastrar = async () => {
@@ -17,7 +16,7 @@ export default function CadAtividade() {
     setLoading(true);
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}/criar_atividade.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

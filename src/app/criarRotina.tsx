@@ -17,6 +17,7 @@ import {
     View
 } from 'react-native';
 import Footer from '../../components/Footer';
+import { API_URL } from "./api";
 
 // Define o formato de uma atividade que já foi adicionada à rotina atual
 interface Atividade {
@@ -35,10 +36,6 @@ interface AtividadeMaster {
 export default function CriarRotina() {
   const router = useRouter(); 
   
-  // IP do seu servidor
-
-  const IP_SERVIDOR = "172.20.10.4";
-
 
   // --- ESTADOS DA TELA ---
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
@@ -81,7 +78,7 @@ export default function CriarRotina() {
   useEffect(() => {
     async function carregarAtividadesBanco() {
       try {
-        const resposta = await fetch(`https://diarioinclusivo.linceonline.com.br/buscarAtividades.php`);
+        const resposta = await fetch(`${API_URL}/buscarAtividades.php`);
         const dados = await resposta.json();
         if (dados && Array.isArray(dados)) {
           setListaMaster(dados);
@@ -179,7 +176,7 @@ export default function CriarRotina() {
         horas_finais: ativ.fim.toLocaleTimeString([], { hour12: false })
       }));
 
-      const URL_SALVAR = `https://diarioinclusivo.linceonline.com.br/salvar_rotina.php`;
+      const URL_SALVAR = `${API_URL}/salvar_rotina.php`;
 
       const resposta = await fetch(URL_SALVAR, {
         method: 'POST',
@@ -193,7 +190,19 @@ export default function CriarRotina() {
         }),
       });
 
-      const resultado = await resposta.json();
+      const textoResposta = await resposta.text();
+      console.log("Resposta ao salvar rotina:", resposta.status, textoResposta);
+
+      let resultado: { sucesso?: boolean; mensagem?: string };
+      try {
+        resultado = JSON.parse(textoResposta);
+      } catch {
+        throw new Error(`O servidor retornou uma resposta invalida (HTTP ${resposta.status}).`);
+      }
+
+      if (!resposta.ok) {
+        throw new Error(resultado.mensagem || `Erro HTTP ${resposta.status}.`);
+      }
 
       if (resultado.sucesso) {
         Alert.alert("Sucesso!", "Sua rotina foi criada e salva com sucesso!");
@@ -204,6 +213,10 @@ export default function CriarRotina() {
 
     } catch (error: any) {
       console.error("Erro detalhado ao salvar rotina:", error);
+      if (error instanceof Error) {
+        Alert.alert("Erro ao salvar", error.message);
+        return;
+      }
       Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor para salvar a rotina.");
     }
   };

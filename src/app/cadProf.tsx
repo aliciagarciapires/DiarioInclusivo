@@ -11,244 +11,402 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
+import { API_URL } from "./api";
 
 export default function CadProf() {
-  const [tipoConta, setTipoConta] = useState("3");
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  // Estados para alternar a exibição da senha
-  const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
+    const [tipoConta] = useState("3");
 
-  // Trata o e-mail removendo todos os espaços e transformando em minúsculas em tempo real
-  const tratarEmailInput = (texto: string) => {
-    const emailFormatado = texto.toLowerCase().replace(/\s+/g, "");
-    setEmail(emailFormatado);
-  };
+    const [nome, setNome] = useState("");
+    const [email, setEmail] = useState("");
+    const [senha, setSenha] = useState("");
+    const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  // Validação do formato de e-mail por regex
-  const validarEmail = (emailParaTestar: string) => {
-    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regexEmail.test(emailParaTestar);
-  };
+    const [mostrarSenha, setMostrarSenha] = useState(false);
+    const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
-  const cadastrarProfessor = async () => {
-    const emailTratado = email.toLowerCase().replace(/\s+/g, "");
-    const nomeTratado = nome.trim();
+    const [aceitouTermos, setAceitouTermos] = useState(false);
 
-    // 1. Validação básica
-    if (!nomeTratado || !emailTratado || !senha || !confirmarSenha) {
-      Alert.alert("Erro", "Preencha todos os campos");
-      return;
-    }
+    const tratarEmail = (text: string) => {
+        setEmail(text.trim().toLowerCase());
+    };
 
-    // 2. Validação de E-mail
-    if (!validarEmail(emailTratado)) {
-      Alert.alert("Erro", "Por favor, digite um e-mail válido");
-      return;
-    }
+    const validarEmail = (emailParaTestar: string) => {
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regexEmail.test(emailParaTestar);
+    };
 
-    // 3. Validação de Senha
-    if (senha !== confirmarSenha) {
-      Alert.alert("Erro", "As senhas não coincidem");
-      return;
-    }
+    const cadastrarProfessor = async () => {
 
-    // 4. Envio para o Backend
-    try {
-      const response = await fetch(
-        "https://diarioinclusivo.linceonline.com.br/cadProf.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nome: nomeTratado,
-            email: emailTratado,
-            senha,
-            tipoConta,
-          }),
+        if (!nome.trim() || !email.trim() || !senha || !confirmarSenha) {
+            Alert.alert(
+                "Atenção",
+                "Preencha todos os campos."
+            );
+            return;
         }
-      );
 
-      const data = await response.json();
-
-      if (data.success) {
-        if (data.id) {
-          await AsyncStorage.setItem("idUsuario", String(data.id));
+        if (!validarEmail(email)) {
+            Alert.alert(
+                "Atenção",
+                "Digite um e-mail válido."
+            );
+            return;
         }
-        Alert.alert("Sucesso", "Cadastro realizado!");
-        router.push("/professores");
-      } else {
-        Alert.alert("Erro do Servidor", data.message || "Erro ao cadastrar.");
-      }
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível conectar ao servidor");
-    }
-  };
 
-  return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.container}>
-          {/** LOGO */}
-          <View style={styles.itens}>
-            <Image
-              source={require("../../assets/images/logo.png")}
-              style={styles.logo}
-            />
-          </View>
+        if (senha !== confirmarSenha) {
+            Alert.alert(
+                "Atenção",
+                "As senhas não coincidem."
+            );
+            return;
+        }
 
-          {/** FORMULÁRIO */}
-          <View style={styles.form}>
-            <Text style={styles.title}>Cadastro do Professor</Text>
+        if (!aceitouTermos) {
+            Alert.alert(
+                "Termos de Uso",
+                "Você precisa ler e concordar com os Termos de Uso para continuar."
+            );
+            return;
+        }
 
-            <Text style={styles.textoInput}>Nome Completo:</Text>
-            <Input
-              placeholder="Nome Completo"
-              placeholderTextColor="#0b8cbfd1"
-              value={nome}
-              onChangeText={setNome}
-            />
+        try {
 
-            <Text style={styles.textoInput}>E-mail:</Text>
-            <Input
-              placeholder="professor@email.com"
-              placeholderTextColor="#0b8cbfd1"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={email}
-              onChangeText={tratarEmailInput}
-            />
+            const response = await fetch(
+                `${API_URL}/cadProf.php`,
+                {
+                    method: "POST",
 
-            <Text style={styles.textoInput}>Senha:</Text>
-            <View style={styles.inputComIcone}>
-              <Input
-                placeholder="**********"
-                placeholderTextColor="#0b8cbfd1"
-                secureTextEntry={!mostrarSenha}
-                autoCapitalize="none"
-                value={senha}
-                onChangeText={setSenha}
-              />
-              <TouchableOpacity
-                style={styles.botaoOlho}
-                onPress={() => setMostrarSenha(!mostrarSenha)}
-              >
-                <Ionicons
-                  name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
-                  size={22}
-                  color="#2F1CA6"
-                />
-              </TouchableOpacity>
-            </View>
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-            <Text style={styles.textoInput}>Confirmar Senha:</Text>
-            <View style={styles.inputComIcone}>
-              <Input
-                placeholder="**********"
-                placeholderTextColor="#0b8cbfd1"
-                secureTextEntry={!mostrarConfirmarSenha}
-                autoCapitalize="none"
-                value={confirmarSenha}
-                onChangeText={setConfirmarSenha}
-              />
-              <TouchableOpacity
-                style={styles.botaoOlho}
-                onPress={() =>
-                  setMostrarConfirmarSenha(!mostrarConfirmarSenha)
+                    body: JSON.stringify({
+                        nome,
+                        email,
+                        senha,
+                        tipoConta,
+                        aceitouTermos
+                    })
                 }
-              >
-                <Ionicons
-                  name={
-                    mostrarConfirmarSenha ? "eye-off-outline" : "eye-outline"
-                  }
-                  size={22}
-                  color="#2F1CA6"
-                />
-              </TouchableOpacity>
-            </View>
+            );
 
-            <View style={styles.botaoContainer}>
-              <Button label="Cadastrar" onPress={cadastrarProfessor} />
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+            const data = await response.json();
 
-      <Footer>
-        <Text style={styles.textoRodape}>Diário Inclusivo.</Text>
-      </Footer>
-    </KeyboardAvoidingView>
-  );
+            if (data.success) {
+
+                if (data.id) {
+                    await AsyncStorage.setItem(
+                        "idUsuario",
+                        String(data.id)
+                    );
+                }
+
+                Alert.alert(
+                    "Sucesso",
+                    data.message
+                );
+
+                router.push("/professores");
+
+            } else {
+
+                Alert.alert(
+                    "Aviso",
+                    data.message
+                );
+            }
+
+        } catch (error) {
+
+            Alert.alert(
+                "Erro",
+                "Não foi possível conectar ao servidor."
+            );
+        }
+    };
+
+    return (
+        <KeyboardAvoidingView
+            style={styles.containerPrincipal}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+
+                <View style={styles.itens}>
+
+                    <Image
+                        source={require("../../assets/images/logo.png")}
+                        style={styles.logo}
+                    />
+
+                    <Text style={styles.subtitulo}>
+                        Cadastro do Professor
+                    </Text>
+
+                    <View style={styles.form}>
+
+                        <Text style={styles.textoInput}>
+                            Nome Completo:
+                        </Text>
+
+                        <Input
+                            placeholder="Nome Completo"
+                            placeholderTextColor="#0b8cbfd1"
+                            value={nome}
+                            onChangeText={setNome}
+                        />
+
+                        <Text style={styles.textoInput}>
+                            E-mail:
+                        </Text>
+
+                        <Input
+                            placeholder="usuario@email.com"
+                            placeholderTextColor="#0b8cbfd1"
+                            value={email}
+                            onChangeText={tratarEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                        />
+
+                        <Text style={styles.textoInput}>
+                            Senha:
+                        </Text>
+
+                        <View style={styles.senhaWrapper}>
+
+                            <Input
+                                placeholder="**********"
+                                placeholderTextColor="#0b8cbfd1"
+                                secureTextEntry={!mostrarSenha}
+                                value={senha}
+                                onChangeText={setSenha}
+                            />
+
+                            <TouchableOpacity
+                                style={styles.iconeOlho}
+                                onPress={() =>
+                                    setMostrarSenha(!mostrarSenha)
+                                }
+                            >
+
+                                <Ionicons
+                                    name={
+                                        mostrarSenha
+                                            ? "eye-off-outline"
+                                            : "eye-outline"
+                                    }
+                                    size={22}
+                                    color="#0B8CBF"
+                                />
+
+                            </TouchableOpacity>
+
+                        </View>
+
+                        <Text style={styles.textoInput}>
+                            Confirmar Senha:
+                        </Text>
+
+                        <View style={styles.senhaWrapper}>
+
+                            <Input
+                                placeholder="**********"
+                                placeholderTextColor="#0b8cbfd1"
+                                secureTextEntry={!mostrarConfirmarSenha}
+                                value={confirmarSenha}
+                                onChangeText={setConfirmarSenha}
+                            />
+
+                            <TouchableOpacity
+                                style={styles.iconeOlho}
+                                onPress={() =>
+                                    setMostrarConfirmarSenha(
+                                        !mostrarConfirmarSenha
+                                    )
+                                }
+                            >
+
+                                <Ionicons
+                                    name={
+                                        mostrarConfirmarSenha
+                                            ? "eye-off-outline"
+                                            : "eye-outline"
+                                    }
+                                    size={22}
+                                    color="#0B8CBF"
+                                />
+
+                            </TouchableOpacity>
+
+                        </View>
+
+                        <View style={styles.termosContainer}>
+
+                            <TouchableOpacity
+                                style={styles.checkbox}
+                                onPress={() =>
+                                    setAceitouTermos(!aceitouTermos)
+                                }
+                            >
+                                <Text style={styles.checkboxTexto}>
+                                    {aceitouTermos ? "✓" : ""}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <Text style={styles.termosTexto}>
+                                Li e concordo com{" "}
+                                <Text
+                                    style={styles.termosLink}
+                                    onPress={() =>
+                                        router.push("/termos")
+                                    }
+                                >
+                                    os Termos de Uso
+                                </Text>
+                            </Text>
+
+                        </View>
+
+                        <View style={styles.botaoContainer}>
+
+                            <Button
+                                label="Cadastrar"
+                                onPress={cadastrarProfessor}
+                            />
+
+                        </View>
+
+                    </View>
+
+                </View>
+
+            </ScrollView>
+
+            <Footer>
+                <Text style={styles.textoRodape}>
+                    Diário Inclusivo.
+                </Text>
+            </Footer>
+
+        </KeyboardAvoidingView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "#F5F2E8",
-    padding: 32,
-  },
-  itens: {
-    justifyContent: "center",
-    width: "100%",
-    marginTop: -50,
-  },
-  logo: {
-    width: 150,
-    height: 150,
-    alignSelf: "center",
-  },
-  form: {
-    marginTop: -10,
-    gap: 5,
-    width: "100%",
-  },
-  textoInput: {
-    fontSize: 15,
-    color: "#2F1CA6",
-    fontWeight: "bold",
-    marginLeft: 8,
-    marginTop: 8,
-  },
-  inputComIcone: {
-    position: "relative",
-    justifyContent: "center",
-  },
-  botaoOlho: {
-    position: "absolute",
-    right: 15,
-    zIndex: 10,
-  },
-  botaoContainer: {
-    alignItems: "center",
-    marginTop: 20,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#2F1CA6",
-    marginLeft: 8,
-    marginTop: 10,
-  },
-  textoRodape: {
-    color: "#0B8CBF",
-    fontSize: 12,
-    fontWeight: "500",
-  },
+
+    containerPrincipal: {
+        flex: 1,
+        backgroundColor: "#F5F2E8"
+    },
+
+    scrollContent: {
+        paddingHorizontal: 32,
+        paddingBottom: 80,
+        paddingTop: 10
+    },
+
+    itens: {
+        width: "100%"
+    },
+
+    logo: {
+        width: 150,
+        height: 150,
+        alignSelf: "center"
+    },
+
+    subtitulo: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#2F1CA6",
+        textAlign: "center",
+        marginBottom: 10
+    },
+
+    form: {
+        marginTop: 12,
+        gap: 5
+    },
+
+    textoInput: {
+        fontSize: 15,
+        color: "#2F1CA6",
+        fontWeight: "bold",
+        marginLeft: 8,
+        marginTop: 8
+    },
+
+    senhaWrapper: {
+        position: "relative",
+        justifyContent: "center"
+    },
+
+    iconeOlho: {
+        position: "absolute",
+        right: 15,
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1
+    },
+
+    termosContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 15,
+        marginBottom: 5
+    },
+
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderWidth: 2,
+        borderColor: "#2F1CA6",
+        borderRadius: 5,
+        alignItems: "center",
+        justifyContent: "center",
+        marginRight: 10
+    },
+
+    checkboxTexto: {
+        color: "#2F1CA6",
+        fontSize: 18,
+        fontWeight: "bold"
+    },
+
+    termosTexto: {
+        flex: 1,
+        fontSize: 14,
+        color: "#333"
+    },
+
+    termosLink: {
+        color: "#2F1CA6",
+        fontWeight: "bold",
+        textDecorationLine: "underline"
+    },
+
+    botaoContainer: {
+        alignItems: "center",
+        marginTop: 20
+    },
+
+    textoRodape: {
+        color: "#0B8CBF",
+        fontSize: 12,
+        fontWeight: "500"
+    }
 });

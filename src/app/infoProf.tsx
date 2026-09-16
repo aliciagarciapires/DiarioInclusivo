@@ -17,6 +17,7 @@ import {
     View,
 } from "react-native";
 import Footer from "../../components/Footer";
+import { API_URL } from "./api";
 
 type Professor = {
   idUsuario: number;
@@ -63,7 +64,7 @@ export default function InfoProf() {
         if (idLogado) {
           const respLogado = await fetch(
 
-            `https://diarioinclusivo.linceonline.com.br/getUsuario.php?id=${idLogado}`
+            `${API_URL}/getUsuario.php?id=${idLogado}`
 
           );
           const jsonLogado = await respLogado.json();
@@ -82,7 +83,7 @@ export default function InfoProf() {
         // 3. Busca os dados do professor selecionado
         const response = await fetch(
 
-            `https://diarioinclusivo.linceonline.com.br/getUsuario.php?id=${idFinal}`
+            `${API_URL}/getUsuario.php?id=${idFinal}`
 
         );
         const json = await response.json();
@@ -130,7 +131,7 @@ export default function InfoProf() {
       setSalvando(true);
             const response = await fetch(
 
-        "https://diarioinclusivo.linceonline.com.br/updateUsuario.php",
+        `${API_URL}/updateUsuario.php`,
 
         {
           method: "POST",
@@ -178,7 +179,7 @@ export default function InfoProf() {
 
             const response = await fetch(
 
-        `https://diarioinclusivo.linceonline.com.br/deleteUsuario.php?id=${prof.idUsuario}`,
+        `${API_URL}/deleteUsuario.php?id=${prof.idUsuario}`,
 
         { method: "GET" }
             );

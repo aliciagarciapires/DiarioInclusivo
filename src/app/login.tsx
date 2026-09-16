@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { API_URL } from "./api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -56,7 +57,7 @@ export default function Login() {
 
         try {
 
-            const response = await fetch("https://diarioinclusivo.linceonline.com.br/login.php", {
+            const response = await fetch(`${API_URL}/login.php`, {
 
                 method: "POST",
                 headers: {

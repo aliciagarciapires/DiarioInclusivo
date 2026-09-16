@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { API_URL } from "./api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -19,7 +20,6 @@ import {
 } from "react-native";
 
 const { width } = Dimensions.get("window");
-const IP_SERVIDOR = "172.20.10.4";
 
 interface DiarioItem {
   idDiario: number;
@@ -94,7 +94,7 @@ export default function HistoricoScreen() {
       }
 
       setCarregando(true);
-      const url = `https://diarioinclusivo.linceonline.com.br/listar_diario.php?idDiscente=${idDiscenteSelecionado}`;
+      const url = `${API_URL}/listar_diario.php?idDiscente=${idDiscenteSelecionado}`;
       
       const resposta = await fetch(url);
       const textoPuro = await resposta.text();
@@ -145,7 +145,7 @@ export default function HistoricoScreen() {
 
   const buscarAtividadesDoBanco = async () => {
     try {
-      const url = `https://diarioinclusivo.linceonline.com.br/listar_atividades.php`;
+      const url = `${API_URL}/listar_atividades.php`;
       const resposta = await fetch(url);
       const textoPuro = await resposta.text();
       const json = JSON.parse(textoPuro);
@@ -174,7 +174,7 @@ export default function HistoricoScreen() {
 
   const excluirHistorico = async (idDiario: number) => {
     try {
-      const response = await fetch(`https://diarioinclusivo.linceonline.com.br/deleteHistorico.php`, {
+      const response = await fetch(`${API_URL}/deleteHistorico.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idDiario }),
@@ -345,7 +345,7 @@ export default function HistoricoScreen() {
         atividades: atividadesParaSalvar,
       };
 
-      const response = await fetch(`https://diarioinclusivo.linceonline.com.br/update_diario.php`, {
+      const response = await fetch(`${API_URL}/update_diario.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(corpoRequisicao),

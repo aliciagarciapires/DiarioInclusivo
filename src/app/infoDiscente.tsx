@@ -15,6 +15,7 @@ import {
     View,
 } from "react-native";
 import Footer from "../../components/Footer";
+import { API_URL } from "./api";
 import { Input } from "../../components/input";
 
 interface Responsavel {
@@ -90,7 +91,7 @@ export default function InfoDiscente() {
 
       // 1. Busca todos os responsáveis disponíveis na base
 
-      const resResp = await fetch("https://diarioinclusivo.linceonline.com.br/buscar_responsaveis.php");
+      const resResp = await fetch(`${API_URL}/buscar_responsaveis.php`);
   
 
       const dadosResp = await resResp.json();
@@ -99,7 +100,7 @@ export default function InfoDiscente() {
 
       // 2. Busca dados do discente
 
-      const response = await fetch(`https://diarioinclusivo.linceonline.com.br/getDiscente.php?id=${id}`);
+      const response = await fetch(`${API_URL}/getDiscente.php?id=${id}`);
 
       const json = await response.json();
 
@@ -248,7 +249,7 @@ export default function InfoDiscente() {
       }
 
 
-      const response = await fetch("https://diarioinclusivo.linceonline.com.br/updateDiscente.php", {
+      const response = await fetch(`${API_URL}/updateDiscente.php`, {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -299,7 +300,7 @@ export default function InfoDiscente() {
 
       const response = await fetch(
 
-        `https://diarioinclusivo.linceonline.com.br/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
+        `${API_URL}/deleteDiscente.php?id=${id}&idUsuario=${idUsuarioLogado}`,
 
         { method: "DELETE" }
       );

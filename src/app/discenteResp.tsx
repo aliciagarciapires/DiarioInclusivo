@@ -3,6 +3,7 @@ import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
+import { API_URL } from "./api";
 
 export default function DiscenteResp() {
   const [listaDiscentes, setListaDiscentes] = useState<any[]>([]);
@@ -20,8 +21,7 @@ export default function DiscenteResp() {
       return;
     }
 
-
-    const url = `https://diarioinclusivo.linceonline.com.br/discenteResp.php?idResp=${idUsuarioLogado}`;
+    const url = `${API_URL}/discenteResp.php?idResp=${idUsuarioLogado}`;
 
     console.log("URL chamada:", url);
 

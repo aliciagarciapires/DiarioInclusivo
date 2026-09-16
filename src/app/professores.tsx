@@ -2,6 +2,7 @@ import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Footer from "../../components/Footer";
+import { API_URL } from "./api";
 
 export default function Professores() {
   const [listaProfessores, setListaProfessores] = useState([]);
@@ -9,7 +10,7 @@ export default function Professores() {
     const buscarProfessores = async () => {
       try {
 
-    const response = await fetch('https://diarioinclusivo.linceonline.com.br/professores.php');
+    const response = await fetch(`${API_URL}/professores.php`);
 
     const dados = await response.json();
       setListaProfessores(dados);

@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "./api";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -154,7 +155,7 @@ export default function Diario() {
         }
 
         if (currentUserId) {
-          const urlAPI = `https://diarioinclusivo.linceonline.com.br/listar_discentes_professor.php?idUsuario=${currentUserId}`;
+          const urlAPI = `${API_URL}/listar_discentes_professor.php?idUsuario=${currentUserId}`;
           const response = await fetch(urlAPI);
           const result = await response.json();
           
@@ -221,7 +222,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "https://diarioinclusivo.linceonline.com.br/listar_atividades.php"
+        `${API_URL}/listar_atividades.php`
 
       );
       const result = await response.json();
@@ -268,7 +269,7 @@ export default function Diario() {
     try {
       const resposta = await fetch(
 
-        `https://diarioinclusivo.linceonline.com.br/listar_rotina.php?idUsuario=${idUsuario}`
+        `${API_URL}/listar_rotina.php?idUsuario=${idUsuario}`
 
       );
       const resultado = await resposta.json();
@@ -327,7 +328,8 @@ export default function Diario() {
       };
 
     const response = await fetch(
-        `https://diarioinclusivo.linceonline.com.br/sincronizar_rotina_diario.php`,
+
+        `${API_URL}/sincronizar_rotina_diario.php`,
 
         {
           method: "POST",
@@ -396,7 +398,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        "https://diarioinclusivo.linceonline.com.br/criar_diario.php",
+        `${API_URL}/criar_diario.php`,
 
         {
           method: "POST",
@@ -446,7 +448,7 @@ export default function Diario() {
     try {
       const response = await fetch(
 
-        `https://diarioinclusivo.linceonline.com.br/listar_diario.php?idDiscente=${idDiscente}`
+        `${API_URL}/listar_diario.php?idDiscente=${idDiscente}`
 
       );
       const result = await response.json();

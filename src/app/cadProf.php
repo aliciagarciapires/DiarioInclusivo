@@ -1,95 +1,107 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Content-Type: application/json; charset=UTF-8");
 
-// Trata requisições pre-flight do React Native
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     http_response_code(200);
-    exit();
+    exit;
 }
 
-include 'conexao.php';
+require_once "conexao.php";
 
-// 1. Captura o JSON enviado
-$conteudo = file_get_contents("php://input");
-$dados = json_decode($conteudo, true);
+$entrada = file_get_contents("php://input");
 
-// 2. Validação básica de recebimento
+$dados = json_decode($entrada, true);
+
 if (!$dados) {
-    echo json_encode(["success" => false, "message" => "JSON inválido ou vazio."]);
-    exit();
-}
-
-$nome = trim($dados['nome'] ?? '');
-$email = trim($dados['email'] ?? '');
-$senha = $dados['senha'] ?? '';
-$tipoConta = isset($dados['tipoConta']) ? (int)$dados['tipoConta'] : 1;
-
-// Validação simples de e-mail obrigatório
-if (empty($email)) {
-    echo json_encode(["success" => false, "message" => "O e-mail é obrigatório."]);
-    exit();
-}
-
-// =========================================================================
-// 3. Checa se o e-mail já existe na tabela 'usuario'
-// =========================================================================
-$sqlCheck = "SELECT idUsuario FROM usuario WHERE email = ?";
-$stmtCheck = $mysqli->prepare($sqlCheck);
-
-if ($stmtCheck) {
-    $stmtCheck->bind_param("s", $email);
-    $stmtCheck->execute();
-    $stmtCheck->store_result();
-
-    if ($stmtCheck->num_rows > 0) {
-        echo json_encode([
-            "success" => false, 
-            "message" => "Este e-mail já está cadastrado."
-        ]);
-        $stmtCheck->close();
-        $mysqli->close();
-        exit();
-    }
-    $stmtCheck->close();
-} else {
     echo json_encode([
-        "success" => false, 
-        "message" => "Erro na consulta de e-mail: " . $mysqli->error
+        "success" => false,
+        "message" => "Dados inválidos."
     ]);
-    $mysqli->close();
-    exit();
+    exit;
 }
-// =========================================================================
 
-// 4. Inserção no banco de dados usando Prepared Statements
-$stmt = $mysqli->prepare("INSERT INTO usuario (nome, email, senha, tipo_de_usuario) VALUES (?, ?, ?, ?)");
+$nome = $dados["nome"] ?? "";
+$email = $dados["email"] ?? "";
+$senha = $dados["senha"] ?? "";
+$tipoConta = $dados["tipoConta"] ?? "";
+$aceitouTermos = $dados["aceitouTermos"] ?? false;
 
-if ($stmt) {
-    // Vincula os dados (s = string, i = inteiro)
-    $stmt->bind_param("sssi", $nome, $email, $senha, $tipoConta);
-
-    if ($stmt->execute()) {
-        echo json_encode([
-            "success" => true, 
-            "message" => "Cadastro realizado com sucesso!",
-            "id" => $mysqli->insert_id
-        ]);
-    } else {
-        echo json_encode([
-            "success" => false, 
-            "message" => "Erro ao inserir: " . $stmt->error
-        ]);
-    }
-    $stmt->close();
-} else {
+if (!$aceitouTermos) {
     echo json_encode([
-        "success" => false, 
-        "message" => "Erro na preparação da consulta: " . $mysqli->error
+        "success" => false,
+        "message" => "É necessário aceitar os Termos de Uso."
+    ]);
+    exit;
+}
+
+if (empty($nome) || empty($email) || empty($senha) || empty($tipoConta)) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Preencha todos os campos."
+    ]);
+    exit;
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode([
+        "success" => false,
+        "message" => "E-mail inválido."
+    ]);
+    exit;
+}
+
+$verificar = $mysqli->prepare(
+    "SELECT idUsuario FROM usuario WHERE email = ?"
+);
+
+$verificar->bind_param("s", $email);
+$verificar->execute();
+
+$resultado = $verificar->get_result();
+
+if ($resultado->num_rows > 0) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Este e-mail já está cadastrado."
+    ]);
+    exit;
+}
+
+$sql = "INSERT INTO usuario
+        (nome, email, senha, tipo_de_usuario)
+        VALUES (?, ?, ?, ?)";
+
+$stmt = $mysqli->prepare($sql);
+
+$stmt->bind_param(
+    "sssi",
+    $nome,
+    $email,
+    $senha,
+    $tipoConta
+);
+
+if ($stmt->execute()) {
+
+    echo json_encode([
+        "success" => true,
+        "message" => "Cadastro realizado com sucesso!",
+        "id" => $stmt->insert_id
+    ]);
+
+} else {
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Erro ao realizar cadastro: " . $stmt->error
     ]);
 }
 
+$stmt->close();
 $mysqli->close();
+
 ?>

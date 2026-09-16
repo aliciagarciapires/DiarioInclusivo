@@ -89,8 +89,8 @@ try {
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'aliciagarciapiress@gmail.com';
-    $mail->Password   = 'kvpd shfv gfaz rmyv'; 
+    $mail->Username   = 'diarioinclusivo2026@gmail.com';
+    $mail->Password   = 'pkio pukq lsug aybb'; 
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
     $mail->CharSet    = 'UTF-8';
@@ -104,7 +104,7 @@ try {
         )
     );
 
-    $mail->setFrom('aliciagarciapiress@gmail.com', "Diario Inclusivo");
+    $mail->setFrom('diarioinclusivo2026@gmail.com', "Diario Inclusivo");
     $mail->addAddress($email);
 
     $mail->isHTML(true);

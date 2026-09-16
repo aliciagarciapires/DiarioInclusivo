@@ -17,7 +17,7 @@ import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
 
-const BASE_API_URL = "https://diarioinclusivo.linceonline.com.br";
+import { API_URL } from "./api";
 
 export default function RecuperacaoSenha() {
     const [etapa, setEtapa] = useState(1); // 1: E-mail, 2: Código, 3: Nova Senha
@@ -46,7 +46,7 @@ export default function RecuperacaoSenha() {
 
         setLoading(true);
         try {
-            const response = await fetch(`${BASE_API_URL}/enviar_codigo.php`, {
+            const response = await fetch(`${API_URL}/enviar_codigo.php`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export default function RecuperacaoSenha() {
 
         setLoading(true);
         try {
-            const response = await fetch(`${BASE_API_URL}/verificar_codigo.php`, {
+            const response = await fetch(`${API_URL}/verificar_codigo.php`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export default function RecuperacaoSenha() {
 
         setLoading(true);
         try {
-            const response = await fetch(`${BASE_API_URL}/verificar_codigo.php`, {
+            const response = await fetch(`${API_URL}/verificar_codigo.php`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

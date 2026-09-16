@@ -3,18 +3,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Footer from "../../components/Footer";
 import { API_URL } from "./api";
@@ -42,7 +42,7 @@ export default function InfoProf() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [senhaOriginal, setSenhaOriginal] = useState("");
 
   // Sanitiza o e-mail em tempo real (sem espaços e em minúsculo)
   const tratarEmailInput = (texto: string) => {
@@ -92,7 +92,9 @@ export default function InfoProf() {
           setProf(json.dados);
           setNome(json.dados.nome || "");
           setEmail((json.dados.email || "").toLowerCase().replace(/\s+/g, ""));
-          setSenha(json.dados.senha || "");
+          // A senha não pode ser reconstruída a partir do hash salvo no banco.
+          setSenhaOriginal("");
+          setSenha("");
         } else {
           Alert.alert("Erro", json.message || "Professor não encontrado.");
         }
@@ -129,19 +131,25 @@ export default function InfoProf() {
 
     try {
       setSalvando(true);
-            const response = await fetch(
+
+      const payload: any = {
+        idUsuario: prof.idUsuario,
+        nome: nomeTratado,
+        email: emailTratado,
+      };
+
+      if (senha.trim() && senha !== senhaOriginal) {
+        payload.senha = senha.trim();
+      }
+
+      const response = await fetch(
 
         `${API_URL}/updateUsuario.php`,
 
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            idUsuario: prof.idUsuario,
-            nome: nomeTratado,
-            email: emailTratado,
-            senha,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -149,7 +157,9 @@ export default function InfoProf() {
 
       if (json.success) {
         Alert.alert("Sucesso", "Informações do professor atualizadas!");
-        setProf({ ...prof, nome: nomeTratado, email: emailTratado, senha });
+        setProf({ ...prof, nome: nomeTratado, email: emailTratado, senha: senhaOriginal });
+        setSenhaOriginal(senha.trim() && senha !== senhaOriginal ? senha.trim() : senhaOriginal);
+        setSenha(senha.trim() && senha !== senhaOriginal ? senha.trim() : senhaOriginal);
         setEditando(false);
       } else {
         Alert.alert("Erro", json.message || "Não foi possível salvar os dados.");
@@ -278,36 +288,6 @@ export default function InfoProf() {
                 ) : (
                   <Text style={styles.value}>{prof.email}</Text>
                 )}
-              </View>
-
-              {/* CAMPO SENHA */}
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Senha:</Text>
-                <View style={styles.senhaContainer}>
-                  {editando ? (
-                    <TextInput
-                      style={[styles.input, { flex: 1 }]}
-                      value={senha}
-                      onChangeText={setSenha}
-                      secureTextEntry={!mostrarSenha}
-                      autoCapitalize="none"
-                    />
-                  ) : (
-                    <Text style={styles.value}>
-                      {mostrarSenha ? prof.senha || "Sem senha" : "••••••••"}
-                    </Text>
-                  )}
-                  <TouchableOpacity
-                    onPress={() => setMostrarSenha(!mostrarSenha)}
-                    style={styles.botaoOlho}
-                  >
-                    <Ionicons
-                      name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
-                      size={22}
-                      color="#2F1CA6"
-                    />
-                  </TouchableOpacity>
-                </View>
               </View>
 
               {/* BOTÃO SALVAR */}

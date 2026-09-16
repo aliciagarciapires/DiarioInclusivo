@@ -139,17 +139,22 @@ export default function InfoUsuario() {
     try {
       setSalvando(true);
 
+      const payload: any = {
+        idUsuario: usuario.idUsuario,
+        nome: nome.trim(),
+        email,
+        telefone,
+      };
+
+      if (senha.trim()) {
+        payload.senha = senha.trim();
+      }
+
       const response = await fetch(`${API_URL}/updateUsuario.php`, {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          idUsuario: usuario.idUsuario,
-          nome: nome.trim(),
-          email: email,
-          telefone: telefone,
-          senha: senha
-        })
+        body: JSON.stringify(payload)
       });
 
       const json = await response.json();

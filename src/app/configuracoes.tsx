@@ -81,7 +81,7 @@ export default function Configuracoes() {
 
         <Pressable 
           style={styles.opcaoItem} 
-          onPress={() => router.push("/discenteResp")}
+          onPress={() => router.push("/alterar_senha")}
         >
           <Text style={styles.opcaoTexto}>Alteração de senha</Text>
         </Pressable>

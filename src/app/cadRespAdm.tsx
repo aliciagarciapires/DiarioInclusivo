@@ -78,6 +78,16 @@ export default function CadResp() {
             return;
         }
 
+        if (!validarSenha(senha)) {
+            Alert.alert("Aviso", "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo.");
+            return;
+        }
+
+        if (senha !== confirmarSenha) {
+            Alert.alert("Aviso", "As senhas não coincidem.");
+            return;
+        }
+
         if (!aceitouTermos) {
             Alert.alert(
                 "Termos de Uso",

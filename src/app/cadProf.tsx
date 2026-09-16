@@ -41,6 +41,9 @@ export default function CadProf() {
         return regexEmail.test(emailParaTestar);
     };
 
+    const validarSenha = (senhaParaTestar: string) =>
+        /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
+
     const cadastrarProfessor = async () => {
 
         if (!nome.trim() || !email.trim() || !senha || !confirmarSenha) {
@@ -63,6 +66,14 @@ export default function CadProf() {
             Alert.alert(
                 "Atenção",
                 "As senhas não coincidem."
+            );
+            return;
+        }
+
+        if (!validarSenha(senha)) {
+            Alert.alert(
+                "Atenção",
+                "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."
             );
             return;
         }

@@ -56,10 +56,26 @@ export default function Layout() {
       />
 
       {/* Tela de login: Seta pura, sem título */}
-      <Stack.Screen 
+        <Stack.Screen 
         name="login" 
         options={{ 
           headerTitle: "LOGIN", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+        }} 
+      />
+
+      <Stack.Screen 
+        name="recuperar_senha" 
+        options={{ 
+          headerTitle: "RECUPERAÇÃO DE SENHA", // <-- Deixa o centro do cabeçalho totalmente vazio
           headerBackVisible: false, 
           headerLeft: () => (
             <Pressable 
@@ -328,11 +344,27 @@ export default function Layout() {
       />
 
       
-
-      <Stack.Screen 
+        <Stack.Screen 
         name="configuracoes" 
         options={{ 
           headerTitle: "CONFIG.", // <-- Deixa o centro do cabeçalho totalmente vazio
+          headerBackVisible: false, 
+          headerLeft: () => (
+            <Pressable 
+              onPress={() => router.back()} 
+              style={{ padding: 8, marginLeft: -8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#2F1CA6" />
+            </Pressable>
+          ),
+          headerRight: () => <LogoDireita />
+        }} 
+      />
+
+      <Stack.Screen 
+        name="alterar_senha" 
+        options={{ 
+          headerTitle: "SENHA", // <-- Deixa o centro do cabeçalho totalmente vazio
           headerBackVisible: false, 
           headerLeft: () => (
             <Pressable 

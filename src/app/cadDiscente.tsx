@@ -271,24 +271,7 @@ export default function CadDiscente() {
         <Text style={styles.textoRodape}>Diário Inclusivo.</Text>
       </Footer>
 
-      <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Rotina</Text>
-        </Pressable>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
-      </View>
+  
     </>
   );
 }

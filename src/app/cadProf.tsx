@@ -7,6 +7,7 @@ import {
     Image,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
@@ -306,11 +307,12 @@ export default function CadProf() {
 
             </ScrollView>
 
-            <Footer>
-                <Text style={styles.textoRodape}>
-                    Diário Inclusivo.
-                </Text>
-            </Footer>
+            <Footer />
+
+      
+      
+          
+     
 
         </KeyboardAvoidingView>
     );
@@ -322,7 +324,44 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#F5F2E8"
     },
-
+    barraMenuGeral: {
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    alignItems: "center",
+    backgroundColor: "#F5F2E8",    
+    height: 90,                    
+    paddingBottom: 30,             
+    borderTopWidth: 3,             
+    borderTopColor: "#F5F2E8",     
+    borderTopLeftRadius: 35,       
+    borderTopRightRadius: 35,      
+    position: "absolute",          // Fixa no rodapé
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,                 
+    shadowColor: "#000",
+    marginTop: 20,
+    borderRadius: 20, // Adiciona bordas arredondadas
+  },
+  tabLabel: {
+    fontSize: 14,                  
+    fontWeight: "500",
+    color: "#2F1CA6",
+    marginTop: 4,
+  },
+  iconeCustom: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 15, 
+    resizeMode: "cover" 
+  },
+  botaoMenu: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    height: 30,
+  },
     scrollContent: {
         paddingHorizontal: 32,
         paddingBottom: 80,

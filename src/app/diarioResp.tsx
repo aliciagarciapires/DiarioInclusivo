@@ -38,6 +38,7 @@ export default function DiarioResp() {
 
   // ID do usuário logado
   const [idUsuario, setIdUsuario] = useState<number | null>(null);
+  const [tipoUsuario, setTipoUsuario] = useState<number | null>(null);
 
   // Estados do Calendário Dinâmico
   const [dataAtual, setDataAtual] = useState(new Date());
@@ -314,6 +315,7 @@ useEffect(() => {
       <Footer children={undefined} />
                                       <View style={styles.barraMenuGeral}>
                                       
+
                               
                                       <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
                                         <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />

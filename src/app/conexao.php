@@ -1,8 +1,8 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "diarioinclusivo";
+$host = "172.20.0.3";
+$user = "diarioinclusivo_user";
+$pass = "7,T!6JkU%o";
+$dbname = "diarioinclusivo_banco";
 
 $mysqli = new mysqli($host, $user, $pass, $dbname);
 

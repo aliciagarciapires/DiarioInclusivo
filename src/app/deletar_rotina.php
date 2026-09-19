@@ -12,10 +12,10 @@ if (!empty($dados['idRotina'])) {
     $idRotina = intval($dados['idRotina']);
     
     // Deleta os vínculos primeiro
-    $mysqli->query("DELETE FROM ROTINA_TEM_ATIVIDADES WHERE idRotina = $idRotina");
+    $mysqli->query("DELETE FROM rotina_tem_atividades WHERE idRotina = $idRotina");
     
     // Deleta a rotina
-    $query = "DELETE FROM ROTINA WHERE idRotina = $idRotina";
+    $query = "DELETE FROM rotina WHERE idRotina = $idRotina";
     if ($mysqli->query($query)) {
         echo json_encode(["sucesso" => true, "mensagem" => "Rotina deletada com sucesso!"]);
     } else {

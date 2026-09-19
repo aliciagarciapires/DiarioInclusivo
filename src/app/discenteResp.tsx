@@ -87,6 +87,11 @@ export default function DiscenteResp() {
           <Text style={styles.tabLabel}>Início</Text>
         </Pressable>
 
+	<Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+        </Pressable>
+
         <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
           <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
           <Text style={styles.tabLabel}>Conf.</Text>

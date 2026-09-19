@@ -603,7 +603,7 @@ export default function HistoricoScreen() {
           </>
         ) : (
           <>
-            <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Início</Text>
             </Pressable>

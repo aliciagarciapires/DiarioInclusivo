@@ -315,12 +315,12 @@ export default function InfoProf() {
       <Footer children={undefined} />
                                       <View style={styles.barraMenuGeral}>
                                       
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
                                         <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
-                                        <Text style={styles.tabLabel}>Prof.</Text>
+                                        <Text style={styles.tabLabel}>Professores</Text>
                                       </Pressable>
                               
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
                                         <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
                                         <Text style={styles.tabLabel}>Discentes</Text>
                                       </Pressable>
@@ -330,7 +330,7 @@ export default function InfoProf() {
                                         <Text style={styles.tabLabel}>Rotina</Text>
                                       </Pressable>
                               
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
                                         <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
                                         <Text style={styles.tabLabel}>Conf.</Text>
                                       </Pressable>

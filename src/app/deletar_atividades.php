@@ -12,9 +12,9 @@ if (!empty($dados['idAtividades'])) {  //Verifica se o aplicativo enviou o parâ
     $idAtividade = intval($dados['idAtividades']);
     
     // Remove também dos vínculos com as rotinas se necessário
-    $mysqli->query("DELETE FROM ROTINA_TEM_ATIVIDADES WHERE idAtividades = $idAtividade");
+    $mysqli->query("DELETE FROM rotina_tem_atividades WHERE idAtividades = $idAtividade");
     
-    $query = "DELETE FROM ATIVIDADES WHERE idAtividades = $idAtividade";
+    $query = "DELETE FROM atividades WHERE idAtividades = $idAtividade";
     if ($mysqli->query($query)) {
         echo json_encode(["sucesso" => true, "mensagem" => "Atividade removida!"]);
     } else {

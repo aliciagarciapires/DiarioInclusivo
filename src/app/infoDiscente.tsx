@@ -547,7 +547,7 @@ export default function InfoDiscente() {
         ) : (
           /* BARRA PARA QUALQUER OUTRO TIPO (PROFESSOR) - Destaque em Início */
           <>
-            <Pressable style={styles.botaoMenu} onPress={() => router.push("/inicio")}>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
               <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Início</Text>
             </Pressable>

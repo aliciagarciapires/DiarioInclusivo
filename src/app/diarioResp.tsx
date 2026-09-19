@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import {
     Alert,
     FlatList,
+    Image,
     Modal,
     Pressable,
     StyleSheet,
@@ -310,7 +311,26 @@ useEffect(() => {
       </View>
 
       {/* Footer Padrão */}
-      <Footer />
+      <Footer children={undefined} />
+                                      <View style={styles.barraMenuGeral}>
+                                      
+                              
+                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
+                                        <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                                        <Text style={styles.tabLabel}>Discentes</Text>
+                                      </Pressable>
+                              
+                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
+                                        <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+                                        <Text style={styles.tabLabel}>Diário</Text>
+                                      </Pressable>
+                              
+                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+                                        <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+                                        <Text style={styles.tabLabel}>Conf.</Text>
+                                      </Pressable>
+                              
+                                    </View>
     </View>
   );
 }
@@ -321,6 +341,44 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F2E8",
     padding: 16,
     paddingBottom: 95,
+  },
+  barraMenuGeral: {
+    flexDirection: "row",          // Alinha os botões na horizontal
+    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    alignItems: "center",
+    backgroundColor: "#F5F2E8",    
+    height: 90,                    
+    paddingBottom: 30,             
+    borderTopWidth: 3,             
+    borderTopColor: "#F5F2E8",     
+    borderTopLeftRadius: 35,       
+    borderTopRightRadius: 35,      
+    position: "absolute",          // Fixa no rodapé
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 10,                 
+    shadowColor: "#000",
+    marginTop: 20,
+    borderRadius: 20, // Adiciona bordas arredondadas
+  },
+  tabLabel: {
+    fontSize: 14,                  
+    fontWeight: "500",
+    color: "#2F1CA6",
+    marginTop: 4,
+  },
+  iconeCustom: { 
+    width: 80, 
+    height: 80, 
+    borderRadius: 15, 
+    resizeMode: "cover" 
+  },
+  botaoMenu: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    height: 30,
   },
   header: {
     flexDirection: "row",

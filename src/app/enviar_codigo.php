@@ -116,7 +116,12 @@ try {
     $bodyHtml .= "<p>Este código expira em 15 minutos.</p>";
 
     $mail->Body = $bodyHtml;
+    $mail->clearReplyTos();
+    $mail->addReplyTo('diarioinclusivo2026@gmail.com', 'Diário Inclusivo');
 
+    $mail->addCustomHeader('X-Mailer: PHP/' . phpversion());
+    $mail->addCustomHeader('X-Priority: 1 (Highest)');
+    $mail->addCustomHeader('Importance: High');
     $mail->send();
 
     echo json_encode([

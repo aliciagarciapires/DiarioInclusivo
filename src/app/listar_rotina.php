@@ -27,9 +27,9 @@ $idUsuario = isset($_GET['idUsuario']) ? intval($_GET['idUsuario']) : 1;
 $query = "SELECT r.idRotina, r.nome AS nomeRotina, 
                  rta.idAtividades, a.nome AS nomeAtividade, 
                  rta.horas_iniciais, rta.horas_finais
-          FROM ROTINA r
-          LEFT JOIN ROTINA_TEM_ATIVIDADES rta ON r.idRotina = rta.idRotina
-          LEFT JOIN ATIVIDADES a ON rta.idAtividades = a.idAtividades
+          FROM rotina r
+          LEFT JOIN rotina_tem_atividades rta ON r.idRotina = rta.idRotina
+          LEFT JOIN atividades a ON rta.idAtividades = a.idAtividades
           WHERE r.idUsuario = $idUsuario
           ORDER BY r.idRotina DESC";
 

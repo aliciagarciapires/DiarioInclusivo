@@ -1,12 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
+    Image,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
@@ -28,6 +30,27 @@ export default function AtualizarSenha() {
     const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
     
     const [loading, setLoading] = useState(false);
+    const [tipoUsuario, setTipoUsuario] = useState<number | null>(null);
+
+    useEffect(() => {
+        const carregarTipoUsuario = async () => {
+            try {
+                const idSalvo = await AsyncStorage.getItem("idUsuario");
+                if (idSalvo) {
+                    const response = await fetch(`${API_URL}/getUsuario.php?id=${idSalvo}`);
+                    const json = await response.json();
+                    
+                    if (json.success && json.dados?.tipo_de_usuario) {
+                        setTipoUsuario(Number(json.dados.tipo_de_usuario));
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao carregar tipo de usuário:", error);
+            }
+        };
+
+        carregarTipoUsuario();
+    }, []);
 
     const validarSenha = (senhaParaTestar: string) => {
         return /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
@@ -82,8 +105,6 @@ export default function AtualizarSenha() {
             });
 
             const text = await response.text();
-            
-            // Imprime no terminal o que o PHP realmente devolveu caso falhe
             console.log("RESPOSTA DO SERVIDOR:", text);
 
             let data;
@@ -204,6 +225,76 @@ export default function AtualizarSenha() {
                     Diário Inclusivo.
                 </Text>
             </Footer>
+
+            {/* Menu Inferior Condicional por Tipo de Usuário */}
+            <View style={styles.barraMenuGeral}>
+                {tipoUsuario === 1 && (
+                    <>
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
+                            <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Início</Text>
+                        </Pressable>
+
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
+                            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Diário</Text>
+                        </Pressable>
+
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+                            <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Conf.</Text>
+                        </Pressable>
+                    </>
+                )}
+
+                {tipoUsuario === 2 && (
+                    <>
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+                            <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Professores</Text>
+                        </Pressable>
+
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                            <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Discentes</Text>
+                        </Pressable>
+
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Rotina</Text>
+                        </Pressable>
+
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+                            <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Conf.</Text>
+                        </Pressable>
+                    </>
+                )}
+
+                {tipoUsuario === 3 && (
+                    <>
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                            <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Início</Text>
+                        </Pressable>
+
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
+                            <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Diário</Text>
+                        </Pressable>
+
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+                            <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Rotina</Text>
+                        </Pressable>
+
+                        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+                            <Image source={require("../../assets/images/confgD.png")} style={styles.iconeCustom} />
+                            <Text style={styles.tabLabel}>Conf.</Text>
+                        </Pressable>
+                    </>
+                )}
+            </View>
         </KeyboardAvoidingView>
     );
 }
@@ -216,7 +307,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         paddingHorizontal: 32,
         paddingTop: 40,
-        paddingBottom: 40,
+        paddingBottom: 110, // Aumentado para evitar que o conteúdo fique escondido atrás da barra fixa
         flexGrow: 1,
     },
     itens: {
@@ -266,5 +357,43 @@ const styles = StyleSheet.create({
         color: "#0B8CBF",
         fontSize: 12,
         fontWeight: "500",
-    }
+    },
+    botaoMenu: {
+        alignItems: "center",
+        justifyContent: "center",
+        flex: 1,
+    },
+    tabLabel: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#2F1CA6",
+        marginTop: 4,
+    },
+    iconeCustom: {
+        width: 80,
+        height: 80,
+        borderRadius: 15,
+        resizeMode: "cover",
+    },
+    barraMenuGeral: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center",
+        backgroundColor: "#F5F2E8",
+        height: 90,
+        paddingBottom: 30,
+        borderTopWidth: 3,
+        borderTopColor: "#F5F2E8",
+        borderTopLeftRadius: 35,
+        borderTopRightRadius: 35,
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        elevation: 10,
+        shadowColor: "#000",
+    },
 });
+                       
+ 
+                      

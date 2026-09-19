@@ -35,7 +35,7 @@ if (!empty($dados['nome']) && !empty($dados['atividades']) && !empty($dados['idU
     $idUsuario = intval($dados['idUsuario']); // Transforma em número inteiro seguro
     
     // 1. Insere a nova rotina na tabela ROTINA vinculando ao idUsuario
-    $queryRotina = "INSERT INTO ROTINA (nome, idUsuario) VALUES ('$nome', $idUsuario)";
+    $queryRotina = "INSERT INTO rotina (nome, idUsuario) VALUES ('$nome', $idUsuario)";
     
     if ($mysqli->query($queryRotina)) {
         // Pega o ID automático que o banco acabou de gerar para esta rotina
@@ -51,7 +51,7 @@ if (!empty($dados['nome']) && !empty($dados['atividades']) && !empty($dados['idU
             $horas_finais = $mysqli->real_escape_string($atividade['horas_finais']);
             
             // Query que junta o ID da rotina criada, o ID da atividade existente e as horas
-            $queryVinculo = "INSERT INTO ROTINA_TEM_ATIVIDADES (idRotina, idAtividades, horas_iniciais, horas_finais) 
+            $queryVinculo = "INSERT INTO rotina_tem_atividades (idRotina, idAtividades, horas_iniciais, horas_finais) 
                              VALUES ($idRotinaGerado, $idAtividade, '$horas_iniciais', '$horas_finais')";
             
             if (!$mysqli->query($queryVinculo)) {

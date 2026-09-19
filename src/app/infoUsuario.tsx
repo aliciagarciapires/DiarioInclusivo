@@ -212,7 +212,7 @@ export default function InfoUsuario() {
       if (json.success) {
         await AsyncStorage.removeItem("idUsuario");
         Alert.alert("Sucesso", json.message || "Conta excluída com sucesso!", [
-          { text: "OK", onPress: () => router.replace("/login") }
+          { text: "OK", onPress: () => router.replace("/index") }
         ]);
       } else {
         Alert.alert("Erro", json.message || "Não foi possível excluir a conta.");

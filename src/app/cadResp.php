@@ -8,7 +8,7 @@ require_once "conexao.php";
 $dados = json_decode(file_get_contents("php://input"), true);
 if (!is_array($dados)) { echo json_encode(["sucesso" => false, "mensagem" => "Dados inválidos."]); exit; }
 $nome = trim($dados["nome"] ?? "");
-$email = trim($dados["email"] ?? "");
+$email = strtolower(trim($dados["email"] ?? ""));
 $telefone = trim($dados["telefone"] ?? "");
 $senha = $dados["senha"] ?? "";
 $confirmarSenha = $dados["confirmarSenha"] ?? "";

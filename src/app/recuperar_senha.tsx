@@ -162,7 +162,7 @@ export default function RecuperacaoSenha() {
                     {
                         text: "OK",
                         onPress: () => {
-                            router.replace("/index");
+                            router.push("/login");
                         }
                     }
                 ]);

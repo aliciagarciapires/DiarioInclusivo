@@ -23,7 +23,6 @@ type Professor = {
   idUsuario: number;
   nome: string;
   email: string;
-  senha?: string;
 };
 
 export default function InfoProf() {
@@ -37,12 +36,10 @@ export default function InfoProf() {
   const [salvando, setSalvando] = useState(false);
   const [tipoUsuarioLogado, setTipoUsuarioLogado] = useState<number | null>(null);
 
-  // Estados de edição dos campos
+  // Estados de edição dos campos (removida a parte de senha)
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [senhaOriginal, setSenhaOriginal] = useState("");
 
   // Sanitiza o e-mail em tempo real (sem espaços e em minúsculo)
   const tratarEmailInput = (texto: string) => {
@@ -62,11 +59,7 @@ export default function InfoProf() {
         // 1. Identifica o usuário logado no storage
         const idLogado = await AsyncStorage.getItem("idUsuario");
         if (idLogado) {
-          const respLogado = await fetch(
-
-            `${API_URL}/getUsuario.php?id=${idLogado}`
-
-          );
+          const respLogado = await fetch(`${API_URL}/getUsuario.php?id=${idLogado}`);
           const jsonLogado = await respLogado.json();
           if (jsonLogado.success && jsonLogado.dados?.tipo_de_usuario) {
             setTipoUsuarioLogado(Number(jsonLogado.dados.tipo_de_usuario));
@@ -81,20 +74,13 @@ export default function InfoProf() {
         }
 
         // 3. Busca os dados do professor selecionado
-        const response = await fetch(
-
-            `${API_URL}/getUsuario.php?id=${idFinal}`
-
-        );
+        const response = await fetch(`${API_URL}/getUsuario.php?id=${idFinal}`);
         const json = await response.json();
 
         if (json.success) {
           setProf(json.dados);
           setNome(json.dados.nome || "");
           setEmail((json.dados.email || "").toLowerCase().replace(/\s+/g, ""));
-          // A senha não pode ser reconstruída a partir do hash salvo no banco.
-          setSenhaOriginal("");
-          setSenha("");
         } else {
           Alert.alert("Erro", json.message || "Professor não encontrado.");
         }
@@ -138,28 +124,17 @@ export default function InfoProf() {
         email: emailTratado,
       };
 
-      if (senha.trim() && senha !== senhaOriginal) {
-        payload.senha = senha.trim();
-      }
-
-      const response = await fetch(
-
-        `${API_URL}/updateUsuario.php`,
-
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${API_URL}/updateUsuario.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const json = await response.json();
 
       if (json.success) {
         Alert.alert("Sucesso", "Informações do professor atualizadas!");
-        setProf({ ...prof, nome: nomeTratado, email: emailTratado, senha: senhaOriginal });
-        setSenhaOriginal(senha.trim() && senha !== senhaOriginal ? senha.trim() : senhaOriginal);
-        setSenha(senha.trim() && senha !== senhaOriginal ? senha.trim() : senhaOriginal);
+        setProf({ ...prof, nome: nomeTratado, email: emailTratado });
         setEditando(false);
       } else {
         Alert.alert("Erro", json.message || "Não foi possível salvar os dados.");
@@ -187,12 +162,9 @@ export default function InfoProf() {
       if (!prof?.idUsuario) return;
       setLoading(true);
 
-            const response = await fetch(
-
-        `${API_URL}/deleteUsuario.php?id=${prof.idUsuario}`,
-
-        { method: "GET" }
-            );
+      const response = await fetch(`${API_URL}/deleteUsuario.php?id=${prof.idUsuario}`, {
+        method: "GET",
+      });
       const json = await response.json();
 
       if (json.success) {
@@ -313,29 +285,27 @@ export default function InfoProf() {
 
       {/* RODAPÉ E BARRA DE NAVEGAÇÃO FIXA */}
       <Footer children={undefined} />
-                                      <View style={styles.barraMenuGeral}>
-                                      
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
-                                        <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
-                                        <Text style={styles.tabLabel}>Professores</Text>
-                                      </Pressable>
-                              
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-                                        <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
-                                        <Text style={styles.tabLabel}>Discentes</Text>
-                                      </Pressable>
-                              
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
-                                        <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                                        <Text style={styles.tabLabel}>Rotina</Text>
-                                      </Pressable>
-                              
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-                                        <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                                        <Text style={styles.tabLabel}>Conf.</Text>
-                                      </Pressable>
-                              
-                                    </View>
+      <View style={styles.barraMenuGeral}>
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+          <Image source={require("../../assets/images/profD.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Professores</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+          <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Discentes</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+          <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Rotina</Text>
+        </Pressable>
+
+        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+          <Text style={styles.tabLabel}>Conf.</Text>
+        </Pressable>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -416,14 +386,6 @@ const styles = StyleSheet.create({
     color: "#333",
     backgroundColor: "#FFF",
   },
-  senhaContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  botaoOlho: {
-    padding: 6,
-    marginLeft: 8,
-  },
   botaoSalvar: {
     backgroundColor: "#2F1CA6",
     borderRadius: 50,
@@ -443,23 +405,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    flexDirection: "row",
+    justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
+    backgroundColor: "#F5F2E8",
+    height: 90,
+    paddingBottom: 30,
+    borderTopWidth: 3,
+    borderTopColor: "#F5F2E8",
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 10,                 
+    elevation: 10,
     shadowColor: "#000",
-    marginTop: 20   
+    marginTop: 20,
   },
   botaoMenu: {
     alignItems: "center",
@@ -480,4 +442,3 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
 });
-

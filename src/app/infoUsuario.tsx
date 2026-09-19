@@ -36,7 +36,7 @@ export default function InfoUsuario() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
-  const [senha, setSenha] = useState("");
+  const [senhaExibida, setSenhaExibida] = useState(""); // Apenas para visualização
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
   // --- VALIDAÇÕES E MÁSCARAS ---
@@ -87,7 +87,6 @@ export default function InfoUsuario() {
           }
 
           const response = await fetch(`${API_URL}/getUsuario.php?id=${idFinal}`);
-
           const json = await response.json();
 
           if (json.success) {
@@ -96,7 +95,7 @@ export default function InfoUsuario() {
             setNome(json.dados.nome || "");
             setEmail(json.dados.email || "");
             setTelefone(json.dados.telefone || "");
-            setSenha(json.dados.senha || "");
+            setSenhaExibida(json.dados.senha || "");
           } else {
             Alert.alert("Erro", json.message);
           }
@@ -139,6 +138,7 @@ export default function InfoUsuario() {
     try {
       setSalvando(true);
 
+      // Payload contendo APENAS nome, email e telefone. A senha foi removida daqui para nunca ser alterada por esta tela.
       const payload: any = {
         idUsuario: usuario.idUsuario,
         nome: nome.trim(),
@@ -146,12 +146,7 @@ export default function InfoUsuario() {
         telefone,
       };
 
-      if (senha.trim()) {
-        payload.senha = senha.trim();
-      }
-
       const response = await fetch(`${API_URL}/updateUsuario.php`, {
-
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -161,7 +156,7 @@ export default function InfoUsuario() {
 
       if (json.success) {
         Alert.alert("Sucesso", "Informações atualizadas com sucesso!");
-        setUsuario({ ...usuario, nome: nome.trim(), email, telefone, senha });
+        setUsuario({ ...usuario, nome: nome.trim(), email, telefone });
         setEditando(false);
       } else {
         Alert.alert("Erro", json.message || "Erro ao salvar alterações.");
@@ -201,9 +196,7 @@ export default function InfoUsuario() {
       }
 
       const response = await fetch(
-
         `${API_URL}/deleteUsuario.php?id=${idParaDeletar}`,
-
         { method: "GET" }
       );
 
@@ -212,7 +205,7 @@ export default function InfoUsuario() {
       if (json.success) {
         await AsyncStorage.removeItem("idUsuario");
         Alert.alert("Sucesso", json.message || "Conta excluída com sucesso!", [
-          { text: "OK", onPress: () => router.replace("/index") }
+          { text: "OK", onPress: () => router.replace("/cadRespAdm") }
         ]);
       } else {
         Alert.alert("Erro", json.message || "Não foi possível excluir a conta.");
@@ -308,37 +301,6 @@ export default function InfoUsuario() {
             ) : (
               <Text style={styles.value}>{usuario.telefone || "Não informado"}</Text>
             )}
-          </View>
-
-          {/* CAMPO SENHA */}
-          <View style={styles.infoRow}>
-            <View style={styles.labelContainer}>
-              <Text style={styles.label}>Senha:</Text>
-            </View>
-            <View style={styles.senhaContainer}>
-              {editando ? (
-                <TextInput
-                  style={[styles.input, { flex: 1 }]}
-                  value={senha}
-                  onChangeText={setSenha}
-                  secureTextEntry={!mostrarSenha}
-                />
-              ) : (
-                <Text style={styles.value}>
-                  {mostrarSenha ? usuario.senha : "••••••••"}
-                </Text>
-              )}
-              <TouchableOpacity 
-                onPress={() => setMostrarSenha(!mostrarSenha)}
-                style={styles.botaoOlho}
-              >
-                <Ionicons 
-                  name={mostrarSenha ? "eye-off-outline" : "eye-outline"} 
-                  size={20} 
-                  color="#2F1CA6" 
-                />
-              </TouchableOpacity>
-            </View>
           </View>
 
           {/* BOTÃO SALVAR (Exibido apenas quando estiver editando) */}

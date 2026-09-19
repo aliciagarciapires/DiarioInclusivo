@@ -8,7 +8,7 @@ ob_clean();
 
 try {
     // Mudamos para $mysqli para conversar com o seu conexao.php
-    $query = "SELECT idAtividades, nome FROM ATIVIDADES";
+    $query = "SELECT idAtividades, nome FROM atividades";
     $result = $mysqli->query($query);
 
     if (!$result) { //caso não consiga executar a busca gera a msg de erro

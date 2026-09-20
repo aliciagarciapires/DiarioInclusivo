@@ -333,12 +333,12 @@ export default function DiarioResp() {
         {tipoUsuario === 1 && (
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
-              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Início</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
-              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 

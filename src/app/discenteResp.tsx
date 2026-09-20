@@ -7,39 +7,50 @@ import { API_URL } from "./api";
 
 export default function DiscenteResp() {
   const [listaDiscentes, setListaDiscentes] = useState<any[]>([]);
+  const [tipoLogado, setTipoLogado] = useState<number | null>(null);
 
   const buscarDiscentesDoResponsavel = async () => {
-  try {
-    const idUsuarioLogado = await AsyncStorage.getItem("idUsuario");
+    try {
+      const idUsuarioLogado = await AsyncStorage.getItem("idUsuario");
+      const tipoLogadoArmazenado = await AsyncStorage.getItem("tipo_de_usuario");
+      const tipoUsuario = tipoLogadoArmazenado ? Number(tipoLogadoArmazenado) : null;
+      setTipoLogado(tipoUsuario);
 
-    // 1. VEJA ISSO NO TERMINAL DO EXPO:
-    console.log("--- DEBUG DISCENTE RESP ---");
-    console.log("ID do Responsável Logado:", idUsuarioLogado);
+      console.log("--- DEBUG DISCENTE RESP ---");
+      console.log("ID do Usuário Logado:", idUsuarioLogado);
+      console.log("Tipo do Usuário Logado:", tipoUsuario);
 
-    if (!idUsuarioLogado) {
-      console.error("ID do responsável não encontrado no AsyncStorage.");
-      return;
+      if (!idUsuarioLogado) {
+        console.error("ID do usuário não encontrado no AsyncStorage.");
+        return;
+      }
+
+      let url = "";
+
+      // Se o tipo_de_usuario for 2, busca TODOS os discentes do banco
+      if (tipoUsuario === 2) {
+        url = `${API_URL}/discenteAdm.php`;
+      } else {
+        // Se for 1, busca apenas os vinculados ao responsável
+        url = `${API_URL}/discenteResp.php?idResp=${idUsuarioLogado}`;
+      }
+
+      console.log("URL chamada:", url);
+
+      const response = await fetch(url);
+      const dados = await response.json();
+
+      console.log("Retorno do PHP:", dados);
+
+      if (Array.isArray(dados)) {
+        setListaDiscentes(dados);
+      } else {
+        setListaDiscentes([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar discentes:", error);
     }
-
-    const url = `${API_URL}/discenteResp.php?idResp=${idUsuarioLogado}`;
-
-    console.log("URL chamada:", url);
-
-    const response = await fetch(url);
-    const dados = await response.json();
-
-    // 2. VEJA A RESPOSTA DO PHP NO TERMINAL:
-    console.log("Retorno do PHP:", dados);
-
-    if (Array.isArray(dados)) {
-      setListaDiscentes(dados);
-    } else {
-      setListaDiscentes([]);
-    }
-  } catch (error) {
-    console.error("Erro ao buscar discentes do responsável:", error);
-  }
-};
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -74,28 +85,58 @@ export default function DiscenteResp() {
               </View>
             ))
           ) : (
-            <Text style={styles.textoVazio}>Nenhum discente vinculado a este responsável.</Text>
+            <Text style={styles.textoVazio}>Nenhum discente encontrado.</Text>
           )}
         </View>
       </ScrollView>
       
+      {/* Footer Padrão */}
       <Footer children={undefined} />
-
+      
+      {/* Barra de Menu Dinâmica baseada no tipo de usuário */}
       <View style={styles.barraMenuGeral}>
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
-          <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Início</Text>
-        </Pressable>
+        {tipoLogado === 1 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
+              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
 
-	<Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
               <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Diário</Text>
-        </Pressable>
+            </Pressable>
 
-        <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-          <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-          <Text style={styles.tabLabel}>Conf.</Text>
-        </Pressable>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
+
+        {tipoLogado === 2 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discenteD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     </>
   );

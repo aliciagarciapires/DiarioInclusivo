@@ -66,7 +66,7 @@ export default function Professores() {
                                   <Text style={styles.tabLabel}>Professores</Text>
                                 </Pressable>
                         
-                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+                                <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
                                   <Image source={require("../../assets/images/discentes.png")} style={styles.iconeCustom} />
                                   <Text style={styles.tabLabel}>Discentes</Text>
                                 </Pressable>

@@ -29,14 +29,14 @@ export default function DiarioResp() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  // Estados para seleção/carregamento do Discente (Filho)
+  // Estados para seleção/carregamento do Discente
   const [discentes, setDiscentes] = useState<Discente[]>([]);
   const [idDiscente, setIdDiscente] = useState<number | null>(
     params.idDiscente ? Number(params.idDiscente) : null
   );
   const [modalSelecaoDiscenteVisivel, setModalSelecaoDiscenteVisivel] = useState(false);
 
-  // ID do usuário logado
+  // ID e Tipo do usuário logado
   const [idUsuario, setIdUsuario] = useState<number | null>(null);
   const [tipoUsuario, setTipoUsuario] = useState<number | null>(null);
 
@@ -55,65 +55,81 @@ export default function DiarioResp() {
     return aluno.nome ?? aluno.nomeDiscente ?? aluno.nome_discente ?? aluno.aluno ?? "Nome não encontrado";
   };
 
-  // Carrega o usuário logado e busca os discentes (filhos) associados
-// DENTRO DO SEU ARCHIVO DE DIÁRIO DO RESPONSÁVEL:
+  // Carrega o usuário logado e busca os discentes conforme o tipo
+  useEffect(() => {
+    const carregarInicial = async () => {
+      try {
+        let currentUserId: number | null = null;
+        const usuarioJson = await AsyncStorage.getItem("@usuario_logado");
 
-useEffect(() => {
-  const carregarInicial = async () => {
-    try {
-      let currentUserId: number | null = null;
-      const usuarioJson = await AsyncStorage.getItem("@usuario_logado");
-
-      if (usuarioJson) {
-        const usuario = JSON.parse(usuarioJson);
-        currentUserId = Number(
-          usuario.idUsuario ?? usuario.id_usuario ?? usuario.id ?? usuario.codigo
-        );
-      } else {
-        const idSalvo = await AsyncStorage.getItem("idUsuario");
-        if (idSalvo) {
-          currentUserId = Number(idSalvo);
-        }
-      }
-
-      // Recebe o idDiscente se tiver sido passado pela navegação
-      const idParam = params.idDiscente || params.id;
-      if (idParam) {
-        setIdDiscente(Number(idParam));
-      }
-
-      if (currentUserId && !Number.isNaN(currentUserId)) {
-        setIdUsuario(currentUserId);
-
-        // CORREÇÃO: Usando o endpoint correto 'discenteResp.php' em vez do de professores
-        const urlAPI = `${API_URL}/discenteResp.php?idResp=${currentUserId}`;
-        const response = await fetch(urlAPI);
-        const result = await response.json();
-
-        let listaBruta = [];
-        if (Array.isArray(result)) {
-          listaBruta = result;
-        } else if (result.dados && Array.isArray(result.dados)) {
-          listaBruta = result.dados;
+        if (usuarioJson) {
+          const usuario = JSON.parse(usuarioJson);
+          currentUserId = Number(
+            usuario.idUsuario ?? usuario.id_usuario ?? usuario.id ?? usuario.codigo
+          );
+        } else {
+          const idSalvo = await AsyncStorage.getItem("idUsuario");
+          if (idSalvo) {
+            currentUserId = Number(idSalvo);
+          }
         }
 
-        setDiscentes(listaBruta);
-
-        // Se nenhum ID veio via rota/URL, seleciona o primeiro discente da lista por padrão
-        if (!idParam && listaBruta.length > 0) {
-          const primeiroId = obterIdDiscente(listaBruta[0]);
-          if (primeiroId) setIdDiscente(primeiroId);
+        // Pega o tipo de usuário de forma segura
+        let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
+        if (!tipoLogado) {
+          tipoLogado = await AsyncStorage.getItem("tipoUsuario");
         }
+
+        if (tipoLogado) {
+          setTipoUsuario(Number(tipoLogado));
+        }
+
+        // Recebe o idDiscente se tiver sido passado pela navegação
+        const idParam = params.idDiscente || params.id;
+        if (idParam) {
+          setIdDiscente(Number(idParam));
+        }
+
+        if (currentUserId && !Number.isNaN(currentUserId)) {
+          setIdUsuario(currentUserId);
+
+          let urlAPI = "";
+
+          // Se o tipo for 2, busca TODOS os discentes no discenteAdm.php
+          if (tipoLogado && String(tipoLogado).trim() === "2") {
+            urlAPI = `${API_URL}/discenteAdm.php`;
+          } else {
+            // Se for 1, busca apenas os vinculados ao responsável
+            urlAPI = `${API_URL}/discenteResp.php?idResp=${currentUserId}`;
+          }
+
+          const response = await fetch(urlAPI);
+          const result = await response.json();
+
+          let listaBruta = [];
+          if (Array.isArray(result)) {
+            listaBruta = result;
+          } else if (result.dados && Array.isArray(result.dados)) {
+            listaBruta = result.dados;
+          }
+
+          setDiscentes(listaBruta);
+
+          // Se nenhum ID veio via rota/URL, seleciona o primeiro discente por padrão
+          if (!idParam && listaBruta.length > 0) {
+            const primeiroId = obterIdDiscente(listaBruta[0]);
+            if (primeiroId) setIdDiscente(primeiroId);
+          }
+        }
+      } catch (error) {
+        console.error("Erro no carregamento inicial:", error);
       }
-    } catch (error) {
-      console.error("Erro no carregamento inicial:", error);
-    }
-  };
+    };
 
-  carregarInicial();
-}, [params.idDiscente, params.id]);
+    carregarInicial();
+  }, [params.idDiscente, params.id]);
 
-  // Redireciona para a tela dedicada de histórico passando o ID do discente
+  // Redireciona para a tela de histórico
   const handleIrParaHistorico = () => {
     if (!idDiscente) {
       Alert.alert("Atenção", "Selecione um discente para consultar o histórico.");
@@ -126,12 +142,10 @@ useEffect(() => {
     });
   };
 
-  // Seleção de dia no calendário
   const selecionarDiaCalendario = (dia: number) => {
     setDiaSelecionado(dia);
   };
 
-  // Geração da grade de dias do mês
   const gerarGradeCalendario = () => {
     const ano = dataAtual.getFullYear();
     const mes = dataAtual.getMonth();
@@ -176,7 +190,7 @@ useEffect(() => {
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Seletor do Discente (Caso haja mais de um dependente) */}
+      {/* Seletor do Discente */}
       <View style={styles.seletorDiscenteContainer}>
         <Text style={styles.labelDiscente}>Discente:</Text>
         <TouchableOpacity
@@ -205,7 +219,7 @@ useEffect(() => {
             <Text style={styles.modalTitulo}>Selecione o Discente</Text>
 
             {discentes.length === 0 ? (
-              <Text style={styles.textoVazio}>Nenhum discente vinculado encontrado.</Text>
+              <Text style={styles.textoVazio}>Nenhum discente encontrado.</Text>
             ) : (
               <FlatList
                 data={discentes}
@@ -301,7 +315,7 @@ useEffect(() => {
         </View>
       </View>
 
-      {/* Botão de Ação Único para o Responsável */}
+      {/* Botão de Ação */}
       <View style={styles.botoesAcaoContainer}>
         <Pressable
           style={[styles.botaoAcao, styles.botaoAzul]}
@@ -313,26 +327,52 @@ useEffect(() => {
 
       {/* Footer Padrão */}
       <Footer children={undefined} />
-                                      <View style={styles.barraMenuGeral}>
-                                      
 
-                              
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
-                                        <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
-                                        <Text style={styles.tabLabel}>Discentes</Text>
-                                      </Pressable>
-                              
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
-                                        <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-                                        <Text style={styles.tabLabel}>Diário</Text>
-                                      </Pressable>
-                              
-                                      <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
-                                        <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
-                                        <Text style={styles.tabLabel}>Conf.</Text>
-                                      </Pressable>
-                              
-                                    </View>
+      {/* Barra de Menu Dinâmica (Tipo 1 e Tipo 2) */}
+      <View style={styles.barraMenuGeral}>
+        {tipoUsuario === 1 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
+              <Image source={require("../../assets/images/homeD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
+              <Image source={require("../../assets/images/diario.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
+
+        {tipoUsuario === 2 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
+              <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Professores</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
+              <Image source={require("../../assets/images/discenteD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Discentes</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
+              <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Rotina</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
+      </View>
     </View>
   );
 }
@@ -345,27 +385,27 @@ const styles = StyleSheet.create({
     paddingBottom: 95,
   },
   barraMenuGeral: {
-    flexDirection: "row",          // Alinha os botões na horizontal
-    justifyContent: "space-around",// Distribui igualmente o espaço entre eles
+    flexDirection: "row",
+    justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
-    borderTopWidth: 3,             
-    borderTopColor: "#F5F2E8",     
-    borderTopLeftRadius: 35,       
-    borderTopRightRadius: 35,      
-    position: "absolute",          // Fixa no rodapé
+    backgroundColor: "#F5F2E8",
+    height: 90,
+    paddingBottom: 30,
+    borderTopWidth: 3,
+    borderTopColor: "#F5F2E8",
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 10,                 
+    elevation: 10,
     shadowColor: "#000",
     marginTop: 20,
-    borderRadius: 20, // Adiciona bordas arredondadas
+    borderRadius: 20,
   },
   tabLabel: {
-    fontSize: 14,                  
+    fontSize: 14,
     fontWeight: "500",
     color: "#2F1CA6",
     marginTop: 4,

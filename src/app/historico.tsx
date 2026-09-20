@@ -582,13 +582,8 @@ export default function HistoricoScreen() {
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
-              <Image source={require("../../assets/images/discente.png")} style={styles.iconeCustom} />
+              <Image source={require("../../assets/images/discenteD.png")} style={styles.iconeCustom} />
               <Text style={styles.tabLabel}>Discentes</Text>
-            </Pressable>
-
-            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioProf")}>
-              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Diário</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>

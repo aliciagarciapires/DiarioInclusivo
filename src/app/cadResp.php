@@ -10,12 +10,14 @@ if (!is_array($dados)) { echo json_encode(["sucesso" => false, "mensagem" => "Da
 $nome = trim($dados["nome"] ?? "");
 $email = strtolower(trim($dados["email"] ?? ""));
 $telefone = trim($dados["telefone"] ?? "");
+$telefoneLimpo = preg_replace('/\D/', '', $telefone);
 $senha = $dados["senha"] ?? "";
 $confirmarSenha = $dados["confirmarSenha"] ?? "";
 $tipoConta = (int) ($dados["tipoConta"] ?? 1);
 $aceitouTermos = filter_var($dados["aceitouTermos"] ?? false, FILTER_VALIDATE_BOOLEAN);
 if (!$aceitouTermos) { echo json_encode(["sucesso" => false, "mensagem" => "É necessário aceitar os Termos de Uso."]); exit; }
 if (!$nome || !filter_var($email, FILTER_VALIDATE_EMAIL) || !$senha) { echo json_encode(["sucesso" => false, "mensagem" => "Preencha os campos obrigatórios corretamente."]); exit; }
+if (strlen($telefoneLimpo) !== 10 && strlen($telefoneLimpo) !== 11) { echo json_encode(["sucesso" => false, "mensagem" => "Informe um número de telefone válido."]); exit; }
 if ($senha !== $confirmarSenha) { echo json_encode(["sucesso" => false, "mensagem" => "As senhas não coincidem."]); exit; }
 if (!preg_match('/^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/', $senha)) { echo json_encode(["sucesso" => false, "mensagem" => "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."]); exit; }
 $verificar = $mysqli->prepare("SELECT idUsuario FROM usuario WHERE email = ?");

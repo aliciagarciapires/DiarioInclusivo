@@ -53,6 +53,11 @@ export default function CadResp() {
         return regexEmail.test(emailParaTestar);
     };
 
+    const validarTelefone = (telefoneParaTestar: string) => {
+        const telefoneLimpo = telefoneParaTestar.replace(/\D/g, "");
+        return telefoneLimpo.length === 10 || telefoneLimpo.length === 11;
+    };
+
     // Máscara de telefone
     const validarSenha = (senhaParaTestar: string) =>
         /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
@@ -78,6 +83,11 @@ export default function CadResp() {
 
         if (email && !validarEmail(email)) {
             Alert.alert("Aviso", "Por favor, insira um e-mail válido.");
+            return;
+        }
+
+        if (!validarTelefone(telefone)) {
+            Alert.alert("Aviso", "Por favor, insira um número de telefone válido.");
             return;
         }
 

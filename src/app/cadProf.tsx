@@ -112,12 +112,7 @@ export default function CadProf() {
 
             if (data.sucesso) {
 
-                if (data.id) {
-                    await AsyncStorage.setItem(
-                        "idUsuario",
-                        String(data.id)
-                    );
-                }
+                
 
                 Alert.alert(
                     "Professor cadastrado com sucesso!",

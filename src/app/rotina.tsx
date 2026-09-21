@@ -43,10 +43,6 @@ export default function Rotina() {
         <Button label="Minhas Rotinas" onPress={() => router.push("/minhasRotinas")} />
       </View>
 
-      <View style={styles.botaoContainer}>
-        <Button label="Rotina Pronta" onPress={() => router.push("/minhasRotinas")} />
-      </View>
-
       <Footer children={undefined} />
 
       {/* Renderização Condicional da Barra Inferior */}

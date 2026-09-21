@@ -1,11 +1,34 @@
 import { router } from "expo-router"
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native"
+import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native"
 import { Button } from "../../components/Button"
 import { Input } from "../../components/input"
 import Footer from "../../components/Footer"
-import React from "react"
+import React, { useState } from "react"
 
 export default function CadAdm(){
+    const [senha, setSenha] = useState("");
+    const [confirmarSenha, setConfirmarSenha] = useState("");
+
+    const validarSenha = (senhaParaTestar: string) =>
+        /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
+
+    const cadastrarAdministrador = () => {
+        if (!validarSenha(senha)) {
+            Alert.alert(
+                "Aviso",
+                "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."
+            );
+            return;
+        }
+
+        if (senha !== confirmarSenha) {
+            Alert.alert("Aviso", "As senhas não coincidem.");
+            return;
+        }
+
+        router.push("/professores");
+    };
+
     return(
         <><ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.container}>
@@ -38,17 +61,29 @@ export default function CadAdm(){
                     <Text style={styles.textoInput}>
                         Senha:
                     </Text>
-                    <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
+                    <Input
+                        placeholder="**********"
+                        placeholderTextColor="#0b8cbfd1"
+                        secureTextEntry
+                        value={senha}
+                        onChangeText={setSenha}
+                    />
 
                     <Text style={styles.textoInput}>
                         Confirmar Senha:
                     </Text>
-                    <Input placeholder="**********" placeholderTextColor="#0b8cbfd1" secureTextEntry />
+                    <Input
+                        placeholder="**********"
+                        placeholderTextColor="#0b8cbfd1"
+                        secureTextEntry
+                        value={confirmarSenha}
+                        onChangeText={setConfirmarSenha}
+                    />
 
                     <View style={styles.botaoContainer}>
                         <Button
                             label="Cadastrar"
-                            onPress={() => router.push("/professores")} />
+                            onPress={cadastrarAdministrador} />
                     </View>
                 </View>
 

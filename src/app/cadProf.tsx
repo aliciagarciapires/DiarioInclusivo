@@ -110,7 +110,7 @@ export default function CadProf() {
 
             const data = await response.json();
 
-            if (data.success) {
+            if (data.sucesso) {
 
                 if (data.id) {
                     await AsyncStorage.setItem(
@@ -120,7 +120,7 @@ export default function CadProf() {
                 }
 
                 Alert.alert(
-                    "Sucesso",
+                    "Professor cadastrado com sucesso!",
                     data.message
                 );
 

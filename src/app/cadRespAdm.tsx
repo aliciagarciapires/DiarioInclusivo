@@ -150,6 +150,14 @@ export default function CadResp() {
     // Cadastro da solicitação do Administrador
     const enviarCadastro = async () => {
 
+        if (!validarSenha(senhaAdm)) {
+            Alert.alert(
+                "Aviso",
+                "A senha deve ter no mínimo 8 caracteres, 1 letra maiúscula e 1 símbolo."
+            );
+            return;
+        }
+
         if (!aceitouTermos) {
             Alert.alert(
                 "Termos de Uso",

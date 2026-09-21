@@ -166,6 +166,23 @@ if (!$emailInst || !$emailAdm) {
     exit;
 }
 
+$verificarEmailInst = $mysqli->prepare("SELECT idUsuario FROM usuario WHERE email = ? LIMIT 1");
+$verificarEmailInst->bind_param("s", $emailInst);
+$verificarEmailInst->execute();
+
+if ($verificarEmailInst->get_result()->num_rows > 0) {
+    $verificarEmailInst->close();
+
+    echo json_encode([
+        "sucesso" => false,
+        "mensagem" => "O e-mail institucional já está cadastrado."
+    ]);
+
+    exit;
+}
+
+$verificarEmailInst->close();
+
 // GERA O HASH DA SENHA PARA ENVIO SEGURO NO E-MAIL
 $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 

@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // Inclui a sua conexão com o banco de dados
+$transacaoIniciada = false;
 try {
 include_once "conexao.php";
 
@@ -33,6 +34,10 @@ if (!empty($dados['nome']) && !empty($dados['atividades']) && !empty($dados['idU
     // Protege os dados contra SQL Injection
     $nome = $mysqli->real_escape_string($dados['nome']);
     $idUsuario = intval($dados['idUsuario']); // Transforma em número inteiro seguro
+    if (!$mysqli->begin_transaction()) {
+        throw new RuntimeException($mysqli->error);
+    }
+    $transacaoIniciada = true;
     
     // 1. Insere a nova rotina na tabela ROTINA vinculando ao idUsuario
     $queryRotina = "INSERT INTO rotina (nome, idUsuario) VALUES ('$nome', $idUsuario)";
@@ -63,18 +68,26 @@ if (!empty($dados['nome']) && !empty($dados['atividades']) && !empty($dados['idU
         
         // Verifica se deu tudo certo no loop de salvamento das horas
         if (!$erroVinculo) {
+            if (!$mysqli->commit()) {
+                throw new RuntimeException($mysqli->error);
+            }
+            $transacaoIniciada = false;
             echo json_encode([
                 "sucesso" => true,
                 "mensagem" => "Rotina e todas as atividades foram salvas com sucesso!"
             ]);
         } else {
+            $mysqli->rollback();
+            $transacaoIniciada = false;
             echo json_encode([
                 "sucesso" => false,
-                "mensagem" => "A rotina foi criada, mas houve um erro ao salvar os horários: " . $mensagemErro
+                "mensagem" => "A rotina não foi salva. Erro ao salvar os horários: " . $mensagemErro
             ]);
         }
         
     } else {
+        $mysqli->rollback();
+        $transacaoIniciada = false;
         echo json_encode([
             "sucesso" => false,
             "mensagem" => "Erro ao criar a rotina no banco de dados: " . $mysqli->error
@@ -88,6 +101,9 @@ if (!empty($dados['nome']) && !empty($dados['atividades']) && !empty($dados['idU
     ]);
 }
 } catch (Throwable $erro) {
+    if ($transacaoIniciada) {
+        $mysqli->rollback();
+    }
     if (ob_get_level() > 0) {
         ob_end_clean();
     }

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -21,6 +21,7 @@ import { API_URL } from "./api";
 
 // Define o formato de uma atividade que já foi adicionada à rotina atual
 interface Atividade {
+  idOcorrencia: number;
   id: string;
   nome: string;
   inicio: Date;
@@ -46,6 +47,7 @@ export default function CriarRotina() {
 
   const [nome, setNome] = useState(''); // Guarda o nome digitado para a rotina
   const [atividadesSelecionadas, setAtividadesSelecionadas] = useState<Atividade[]>([]); // Lista de atividades montadas na rotina
+  const proximaOcorrencia = useRef(0);
   
   // Lista de atividades pré-cadastradas trazidas do banco de dados
   const [listaMaster, setListaMaster] = useState<AtividadeMaster[]>([]);
@@ -93,13 +95,14 @@ export default function CriarRotina() {
   // Adiciona a atividade selecionada no modal para a lista da rotina
   const adicionarDaMaster = (atividade: AtividadeMaster) => {
     const novaAtiv: Atividade = {
+      idOcorrencia: proximaOcorrencia.current++,
       id: atividade.idAtividades.toString(),
       nome: atividade.nome,
       inicio: new Date(), // Inicia por padrão com a hora atual
       fim: new Date(),    // Inicia por padrão com a hora atual
     };
     // Adiciona o novo item mantendo os itens anteriores (...atividadesSelecionadas)
-    setAtividadesSelecionadas([...atividadesSelecionadas, novaAtiv]);
+    setAtividadesSelecionadas(anteriores => [...anteriores, novaAtiv]);
     setModalVisivel(false); // Fecha o modal após selecionar
   };
 
@@ -146,7 +149,7 @@ export default function CriarRotina() {
   };
 
   // Remove um item da lista local da rotina
-  const apagarAtividade = (idParaApagar: string) => {
+  const apagarAtividade = (idOcorrencia: number) => {
     Alert.alert(
       "Apagar Atividade",
       "Tem certeza que deseja remover esta atividade da sua rotina?",
@@ -156,9 +159,10 @@ export default function CriarRotina() {
           text: "Apagar", 
           style: "destructive", 
           onPress: () => {
-            // Filtra o array mantendo apenas quem tem ID diferente do clicado
-            const listaFiltrada = atividadesSelecionadas.filter(ativ => ativ.id !== idParaApagar);
-            setAtividadesSelecionadas(listaFiltrada);
+            // Cada inclusão tem sua própria identidade, mesmo com o mesmo ID e horário.
+            setAtividadesSelecionadas(anteriores =>
+              anteriores.filter(ativ => ativ.idOcorrencia !== idOcorrencia)
+            );
           }
         }
       ]
@@ -211,11 +215,13 @@ export default function CriarRotina() {
         idUsuarioLogado = await AsyncStorage.getItem("id");
       }
 
-      // Formata os objetos Date para strings simples de horário (ex: "14:30:00")
+      // Envia HH:mm:ss sem depender do formato regional do aparelho.
+      const formatarHora = (hora: Date) =>
+        `${String(hora.getHours()).padStart(2, '0')}:${String(hora.getMinutes()).padStart(2, '0')}:00`;
       const atividadesFormatadas = atividadesSelecionadas.map(ativ => ({
         idAtividades: ativ.id,
-        horas_iniciais: ativ.inicio.toLocaleTimeString([], { hour12: false }),
-        horas_finais: ativ.fim.toLocaleTimeString([], { hour12: false })
+        horas_iniciais: formatarHora(ativ.inicio),
+        horas_finais: formatarHora(ativ.fim)
       }));
 
       const URL_SALVAR = `${API_URL}/salvar_rotina.php`;
@@ -297,13 +303,12 @@ export default function CriarRotina() {
 
         {/* Renderiza a lista de atividades que já foram adicionadas pelo usuário */}
         {atividadesSelecionadas.map((item, index) => (
-          // key única usando id + index para evitar problemas com itens duplicados
-          <View key={`${item.id}-${index}`} style={styles.cardAtividade}>
+          <View key={item.idOcorrencia} style={styles.cardAtividade}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <Text style={styles.nomeAtividade}>{item.nome}</Text>
               
               {/* Botão de Excluir */}
-              <TouchableOpacity onPress={() => apagarAtividade(item.id)}>
+              <TouchableOpacity onPress={() => apagarAtividade(item.idOcorrencia)}>
                 <Ionicons name="trash-outline" size={22} color="#FF4444" />
               </TouchableOpacity>
             </View>

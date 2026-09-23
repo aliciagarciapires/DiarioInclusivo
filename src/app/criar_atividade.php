@@ -27,7 +27,7 @@ if (!empty($dados['novoNomeAtividade'])) {
     $nomeLimpo = $mysqli->real_escape_string($nomeAtividade);
     
     // 1. Verifica se já existe uma atividade com esse mesmo nome
-    $sqlVerifica = "SELECT id FROM atividades WHERE nome = '$nomeLimpo' LIMIT 1";
+    $sqlVerifica = "SELECT idAtividades FROM atividades WHERE nome = '$nomeLimpo' LIMIT 1";
     $resultadoVerifica = $mysqli->query($sqlVerifica);
 
     if ($resultadoVerifica && $resultadoVerifica->num_rows > 0) {

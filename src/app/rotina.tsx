@@ -83,12 +83,22 @@ export default function Rotina() {
           "Accept": "application/json",
         },
         body: JSON.stringify({
-          novoNomeAtividade: novaAtividade, // Chave exata que o seu PHP lê
+          novoNomeAtividade: novaAtividade,
         }),
       });
 
-      const resultado = await response.json();
-      console.log("Resposta do PHP:", resultado);
+      // Pega o texto bruto retornado pelo servidor primeiro
+      const respostaTexto = await response.text();
+      console.log("Resposta bruta do servidor:", respostaTexto);
+
+      // Se a resposta estiver vazia, avisa o desenvolvedor
+      if (!respostaTexto || respostaTexto.trim() === "") {
+        console.error("O arquivo PHP retornou uma resposta vazia.");
+        return;
+      }
+
+      // Tenta converter para JSON com segurança
+      const resultado = JSON.parse(respostaTexto);
 
       if (resultado.sucesso) {
         setModalVisivel(false);

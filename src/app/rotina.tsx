@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { ActivityIndicator, FlatList, Image, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, ActivityIndicator, FlatList, Image, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { API_URL } from "./api";
@@ -142,32 +142,59 @@ export default function Rotina() {
     }
   };
 
-  const handleDeletarAtividade = async (idAtividades: string | number) => {
-    try {
-      const response = await fetch(`${API_URL}/deleteAtividade.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
+  const handleDeletarAtividade = (idAtividades: string | number) => {
+    Alert.alert(
+      "Confirmação",
+      "Vai apagar esta atividade, tem certeza?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
         },
-        body: JSON.stringify({ idAtividades }),
-      });
+        {
+          text: "Sim, apagar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await fetch(`${API_URL}/deleteAtividade.php`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Accept": "application/json",
+                },
+                body: JSON.stringify({ idAtividades }),
+              });
 
-      const respostaTexto = await response.text();
-      if (!respostaTexto) return;
+              const respostaTexto = await response.text();
+              
+              if (!respostaTexto || respostaTexto.trim() === "") {
+                Alert.alert("Erro", "O servidor retornou uma resposta vazia.");
+                return;
+              }
 
-      const resultado = JSON.parse(respostaTexto);
+              let resultado;
+              try {
+                resultado = JSON.parse(respostaTexto);
+              } catch (e) {
+                console.error("Resposta inválida do servidor:", respostaTexto);
+                Alert.alert("Erro", "Erro no servidor (Formato inválido). Veja o console para detalhes.");
+                return;
+              }
 
-      if (resultado.sucesso) {
-        carregarAtividades();
-      } else {
-        alert(resultado.mensagem || "Erro ao excluir atividade.");
-      }
-    } catch (error) {
-      console.error("Erro ao deletar:", error);
-    }
+              if (resultado.sucesso) {
+                carregarAtividades();
+              } else {
+                Alert.alert("Erro", resultado.mensagem || "Erro ao excluir atividade.");
+              }
+            } catch (error) {
+              console.error("Erro ao deletar:", error);
+              Alert.alert("Erro", "Não foi possível conectar ao servidor para excluir.");
+            }
+          },
+        },
+      ]
+    );
   };
-
   return (
     <View style={styles.container}>
       {tipoUsuario === "3" && (

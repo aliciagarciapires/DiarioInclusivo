@@ -21,17 +21,28 @@ $dados = json_decode(file_get_contents("php://input"), true);
 
 ob_end_clean();
 
-// AJUSTADO: Agora o PHP lê a chave 'novoNomeAtividade' que vem do seu React Native
 if (!empty($dados['novoNomeAtividade'])) {
     
-    $nomeAtividade = $dados['novoNomeAtividade'];
+    $nomeAtividade = trim($dados['novoNomeAtividade']);
     $nomeLimpo = $mysqli->real_escape_string($nomeAtividade);
     
-    // Insere apenas na tabela geral de ATIVIDADES, igual à estrutura do seu banco
+    // 1. Verifica se já existe uma atividade com esse mesmo nome
+    $sqlVerifica = "SELECT id FROM atividades WHERE nome = '$nomeLimpo' LIMIT 1";
+    $resultadoVerifica = $mysqli->query($sqlVerifica);
+
+    if ($resultadoVerifica && $resultadoVerifica->num_rows > 0) {
+        // Se já existir, retorna um erro informando
+        echo json_encode([
+            "sucesso" => false, 
+            "mensagem" => "Já existe uma atividade cadastrada com este nome!"
+        ]);
+        exit;
+    }
+    
+    // 2. Se não existir, prossegue com a inserção
     $query = "INSERT INTO atividades (nome) VALUES ('$nomeLimpo')";
     
     if ($mysqli->query($query)) {
-        // Pega o ID gerado pelo banco de dados
         $idGerado = $mysqli->insert_id;
 
         echo json_encode([

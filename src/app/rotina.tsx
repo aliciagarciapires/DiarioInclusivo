@@ -1,13 +1,15 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { ActivityIndicator, FlatList, Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { API_URL } from "./api";
 
 interface Atividade {
-  id: string | number;
+  idAtividades?: string | number;
+  id?: string | number;
   titulo?: string;
   nome?: string;
   descricao?: string;
@@ -19,9 +21,12 @@ export default function Rotina() {
   const [atividades, setAtividades] = useState<Atividade[]>([]);
   const [carregando, setCarregando] = useState<boolean>(false);
 
-  // Estados para controlar o Modal (Pop-up) e o formulário
+  // Estados do Modal e Formulário (Cadastro / Edição)
   const [modalVisivel, setModalVisivel] = useState<boolean>(false);
-  const [novaAtividade, setNovaAtividade] = useState<string>("");
+  const [modoEdicao, setModoEdicao] = useState<boolean>(false);
+  const [idAtividadeSelecionada, setIdAtividadeSelecionada] = useState<string | number | null>(null);
+  const [nomeAtividadeInput, setNomeAtividadeInput] = useState<string>("");
+  const [mensagemErro, setMensagemErro] = useState<string>("");
   const [salvando, setSalvando] = useState<boolean>(false);
 
   const carregarAtividades = async () => {
@@ -70,54 +75,101 @@ export default function Rotina() {
     }, [])
   );
 
-  const handleCriarAtividade = async () => {
-    if (!novaAtividade.trim()) return;
+  const abrirModalAdicionar = () => {
+    setModoEdicao(false);
+    setIdAtividadeSelecionada(null);
+    setNomeAtividadeInput("");
+    setMensagemErro("");
+    setModalVisivel(true);
+  };
+
+  const abrirModalEditar = (item: Atividade) => {
+    setModoEdicao(true);
+    setIdAtividadeSelecionada(item.idAtividades || item.id || item.codigo);
+    setNomeAtividadeInput(item.titulo || item.nome || item.descricao || "");
+    setMensagemErro("");
+    setModalVisivel(true);
+  };
+
+  const handleSalvarAtividade = async () => {
+    if (!nomeAtividadeInput.trim()) {
+      setMensagemErro("Digite o nome da atividade.");
+      return;
+    }
 
     try {
       setSalvando(true);
-      
-      const response = await fetch(`${API_URL}/criar_atividade.php`, {
+      setMensagemErro("");
+
+      const endpoint = modoEdicao ? `${API_URL}/updateAtividade.php` : `${API_URL}/criar_atividade.php`;
+      const corpoRequisicao = modoEdicao 
+        ? { idAtividades: idAtividadeSelecionada, novoNomeAtividade: nomeAtividadeInput }
+        : { novoNomeAtividade: nomeAtividadeInput };
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
         },
-        body: JSON.stringify({
-          novoNomeAtividade: novaAtividade,
-        }),
+        body: JSON.stringify(corpoRequisicao),
       });
 
-      // Pega o texto bruto retornado pelo servidor primeiro
       const respostaTexto = await response.text();
-      console.log("Resposta bruta do servidor:", respostaTexto);
-
-      // Se a resposta estiver vazia, avisa o desenvolvedor
+      
       if (!respostaTexto || respostaTexto.trim() === "") {
-        console.error("O arquivo PHP retornou uma resposta vazia.");
+        setMensagemErro("Erro de comunicação com o servidor.");
+        setSalvando(false);
         return;
       }
 
-      // Tenta converter para JSON com segurança
       const resultado = JSON.parse(respostaTexto);
 
       if (resultado.sucesso) {
         setModalVisivel(false);
-        setNovaAtividade("");
-        carregarAtividades(); // Atualiza a lista automaticamente
+        setNomeAtividadeInput("");
+        setMensagemErro("");
+        carregarAtividades();
       } else {
-        console.error("Erro ao salvar:", resultado.mensagem);
+        setMensagemErro(resultado.mensagem || "Erro ao salvar atividade.");
       }
 
     } catch (error) {
-      console.error("Erro na requisição de criação:", error);
+      console.error("Erro na requisição:", error);
+      setMensagemErro("Erro ao conectar com o servidor.");
     } finally {
       setSalvando(false);
     }
   };
 
+  const handleDeletarAtividade = async (idAtividades: string | number) => {
+    try {
+      const response = await fetch(`${API_URL}/deleteAtividade.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({ idAtividades }),
+      });
+
+      const respostaTexto = await response.text();
+      if (!respostaTexto) return;
+
+      const resultado = JSON.parse(respostaTexto);
+
+      if (resultado.sucesso) {
+        carregarAtividades();
+      } else {
+        alert(resultado.mensagem || "Erro ao excluir atividade.");
+      }
+    } catch (error) {
+      console.error("Erro ao deletar:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {/* A logo só aparece se o tipo de usuário for 3 */}
       {tipoUsuario === "3" && (
         <Image
           source={require("../../assets/images/logoNome.png")}
@@ -139,12 +191,9 @@ export default function Rotina() {
         <View style={styles.listaContainer}>
           <Text style={styles.tituloSecao}>Lista de Atividades</Text>
 
-          {/* Botão menor com ícone de + no topo da lista */}
-          <Pressable 
-            style={styles.botaoAdicionarTopo} 
-            onPress={() => setModalVisivel(true)}
-          >
-            <Text style={styles.iconeMais}>+</Text>
+          {/* Botão padronizado com ícone do Ionicons */}
+          <Pressable style={styles.botaoAdicionarTopo} onPress={abrirModalAdicionar}>
+            <Ionicons name="add" size={20} color="#FFF" style={{ marginRight: 6 }} />
             <Text style={styles.textoBotaoAdicionar}>Adicionar Atividades</Text>
           </Pressable>
 
@@ -153,13 +202,30 @@ export default function Rotina() {
           ) : (
             <FlatList
               data={atividades}
-              keyExtractor={(item, index) => String(item.id || item.codigo || index)}
+              keyExtractor={(item, index) => String(item.idAtividades || item.id || item.codigo || index)}
               renderItem={({ item }) => (
                 <View style={styles.cardAtividade}>
                   <View style={styles.pontoDetalhe} />
                   <Text style={styles.textoAtividade}>
                     {item.titulo || item.nome || item.descricao || JSON.stringify(item)}
                   </Text>
+                  
+                  {/* Botões de Ação com os mesmos ícones de InfoUsuario */}
+                  <View style={styles.containerAcoes}>
+                    <TouchableOpacity 
+                      style={styles.botaoAcao} 
+                      onPress={() => abrirModalEditar(item)}
+                    >
+                      <Ionicons name="create-outline" size={22} color="#2F1CA6" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                      style={styles.botaoAcao} 
+                      onPress={() => handleDeletarAtividade(item.idAtividades || item.id || item.codigo)}
+                    >
+                      <Ionicons name="trash-outline" size={22} color="#FF4444" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
               ListEmptyComponent={
@@ -172,7 +238,7 @@ export default function Rotina() {
         </View>
       )}
 
-      {/* POP-UP (MODAL) PARA ADICIONAR ATIVIDADE */}
+      {/* POP-UP (MODAL) PARA ADICIONAR / EDITAR ATIVIDADE */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -181,15 +247,24 @@ export default function Rotina() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitulo}>Nova Atividade</Text>
+            <Text style={styles.modalTitulo}>
+              {modoEdicao ? "Editar Atividade" : "Nova Atividade"}
+            </Text>
             
             <TextInput
               style={styles.inputModal}
               placeholder="Digite o nome da atividade..."
               placeholderTextColor="#888"
-              value={novaAtividade}
-              onChangeText={setNovaAtividade}
+              value={nomeAtividadeInput}
+              onChangeText={(texto) => {
+                setNomeAtividadeInput(texto);
+                if (mensagemErro) setMensagemErro("");
+              }}
             />
+
+            {mensagemErro ? (
+              <Text style={styles.textoErro}>{mensagemErro}</Text>
+            ) : null}
 
             <View style={styles.modalBotoesContainer}>
               <Pressable 
@@ -201,7 +276,7 @@ export default function Rotina() {
 
               <Pressable 
                 style={[styles.modalBotao, styles.botaoSalvar]} 
-                onPress={handleCriarAtividade}
+                onPress={handleSalvarAtividade}
                 disabled={salvando}
               >
                 {salvando ? (
@@ -325,7 +400,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 35,
   },
-  // Estilo do botão menor no topo da lista
   botaoAdicionarTopo: {
     flexDirection: "row",
     alignItems: "center",
@@ -341,12 +415,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-  },
-  iconeMais: {
-    color: "#FFF",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginRight: 6,
   },
   textoBotaoAdicionar: {
     color: "#FFF",
@@ -394,6 +462,15 @@ const styles = StyleSheet.create({
     color: "#2F1CA6",
     fontWeight: "600",
   },
+  containerAcoes: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 8,
+  },
+  botaoAcao: {
+    padding: 5,
+    marginLeft: 4,
+  },
   vazioTexto: {
     textAlign: "center",
     color: "#666",
@@ -437,7 +514,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: "#333",
-    marginBottom: 20,
+    marginBottom: 12,
+  },
+  textoErro: {
+    color: "#D9534F",
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: 16,
+    textAlign: "center",
   },
   modalBotoesContainer: {
     flexDirection: "row",

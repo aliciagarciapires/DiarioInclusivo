@@ -102,10 +102,21 @@ if (!empty($dataBruta) && $idUsuario > 0 && $idDiscente > 0) {
         
         $idDiarioCriado = $mysqli->insert_id;
 
+        // Busca o nome da atividade pelo ID
+    $queryAtividade = "SELECT nome FROM atividades WHERE idAtividades = $idAtividades";
+    $resultadoAtividade = $mysqli->query($queryAtividade);
+
+    if (!$resultadoAtividade || $resultadoAtividade->num_rows === 0) {
+        throw new Exception("Atividade não encontrada.");
+    }
+
+    $atividade = $resultadoAtividade->fetch_assoc()['nome'];
+    $atividade = $mysqli->real_escape_string($atividade);
+
         // 3. Salva na tabela DIARIO_TEM_ATIVIDADES
         if ($idAtividades !== null && $idAtividades > 0) {
-            $queryPivo = "INSERT INTO diario_tem_atividades (idDiario, idAtividades, hora_inicial, hora_final, avaliacao_1_5) 
-                          VALUES ($idDiarioCriado, $idAtividades, $horaInicial, $horaFinal, $avaliacao_1_5)";
+            $queryPivo = "INSERT INTO diario_tem_atividades (idDiario, idAtividades, hora_inicial, hora_final, avaliacao_1_5, atividade) 
+                          VALUES ($idDiarioCriado, $idAtividades, $horaInicial, $horaFinal, $avaliacao_1_5, '$atividade')";
             
             if (!$mysqli->query($queryPivo)) {
                 throw new Exception($mysqli->error);

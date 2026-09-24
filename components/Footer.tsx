@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 export default function Footer({ children }: { children?: React.ReactNode }) {
   return (
@@ -12,7 +12,7 @@ export default function Footer({ children }: { children?: React.ReactNode }) {
 const styles = StyleSheet.create({
   rodapeFixo: {
     backgroundColor: "#F5F2E8",   // Fundo bege padrão para sumir na tela
-    paddingBottom: 28,            // Proteção para o notch inferior do iPhone
+    paddingBottom: 52,            // Proteção para a área de navegação inferior
     paddingTop: 12,
     alignItems: "center",
     justifyContent: "center",

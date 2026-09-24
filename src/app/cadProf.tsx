@@ -369,14 +369,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",// Distribui igualmente o espaço entre eles
     alignItems: "center",
     backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
+    height: 120,
+    paddingBottom: 10,
     borderTopWidth: 3,             
     borderTopColor: "#F5F2E8",     
     borderTopLeftRadius: 35,       
     borderTopRightRadius: 35,      
     position: "absolute",          // Fixa no rodapé
-    bottom: 0,
+    bottom: 28,
     left: 0,
     right: 0,
     elevation: 10,                 
@@ -391,16 +391,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconeCustom: { 
-    width: 80, 
-    height: 80, 
-    borderRadius: 15, 
+      width: 80,
+      height: 80,
+      borderRadius: 15,
     resizeMode: "cover" 
   },
   botaoMenu: {
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    height: 30,
   },
     scrollContent: {
         paddingHorizontal: 32,
@@ -535,7 +534,7 @@ const styles = StyleSheet.create({
         fontWeight: "700"
     },
     webview: {
-        flex: 0
+        flex: 1
     },
 
     textoRodape: {

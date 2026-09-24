@@ -1,13 +1,20 @@
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import WebView from "react-native-webview";
 import Footer from "../../components/Footer";
 import { API_URL } from "./api";
 
 export default function Configuracoes() {
   const [tipoUsuario, setTipoUsuario] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [documentoAberto, setDocumentoAberto] = useState<"termo" | "politica" | null>(null);
+
+  const abrirDocumento = (tipo: "termo" | "politica") => {
+    setDocumentoAberto(tipo);
+  };
 
   useEffect(() => {
     const carregarTipoUsuario = async () => {
@@ -69,6 +76,35 @@ export default function Configuracoes() {
 
   return (
     <View style={styles.container}>
+      <Modal
+        visible={documentoAberto !== null}
+        animationType="slide"
+        onRequestClose={() => setDocumentoAberto(null)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Pressable onPress={() => setDocumentoAberto(null)} style={styles.modalCloseButton}>
+              <Ionicons name="close" size={24} color="#2F1CA6" />
+            </Pressable>
+            <Text style={styles.modalTitulo}>
+              {documentoAberto === "termo" ? "Termos de Uso" : "Política de Privacidade"}
+            </Text>
+            <Image source={require("../../assets/images/logo.png")} style={styles.modalLogo} />
+            <View style={{ width: 32 }} />
+          </View>
+
+          <WebView
+            source={{
+              uri:
+                documentoAberto === "termo"
+                  ? "https://diarioinclusivo.linceonline.com.br/public/termo.html"
+                  : "https://diarioinclusivo.linceonline.com.br/public/politica.html",
+            }}
+            style={styles.webview}
+            startInLoadingState
+          />
+        </View>
+      </Modal>
       
       {/* Lista de Opções */}
       <View style={styles.opcoesContainer}>
@@ -84,6 +120,20 @@ export default function Configuracoes() {
           onPress={() => router.push("/alterar_senha")}
         >
           <Text style={styles.opcaoTexto}>Alteração de senha</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.opcaoItem}
+          onPress={() => abrirDocumento("termo")}
+        >
+          <Text style={[styles.opcaoTexto, styles.linkTexto]}>Termos de Uso</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.opcaoItem}
+          onPress={() => abrirDocumento("politica")}
+        >
+          <Text style={[styles.opcaoTexto, styles.linkTexto]}>Política de Privacidade</Text>
         </Pressable>
 
         {/* BOTÃO DE SAIR / LOGOUT */}
@@ -132,7 +182,7 @@ export default function Configuracoes() {
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
               <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Rotina</Text>
+              <Text style={styles.tabLabel}>Atividades</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -209,6 +259,49 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#2F1CA6",
   },
+  linkTexto: {
+    color: "#2F1CA6",
+    textDecorationLine: "underline",
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#F5F2E8",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 0,
+    backgroundColor: "#FFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5E5",
+  },
+  modalCloseButton: {
+    width: 32,
+    height: 32,
+    justifyContent: "center",
+    alignItems: "flex-start",
+  },
+  modalTitulo: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#2F1CA6",
+    textAlign: "center",
+    textTransform: "uppercase",
+    flex: 1,
+    marginHorizontal: 8,
+  },
+  modalLogo: {
+    width: 90,
+    height: 70,
+    resizeMode: "contain",
+    marginRight: -50,
+  },
+  webview: {
+    flex: 1,
+  },
   botaoMenu: {
     alignItems: "center",
     justifyContent: "center",
@@ -231,14 +324,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "#F5F2E8",
-    height: 90,
-    paddingBottom: 30,
+    height: 120,
+    paddingBottom: 10,
     borderTopWidth: 3,
     borderTopColor: "#F5F2E8",
     borderTopLeftRadius: 35,
     borderTopRightRadius: 35,
     position: "absolute",
-    bottom: 0,
+    bottom: 28,
     left: 0,
     right: 0,
     elevation: 10,

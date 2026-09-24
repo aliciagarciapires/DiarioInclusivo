@@ -261,7 +261,7 @@ export default function AtualizarSenha() {
 
                         <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
                             <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-                            <Text style={styles.tabLabel}>Rotina</Text>
+                            <Text style={styles.tabLabel}>Atividades</Text>
                         </Pressable>
 
                         <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -380,14 +380,14 @@ const styles = StyleSheet.create({
         justifyContent: "space-around",
         alignItems: "center",
         backgroundColor: "#F5F2E8",
-        height: 90,
-        paddingBottom: 30,
+        height: 120,
+        paddingBottom: 10,
         borderTopWidth: 3,
         borderTopColor: "#F5F2E8",
         borderTopLeftRadius: 35,
         borderTopRightRadius: 35,
         position: "absolute",
-        bottom: 0,
+        bottom: 28,
         left: 0,
         right: 0,
         elevation: 10,

@@ -295,13 +295,13 @@ const styles = StyleSheet.create({
   botaoConcluir: { backgroundColor: "#0B8CBF", padding: 12, alignItems: "center" },
   textoConcluir: { color: "#FFF", fontWeight: "bold" },
   textoRodape: { color: "#0B8CBF", fontSize: 12, fontWeight: "500" },
-  botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1, height: 30 },
+  botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1 },
   tabLabel: { fontSize: 14, fontWeight: "500", color: "#2F1CA6", marginTop: 4 },
   iconeCustom: { width: 80, height: 80, borderRadius: 15, resizeMode: "cover" },
   barraMenuGeral: {
     flexDirection: "row", justifyContent: "space-around", alignItems: "center",
-    backgroundColor: "#F5F2E8", height: 90, paddingBottom: 30,
+    backgroundColor: "#F5F2E8", height: 120, paddingBottom: 10,
     borderTopWidth: 3, borderTopColor: "#F5F2E8", borderTopLeftRadius: 35, borderTopRightRadius: 35,
-    position: "absolute", bottom: 0, left: 0, right: 0, elevation: 10, shadowColor: "#000",
+    position: "absolute", bottom: 28, left: 0, right: 0, elevation: 10, shadowColor: "#000",
   }
 });

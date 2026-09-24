@@ -15,8 +15,8 @@ import {
     View,
 } from "react-native";
 import Footer from "../../components/Footer";
-import { API_URL } from "./api";
 import { Input } from "../../components/input";
+import { API_URL } from "./api";
 
 interface Responsavel {
   id: number;
@@ -536,7 +536,7 @@ export default function InfoDiscente() {
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
               <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Rotina</Text>
+              <Text style={styles.tabLabel}>Atividades</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
   erro: { textAlign: "center", fontSize: 16, color: "red", marginTop: 20 },
   itens: { justifyContent: "flex-start", width: "100%", marginTop: -13 },
   logo: { width: 100, height: 100, alignSelf: "center" },
-  botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1, height: 30 },
+  botaoMenu: { alignItems: "center", justifyContent: "center", flex: 1 },
   tabLabel: { fontSize: 12, fontWeight: "500", color: "#2F1CA6", marginTop: 4 },
   iconeCustom: { width: 80, height: 80, borderRadius: 15, resizeMode: "cover" },
   barraMenuGeral: {
@@ -620,14 +620,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "#F5F2E8",
-    height: 90,
-    paddingBottom: 30,
+    height: 120,
+    paddingBottom: 10,
     borderTopWidth: 3,
     borderTopColor: "#F5F2E8",
     borderTopLeftRadius: 35,
     borderTopRightRadius: 35,
     position: "absolute",
-    bottom: 0,
+    bottom: 28,
     left: 0,
     right: 0,
     elevation: 10,

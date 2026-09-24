@@ -4,17 +4,17 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Href, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Alert,
-  FlatList,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    FlatList,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import Footer from '../../components/Footer';
 import { API_URL } from "./api";
@@ -440,7 +440,7 @@ export default function CriarRotina() {
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
               <Image source={require("../../assets/images/rotinaD.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Rotina</Text>
+              <Text style={styles.tabLabel}>Atividades</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -656,7 +656,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    height: 30,
   },
   tabLabel: {
     fontSize: 14,                  
@@ -675,14 +674,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "#F5F2E8",    
-    height: 90,                    
-    paddingBottom: 30,             
+    height: 120,
+    paddingBottom: 10,
     borderTopWidth: 3,             
     borderTopColor: "#F5F2E8",     
     borderTopLeftRadius: 35,       
     borderTopRightRadius: 35,      
     position: "absolute",          
-    bottom: 0,
+    bottom: 28,
     left: 0,
     right: 0,
     elevation: 10,                 

@@ -1,23 +1,23 @@
 import { Ionicons } from "@expo/vector-icons";
-import { API_URL } from "./api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  FlatList,
-  Image,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    FlatList,
+    Image,
+    Pressable,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
+import { API_URL } from "./api";
 
 const { width } = Dimensions.get("window");
 
@@ -588,7 +588,7 @@ export default function HistoricoScreen() {
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/rotina")}>
               <Image source={require("../../assets/images/rotina.png")} style={styles.iconeCustom} />
-              <Text style={styles.tabLabel}>Rotina</Text>
+              <Text style={styles.tabLabel}>Atividades</Text>
             </Pressable>
 
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
@@ -772,8 +772,7 @@ const styles = StyleSheet.create({
   botaoMenu: { 
     alignItems: "center", 
     justifyContent: "center", 
-    flex: 1, 
-    height: 30 
+    flex: 1 
   },
   tabLabel: { 
     fontSize: 12, 
@@ -782,9 +781,9 @@ const styles = StyleSheet.create({
     marginTop: 4 
   },
   iconeCustom: { 
-    width: 80, 
-    height: 80, 
-    borderRadius: 15, 
+    width: 80,
+    height: 80,
+    borderRadius: 15,
     resizeMode: "cover" 
   },
   barraMenuGeral: {
@@ -792,14 +791,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "#F5F2E8",
-    height: 90,
-    paddingBottom: 30,
+    height: 120,
+    paddingBottom: 10,
     borderTopWidth: 3,
     borderTopColor: "#F5F2E8",
     borderTopLeftRadius: 35,
     borderTopRightRadius: 35,
     position: "absolute",
-    bottom: 0,
+    bottom: 28,
     left: 0,
     right: 0,
     elevation: 10,

@@ -27,90 +27,91 @@ ob_clean();
 $dados = json_decode(file_get_contents("php://input"), true);
 
 $idDiario      = isset($dados['idDiario']) ? intval($dados['idDiario']) : 0;
-$atividade     = isset($dados['atividade']) ? trim($dados['atividade']) : '';
 $complemento   = isset($dados['complemento']) ? $mysqli->real_escape_string($dados['complemento']) : '';
-$avaliacao     = isset($dados['avaliacao_1_5']) && $dados['avaliacao_1_5'] !== '' ? intval($dados['avaliacao_1_5']) : null;
 $dataBruta     = $dados['data'] ?? null;
 $atividades    = isset($dados['atividades']) && is_array($dados['atividades']) ? $dados['atividades'] : [];
 
-if ($idDiario > 0 && (!empty($atividade) || !empty($atividades))) {
+if ($idDiario > 0 && !empty($dataBruta) && !empty($atividades)) {
     
-    // Formata a data se ela vier preenchida (aceita DD/MM/AAAA ou YYYY-MM-DD)
+    // Formata a data (aceita DD/MM/AAAA ou YYYY-MM-DD)
     $dataSql = null;
-    if (!empty($dataBruta)) {
-        try {
-            $dt = DateTime::createFromFormat('Y-m-d', trim($dataBruta));
-            if (!$dt) {
-                $dt = DateTime::createFromFormat('d/m/Y', trim($dataBruta));
-            }
-            if (!$dt) {
-                $dt = new DateTime(trim($dataBruta));
-            }
-            $dataSql = $dt->format('Y-m-d');
-        } catch (Exception $e) {
-            $dataSql = null;
+    try {
+        $dt = DateTime::createFromFormat('Y-m-d', trim($dataBruta));
+        if (!$dt) {
+            $dt = DateTime::createFromFormat('d/m/Y', trim($dataBruta));
         }
+        if (!$dt) {
+            $dt = new DateTime(trim($dataBruta));
+        }
+        $dataSql = $dt->format('Y-m-d');
+    } catch (Exception $e) {
+        echo json_encode([
+            "sucesso" => false,
+            "mensagem" => "Formato de data inválido."
+        ], JSON_UNESCAPED_UNICODE);
+        exit();
     }
 
-    try {
-        // 1. Atualiza os dados principais na tabela 'diario'
-        if ($dataSql) {
-            $queryDiario = "UPDATE diario SET complemento = '$complemento', data = '$dataSql' WHERE idDiario = $idDiario";
-        } else {
-            $queryDiario = "UPDATE diario SET complemento = '$complemento' WHERE idDiario = $idDiario";
+    // Pega o nome da primeira atividade ou concatena todas para satisfazer a coluna legada 'atividade' caso ela seja obrigatória na tabela diario
+    $nomesAtividades = [];
+    foreach ($atividades as $ativItem) {
+        if (!empty($ativItem['nome'])) {
+            $nomesAtividades[] = trim($ativItem['nome']);
         }
+    }
+    $stringAtividadePrincipal = !empty($nomesAtividades) ? $mysqli->real_escape_string(implode(" + ", $nomesAtividades)) : '';
+
+    $mysqli->begin_transaction();
+
+    try {
+        // 1. Atualiza os dados principais na tabela 'diario' (incluindo a coluna 'atividade' para evitar o erro de 'doesn't have a default value')
+        $queryDiario = "UPDATE diario 
+                        SET complemento = '$complemento', 
+                            data = '$dataSql', 
+                            atividade = '$stringAtividadePrincipal' 
+                        WHERE idDiario = $idDiario";
+        
         $mysqli->query($queryDiario);
 
-        // 2. Descobre se a atividade enviada é um número (ID) ou texto (Nome)
-        $idAtividadeFinal = 0;
-        if (is_numeric($atividade)) {
-            $idAtividadeFinal = intval($atividade);
-        } else {
-            $stmtAtiv = $mysqli->prepare("SELECT idAtividades FROM atividades WHERE nome = ? LIMIT 1");
-            $stmtAtiv->bind_param("s", $atividade);
-            $stmtAtiv->execute();
-            $resAtiv = $stmtAtiv->get_result();
-            if ($rowAtiv = $resAtiv->fetch_assoc()) {
-                $idAtividadeFinal = intval($rowAtiv['idAtividades']);
-            }
-            $stmtAtiv->close();
-        }
-
-        // 3. Ajusta a relação do diário com as atividades selecionadas.
-        // Em 'diario_tem_atividades' a chave primária é composta por (idDiario, idAtividades),
-        // então remove todos os links antigos do diário antes de gravar a versão atualizada,
-        // evitando o erro 'duplicate entry'.
+        // 2. Remove os vínculos antigos para gravar a nova lista atualizada (evita duplicidade)
         $mysqli->query("DELETE FROM diario_tem_atividades WHERE idDiario = $idDiario");
 
-        if (!empty($atividades)) {
-            foreach ($atividades as $item) {
-                $nomeAtividade = isset($item['nome']) ? trim((string)$item['nome']) : '';
-                $avaliacaoAtividade = isset($item['avaliacao_1_5']) && $item['avaliacao_1_5'] !== '' ? intval($item['avaliacao_1_5']) : (isset($item['avaliacao']) && $item['avaliacao'] !== '' ? intval($item['avaliacao']) : 5);
-
-                $idAtividadeFinal = 0;
-                if (isset($item['idAtividades']) && $item['idAtividades'] !== '' && $item['idAtividades'] !== null) {
-                    $idAtividadeFinal = intval($item['idAtividades']);
-                } elseif (!empty($nomeAtividade)) {
-                    $stmtAtiv = $mysqli->prepare("SELECT idAtividades FROM atividades WHERE nome = ? LIMIT 1");
-                    $stmtAtiv->bind_param("s", $nomeAtividade);
-                    $stmtAtiv->execute();
-                    $resAtiv = $stmtAtiv->get_result();
-                    if ($rowAtiv = $resAtiv->fetch_assoc()) {
-                        $idAtividadeFinal = intval($rowAtiv['idAtividades']);
-                    }
-                    $stmtAtiv->close();
+        // 3. Insere os registros atualizados na tabela pivot 'diario_tem_atividades' (seguindo a mesma lógica do seu script de criação)
+        foreach ($atividades as $ativ) {
+            $idAtividades = isset($ativ['idAtividades']) ? intval($ativ['idAtividades']) : 0;
+            
+            // Se por acaso vier só o nome e não o ID, tenta buscar o ID correspondente na tabela atividades
+            if ($idAtividades <= 0 && !empty($ativ['nome'])) {
+                $nomeBusca = trim($ativ['nome']);
+                $stmtAtiv = $mysqli->prepare("SELECT idAtividades FROM atividades WHERE nome = ? LIMIT 1");
+                $stmtAtiv->bind_param("s", $nomeBusca);
+                $stmtAtiv->execute();
+                $resAtiv = $stmtAtiv->get_result();
+                if ($rowAtiv = $resAtiv->fetch_assoc()) {
+                    $idAtividades = intval($rowAtiv['idAtividades']);
                 }
-
-                if ($idAtividadeFinal > 0) {
-                    $mysqli->query("INSERT INTO diario_tem_atividades (idDiario, idAtividades, avaliacao_1_5)
-                                    VALUES ($idDiario, $idAtividadeFinal, $avaliacaoAtividade)");
-                }
+                $stmtAtiv->close();
             }
-        } elseif ($idAtividadeFinal > 0) {
-            $sqlAvaliacao = ($avaliacao !== null) ? $avaliacao : "NULL";
-            $mysqli->query("INSERT INTO diario_tem_atividades (idDiario, idAtividades, avaliacao_1_5)
-                            VALUES ($idDiario, $idAtividadeFinal, $sqlAvaliacao)");
+
+            if ($idAtividades > 0) {
+                $horaInicial = !empty($ativ['hora_inicial']) ? "'".$mysqli->real_escape_string($ativ['hora_inicial'])."'" : "NULL";
+                $horaFinal   = !empty($ativ['hora_final']) ? "'".$mysqli->real_escape_string($ativ['hora_final'])."'" : "NULL";
+                
+                // Trata a avaliação aceitando tanto avaliacao_1_5 quanto avaliacao
+                $avaliacao = 5;
+                if (isset($ativ['avaliacao_1_5']) && $ativ['avaliacao_1_5'] !== '') {
+                    $avaliacao = intval($ativ['avaliacao_1_5']);
+                } elseif (isset($ativ['avaliacao']) && $ativ['avaliacao'] !== '') {
+                    $avaliacao = intval($ativ['avaliacao']);
+                }
+
+                $queryPivo = "INSERT INTO diario_tem_atividades (idDiario, idAtividades, hora_inicial, hora_final, avaliacao_1_5) 
+                              VALUES ($idDiario, $idAtividades, $horaInicial, $horaFinal, $avaliacao)";
+                $mysqli->query($queryPivo);
+            }
         }
+
+        $mysqli->commit();
 
         echo json_encode([
             "sucesso" => true,
@@ -118,6 +119,7 @@ if ($idDiario > 0 && (!empty($atividade) || !empty($atividades))) {
         ], JSON_UNESCAPED_UNICODE);
 
     } catch (mysqli_sql_exception $e) {
+        $mysqli->rollback();
         echo json_encode([
             "sucesso" => false,
             "mensagem" => "Erro no Banco de Dados: " . $e->getMessage()
@@ -127,7 +129,7 @@ if ($idDiario > 0 && (!empty($atividade) || !empty($atividades))) {
 } else {
     echo json_encode([
         "sucesso" => false,
-        "mensagem" => "Dados incompletos. ID do diário e atividade são obrigatórios."
+        "mensagem" => "Dados incompletos. ID do diário, data e atividades são obrigatórios."
     ], JSON_UNESCAPED_UNICODE);
 }
 exit();

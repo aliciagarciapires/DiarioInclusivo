@@ -1,0 +1,18 @@
+{
+    "software_id": 96,
+    "generated_at": "2026-09-24T16:31:06+00:00",
+    "politica": {
+        "id_hist_docs": 442,
+        "template_versao": "00.00.01",
+        "template_checksum": "00e13937f46269093f1e2a6528339da28f22b88e73150a72b9b3238a2cdd5425",
+        "html": "politica.html",
+        "pdf": "politica.pdf"
+    },
+    "termo": {
+        "id_hist_docs": 445,
+        "template_versao": "00.00.01",
+        "template_checksum": "8cd52d431a3fc176b803295cb13cd93dcb8db3bba8418a44d339855853301c27",
+        "html": "termo.html",
+        "pdf": "termo.pdf"
+    }
+}

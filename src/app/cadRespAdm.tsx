@@ -6,6 +6,7 @@ import {
     Alert,
     Image,
     KeyboardAvoidingView,
+    Linking,
     Platform,
     Pressable,
     ScrollView,
@@ -401,10 +402,19 @@ export default function CadResp() {
                                     <Text
                                         style={styles.termosLink}
                                         onPress={() =>
-                                            router.push("/termos")
+                                            Linking.openURL("/termo.html")
                                         }
                                     >
                                         os Termos de Uso
+                                    </Text>
+                                    {" "}e com a{" "}
+                                    <Text
+                                        style={styles.termosLink}
+                                        onPress={() =>
+                                            Linking.openURL("/politica.html")
+                                        }
+                                    >
+                                        Política de Privacidade
                                     </Text>
                                 </Text>
 
@@ -525,10 +535,19 @@ export default function CadResp() {
                                     <Text
                                         style={styles.termosLink}
                                         onPress={() =>
-                                            router.push("/termos")
+                                            Linking.openURL("/termo.html")
                                         }
                                     >
                                         os Termos de Uso
+                                    </Text>
+                                    {" "}e com a{" "}
+                                    <Text
+                                        style={styles.termosLink}
+                                        onPress={() =>
+                                            Linking.openURL("/politica.html")
+                                        }
+                                    >
+                                        Política de Privacidade
                                     </Text>
                                 </Text>
 

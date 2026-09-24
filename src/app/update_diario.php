@@ -52,23 +52,13 @@ if ($idDiario > 0 && !empty($dataBruta) && !empty($atividades)) {
         exit();
     }
 
-    // Pega o nome da primeira atividade ou concatena todas para satisfazer a coluna legada 'atividade' caso ela seja obrigatória na tabela diario
-    $nomesAtividades = [];
-    foreach ($atividades as $ativItem) {
-        if (!empty($ativItem['nome'])) {
-            $nomesAtividades[] = trim($ativItem['nome']);
-        }
-    }
-    $stringAtividadePrincipal = !empty($nomesAtividades) ? $mysqli->real_escape_string(implode(" + ", $nomesAtividades)) : '';
-
     $mysqli->begin_transaction();
 
     try {
-        // 1. Atualiza os dados principais na tabela 'diario' (incluindo a coluna 'atividade' para evitar o erro de 'doesn't have a default value')
+        // 1. Atualiza os dados principais da tabela 'diario'
         $queryDiario = "UPDATE diario 
                         SET complemento = '$complemento', 
-                            data = '$dataSql', 
-                            atividade = '$stringAtividadePrincipal' 
+                            data = '$dataSql' 
                         WHERE idDiario = $idDiario";
         
         $mysqli->query($queryDiario);
@@ -76,21 +66,35 @@ if ($idDiario > 0 && !empty($dataBruta) && !empty($atividades)) {
         // 2. Remove os vínculos antigos para gravar a nova lista atualizada (evita duplicidade)
         $mysqli->query("DELETE FROM diario_tem_atividades WHERE idDiario = $idDiario");
 
-        // 3. Insere os registros atualizados na tabela pivot 'diario_tem_atividades' (seguindo a mesma lógica do seu script de criação)
+        // 3. Insere os registros atualizados na tabela pivot 'diario_tem_atividades' informando o campo 'atividade'
         foreach ($atividades as $ativ) {
             $idAtividades = isset($ativ['idAtividades']) ? intval($ativ['idAtividades']) : 0;
-            
-            // Se por acaso vier só o nome e não o ID, tenta buscar o ID correspondente na tabela atividades
+            $nomeAtividade = '';
+
+            // Se vier só o nome e não o ID, busca o ID correspondente na tabela atividades
             if ($idAtividades <= 0 && !empty($ativ['nome'])) {
-                $nomeBusca = trim($ativ['nome']);
+                $nomeAtividade = trim($ativ['nome']);
                 $stmtAtiv = $mysqli->prepare("SELECT idAtividades FROM atividades WHERE nome = ? LIMIT 1");
-                $stmtAtiv->bind_param("s", $nomeBusca);
+                $stmtAtiv->bind_param("s", $nomeAtividade);
                 $stmtAtiv->execute();
                 $resAtiv = $stmtAtiv->get_result();
                 if ($rowAtiv = $resAtiv->fetch_assoc()) {
                     $idAtividades = intval($rowAtiv['idAtividades']);
                 }
                 $stmtAtiv->close();
+            } else {
+                // Se já veio o ID, tenta resgatar o nome da atividade para preencher a coluna obrigatória
+                $nomeAtividade = isset($ativ['nome']) ? trim($ativ['nome']) : '';
+                if (empty($nomeAtividade) && $idAtividades > 0) {
+                    $stmtAtiv = $mysqli->prepare("SELECT nome FROM atividades WHERE idAtividades = ? LIMIT 1");
+                    $stmtAtiv->bind_param("i", $idAtividades);
+                    $stmtAtiv->execute();
+                    $resAtiv = $stmtAtiv->get_result();
+                    if ($rowAtiv = $resAtiv->fetch_assoc()) {
+                        $nomeAtividade = $rowAtiv['nome'];
+                    }
+                    $stmtAtiv->close();
+                }
             }
 
             if ($idAtividades > 0) {
@@ -105,8 +109,10 @@ if ($idDiario > 0 && !empty($dataBruta) && !empty($atividades)) {
                     $avaliacao = intval($ativ['avaliacao']);
                 }
 
-                $queryPivo = "INSERT INTO diario_tem_atividades (idDiario, idAtividades, hora_inicial, hora_final, avaliacao_1_5) 
-                              VALUES ($idDiario, $idAtividades, $horaInicial, $horaFinal, $avaliacao)";
+                $nomeAtividadeSql = $mysqli->real_escape_string($nomeAtividade);
+
+                $queryPivo = "INSERT INTO diario_tem_atividades (idDiario, idAtividades, hora_inicial, hora_final, avaliacao_1_5, atividade) 
+                              VALUES ($idDiario, $idAtividades, $horaInicial, $horaFinal, $avaliacao, '$nomeAtividadeSql')";
                 $mysqli->query($queryPivo);
             }
         }

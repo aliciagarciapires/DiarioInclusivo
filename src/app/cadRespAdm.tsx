@@ -6,7 +6,7 @@ import {
     Alert,
     Image,
     KeyboardAvoidingView,
-    Linking,
+    Modal,
     Platform,
     Pressable,
     ScrollView,
@@ -15,6 +15,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import WebView from "react-native-webview";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
@@ -62,6 +63,12 @@ export default function CadResp() {
     // Máscara de telefone
     const validarSenha = (senhaParaTestar: string) =>
         /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
+
+    const [documentoAberto, setDocumentoAberto] = useState<"termo" | "politica" | null>(null);
+
+    const abrirDocumento = (tipo: "termo" | "politica") => {
+        setDocumentoAberto(tipo);
+    };
 
     const aplicarMascaraTelefone = (text: string) => {
         const limpo = text.replace(/\D/g, "");
@@ -219,6 +226,34 @@ export default function CadResp() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
         >
+
+            <Modal
+                visible={documentoAberto !== null}
+                animationType="slide"
+                onRequestClose={() => setDocumentoAberto(null)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitulo}>
+                            {documentoAberto === "termo" ? "Termos de Uso" : "Política de Privacidade"}
+                        </Text>
+                        <TouchableOpacity onPress={() => setDocumentoAberto(null)} style={styles.modalCloseButton}>
+                            <Text style={styles.modalCloseText}>Fechar</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <WebView
+                        source={{
+                            uri:
+                                documentoAberto === "termo"
+                                    ? "https://diarioinclusivo.linceonline.com.br/termo.html"
+                                    : "https://diarioinclusivo.linceonline.com.br/politica.html"
+                        }}
+                        style={styles.webview}
+                        startInLoadingState
+                    />
+                </View>
+            </Modal>
 
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
@@ -401,18 +436,14 @@ export default function CadResp() {
                                     Li e concordo com{" "}
                                     <Text
                                         style={styles.termosLink}
-                                        onPress={() =>
-                                            Linking.openURL("/termo.html")
-                                        }
+                                        onPress={() => abrirDocumento("termo")}
                                     >
                                         os Termos de Uso
                                     </Text>
                                     {" "}e com a{" "}
                                     <Text
                                         style={styles.termosLink}
-                                        onPress={() =>
-                                            Linking.openURL("/politica.html")
-                                        }
+                                        onPress={() => abrirDocumento("politica")}
                                     >
                                         Política de Privacidade
                                     </Text>
@@ -534,18 +565,14 @@ export default function CadResp() {
                                     Li e concordo com{" "}
                                     <Text
                                         style={styles.termosLink}
-                                        onPress={() =>
-                                            Linking.openURL("/termo.html")
-                                        }
+                                        onPress={() => abrirDocumento("termo")}
                                     >
                                         os Termos de Uso
                                     </Text>
                                     {" "}e com a{" "}
                                     <Text
                                         style={styles.termosLink}
-                                        onPress={() =>
-                                            Linking.openURL("/politica.html")
-                                        }
+                                        onPress={() => abrirDocumento("politica")}
                                     >
                                         Política de Privacidade
                                     </Text>
@@ -708,6 +735,39 @@ const styles = StyleSheet.create({
     botaoContainer: {
         alignItems: "center",
         marginTop: 20
+    },
+
+    modalContainer: {
+        flex: 1,
+        backgroundColor: "#F5F2E8"
+    },
+    modalHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: "#FFF",
+        borderBottomWidth: 1,
+        borderBottomColor: "#E5E5E5"
+    },
+    modalTitulo: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#2F1CA6"
+    },
+    modalCloseButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        backgroundColor: "#0B8CBF",
+        borderRadius: 8
+    },
+    modalCloseText: {
+        color: "#FFF",
+        fontWeight: "700"
+    },
+    webview: {
+        flex: 1
     },
 
     textoRodape: {

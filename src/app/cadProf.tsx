@@ -1,20 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
     Alert,
     Image,
     KeyboardAvoidingView,
-    Linking,
+    Modal,
     Platform,
-    Pressable,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from "react-native";
+import WebView from "react-native-webview";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { Input } from "../../components/input";
@@ -45,6 +44,12 @@ export default function CadProf() {
 
     const validarSenha = (senhaParaTestar: string) =>
         /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(senhaParaTestar);
+
+    const [documentoAberto, setDocumentoAberto] = useState<"termo" | "politica" | null>(null);
+
+    const abrirDocumento = (tipo: "termo" | "politica") => {
+        setDocumentoAberto(tipo);
+    };
 
     const cadastrarProfessor = async () => {
 
@@ -144,6 +149,33 @@ export default function CadProf() {
             style={styles.containerPrincipal}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
+            <Modal
+                visible={documentoAberto !== null}
+                animationType="slide"
+                onRequestClose={() => setDocumentoAberto(null)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitulo}>
+                            {documentoAberto === "termo" ? "Termos de Uso" : "Política de Privacidade"}
+                        </Text>
+                        <TouchableOpacity onPress={() => setDocumentoAberto(null)} style={styles.modalCloseButton}>
+                            <Text style={styles.modalCloseText}>Fechar</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <WebView
+                        source={{
+                            uri:
+                                documentoAberto === "termo"
+                                    ? "https://diarioinclusivo.linceonline.com.br/termo.html"
+                                    : "https://diarioinclusivo.linceonline.com.br/politica.html"
+                        }}
+                        style={styles.webview}
+                        startInLoadingState
+                    />
+                </View>
+            </Modal>
 
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
@@ -278,18 +310,14 @@ export default function CadProf() {
                                 Li e concordo com{" "}
                                 <Text
                                     style={styles.termosLink}
-                                    onPress={() =>
-                                        Linking.openURL("/termo.html")
-                                    }
+                                    onPress={() => abrirDocumento("termo")}
                                 >
                                     os Termos de Uso
                                 </Text>
                                 {" "}e com a{" "}
                                 <Text
                                     style={styles.termosLink}
-                                    onPress={() =>
-                                        Linking.openURL("/politica.html")
-                                    }
+                                    onPress={() => abrirDocumento("politica")}
                                 >
                                     Política de Privacidade
                                 </Text>
@@ -457,6 +485,39 @@ const styles = StyleSheet.create({
     botaoContainer: {
         alignItems: "center",
         marginTop: 20
+    },
+
+    modalContainer: {
+        flex: 1,
+        backgroundColor: "#F5F2E8"
+    },
+    modalHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: "#FFF",
+        borderBottomWidth: 1,
+        borderBottomColor: "#E5E5E5"
+    },
+    modalTitulo: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#2F1CA6"
+    },
+    modalCloseButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        backgroundColor: "#0B8CBF",
+        borderRadius: 8
+    },
+    modalCloseText: {
+        color: "#FFF",
+        fontWeight: "700"
+    },
+    webview: {
+        flex: 1
     },
 
     textoRodape: {

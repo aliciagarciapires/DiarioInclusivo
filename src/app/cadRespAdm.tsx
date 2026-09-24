@@ -234,12 +234,23 @@ export default function CadResp() {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalHeader}>
+                        {/* Botão X na esquerda */}
+                        <TouchableOpacity onPress={() => setDocumentoAberto(null)} style={styles.modalCloseButton}>
+                            <Ionicons name="close" size={24} color="#2F1CA6" />
+                        </TouchableOpacity>
+
+                        {/* Título centralizado em maiúsculas */}
                         <Text style={styles.modalTitulo}>
                             {documentoAberto === "termo" ? "Termos de Uso" : "Política de Privacidade"}
                         </Text>
-                        <TouchableOpacity onPress={() => setDocumentoAberto(null)} style={styles.modalCloseButton}>
-                            <Text style={styles.modalCloseText}>Fechar</Text>
-                        </TouchableOpacity>
+
+                        <Image
+                            source={require("../../assets/images/logo.png")}
+                            style={styles.modalLogo}
+                        />
+
+                        {/* View vazia à direita para equilibrar o espaçamento e manter o título no centro exato */}
+                        <View style={{ width: 32 }} />
                     </View>
 
                     <WebView
@@ -746,21 +757,32 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingTop: 50, // Afasta do topo da tela
+        paddingBottom: 0,
         backgroundColor: "#FFF",
         borderBottomWidth: 1,
         borderBottomColor: "#E5E5E5"
     },
     modalTitulo: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "700",
-        color: "#2F1CA6"
+        color: "#2F1CA6",
+        textAlign: "center",
+        textTransform: "uppercase", // Deixa o texto maiúsculo
+        flex: 1,
+        marginHorizontal: 8
     },
     modalCloseButton: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        backgroundColor: "#0B8CBF",
-        borderRadius: 8
+        width: 32,
+        height: 32,
+        justifyContent: "center",
+        alignItems: "flex-start"
+    },
+    modalLogo: {
+        width: 90,  // Tamanho bem pequeno para caber perfeitamente no cabeçalho
+        height: 70,
+        resizeMode: "contain",
+        marginRight: -50
     },
     modalCloseText: {
         color: "#FFF",

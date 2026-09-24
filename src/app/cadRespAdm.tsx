@@ -246,8 +246,8 @@ export default function CadResp() {
                         source={{
                             uri:
                                 documentoAberto === "termo"
-                                    ? "https://diarioinclusivo.linceonline.com.br/termo.html"
-                                    : "https://diarioinclusivo.linceonline.com.br/politica.html"
+                                    ? "https://diarioinclusivo.linceonline.com.br/public/termo.html"
+                                    : "https://diarioinclusivo.linceonline.com.br/public/politica.html"
                         }}
                         style={styles.webview}
                         startInLoadingState

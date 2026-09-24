@@ -168,8 +168,8 @@ export default function CadProf() {
                         source={{
                             uri:
                                 documentoAberto === "termo"
-                                    ? "https://diarioinclusivo.linceonline.com.br/termo.html"
-                                    : "https://diarioinclusivo.linceonline.com.br/politica.html"
+                                    ? "https://diarioinclusivo.linceonline.com.br/public/termo.html"
+                                    : "https://diarioinclusivo.linceonline.com.br/public/politica.html"
                         }}
                         style={styles.webview}
                         startInLoadingState
@@ -496,7 +496,8 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingTop: 10, // Aumenta o espaço em cima (afasta do topo da tela)
+        paddingBottom: 16, // Dá uma altura melhor para a barra
         backgroundColor: "#FFF",
         borderBottomWidth: 1,
         borderBottomColor: "#E5E5E5"
@@ -517,7 +518,7 @@ const styles = StyleSheet.create({
         fontWeight: "700"
     },
     webview: {
-        flex: 1
+        flex: 0
     },
 
     textoRodape: {

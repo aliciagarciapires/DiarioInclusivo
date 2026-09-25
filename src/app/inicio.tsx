@@ -1,11 +1,15 @@
-import { Text, View, StyleSheet, Image } from "react-native";
-import { Button } from "../../components/Button";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import React from "react";
+import { Image, ScrollView, StyleSheet, Text } from "react-native";
+import { Button } from "../../components/Button";
 
 export default function Inicio(){
     return (
-        <View style={styles.container}>
+        <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+        >
             {/* TÍTULO */}
             <Text style={styles.title}>
                 Bem-vindo ao {"\n"}
@@ -29,7 +33,7 @@ export default function Inicio(){
                 label="Iniciar"
                 onPress={() => router.push("/discente")}
             />
-        </View>
+        </ScrollView>
     );
 }
 
@@ -40,6 +44,12 @@ const styles = StyleSheet.create({
         alignItems: "center", 
         backgroundColor: "#F5F2E8", 
         padding: 32 
+    },
+    contentContainer: {
+        flexGrow: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 24,
     },
     title: {
         fontSize: 32, // Ajustado ligeiramente para evitar cortes em ecrãs menores

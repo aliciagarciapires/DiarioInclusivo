@@ -1,11 +1,15 @@
-import {Text, View, StyleSheet, Image,Pressable,TouchableOpacity} from "react-native"
-import {Link, router} from "expo-router"
-import { Button } from "../../components/Button"
+import { router } from "expo-router"
 import React from "react"
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native"
+import { Button } from "../../components/Button"
 
 export default function Rotina(){
     return(
-        <View style={styles.container}>
+        <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+        >
 
              <Image 
                     source={require("../../assets/images/logoNome.png")}
@@ -25,7 +29,7 @@ export default function Rotina(){
             </View>
             </View>
            
-        </View>
+        </ScrollView>
         
     )
 }
@@ -37,6 +41,11 @@ const styles = StyleSheet.create ({
         backgroundColor: "#F5F2E8", //cor do fundo
         padding: 32 //margem
     },
+     contentContainer: {
+         flexGrow: 1,
+         alignItems: "center",
+         paddingBottom: 24,
+     },
     topo: {
         justifyContent: "flex-start",
         marginTop: 20,

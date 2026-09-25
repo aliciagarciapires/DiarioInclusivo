@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import WebView from "react-native-webview";
 import Footer from "../../components/Footer";
 import { API_URL } from "./api";
@@ -106,6 +106,11 @@ export default function Configuracoes() {
         </View>
       </Modal>
       
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
       {/* Lista de Opções */}
       <View style={styles.opcoesContainer}>
         <Pressable 
@@ -144,6 +149,7 @@ export default function Configuracoes() {
           <Text style={[styles.opcaoTexto, { color: "#FF4444" }]}>Sair</Text>
         </Pressable>
       </View>
+      </ScrollView>
 
       {/* Menu Inferior Condicional por Tipo de Usuário */}
       <Footer children={undefined} />
@@ -226,6 +232,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F2E8",
     paddingHorizontal: 24,
     paddingTop: 40,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 24,
   },
   header: {
     flexDirection: "row",

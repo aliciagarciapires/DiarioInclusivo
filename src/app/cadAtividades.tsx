@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import { API_URL } from "./api";
 
 export default function CadAtividade() {
@@ -43,7 +43,11 @@ export default function CadAtividade() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.title}>Cadastrar Atividade (ADM)</Text>
 
       <Text style={styles.label}>Nome da Atividade:</Text>
@@ -66,16 +70,20 @@ export default function CadAtividade() {
           <Text style={styles.buttonText}>Cadastrar no Banco</Text>
         )}
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 24,
     justifyContent: 'center',
     backgroundColor: '#F5F5F5',
+  },
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingVertical: 24,
   },
   title: {
     fontSize: 22,

@@ -475,6 +475,11 @@ export default function Diario() {
 
   return (
     <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 140 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -650,6 +655,7 @@ export default function Diario() {
         </Text>
       </Pressable>
       </View>
+      </ScrollView>
 
       {/* Modal para Nova Entrada */}
       <Modal

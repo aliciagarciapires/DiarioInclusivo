@@ -7,6 +7,7 @@ import {
     Alert,
     Image,
     Pressable,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
@@ -229,7 +230,12 @@ export default function InfoUsuario() {
 
   return (
     <View style={styles.container}>
-      
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
       <View style={styles.itens}>
         <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
       </View>
@@ -322,6 +328,7 @@ export default function InfoUsuario() {
       ) : (
         <Text style={styles.erro}>Dados do usuário indisponíveis.</Text>
       )}
+      </ScrollView>
 
       {/* Menu Inferior Condicional por Tipo de Usuário */}
       <Footer children={undefined} />
@@ -400,6 +407,8 @@ export default function InfoUsuario() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F5F2E8", paddingHorizontal: 20, paddingTop: 5 },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingBottom: 24 },
   card: { backgroundColor: "#F5F2E8", borderRadius: 20, padding: 20, elevation: 5, borderWidth: 1, borderColor: "#2F1CA6", marginTop: 15 },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   tituloHeader: { fontSize: 20, fontWeight: "bold", color: "#2F1CA6", flex: 1, textAlign: "left" },

@@ -7,6 +7,7 @@ import {
     Image,
     Modal,
     Pressable,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -175,6 +176,11 @@ export default function DiarioResp() {
 
   return (
     <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 140 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -324,6 +330,7 @@ export default function DiarioResp() {
           <Text style={styles.botaoAcaoTexto}>Histórico</Text>
         </Pressable>
       </View>
+      </ScrollView>
 
       {/* Footer Padrão */}
       <Footer children={undefined} />

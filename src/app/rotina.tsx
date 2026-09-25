@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Button } from "../../components/Button";
 import Footer from "../../components/Footer";
 import { API_URL } from "./api";
@@ -197,15 +197,15 @@ export default function Rotina() {
   };
   return (
     <View style={styles.container}>
-      {tipoUsuario === "3" && (
-        <Image
-          source={require("../../assets/images/logoNome.png")}
-          style={styles.logo}
-        />
-      )}
-
       {tipoUsuario === "3" ? (
-        <>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Image
+            source={require("../../assets/images/logoNome.png")}
+            style={styles.logo}
+          />
           <View style={styles.botaoContainer}>
             <Button label="Criar Rotina" onPress={() => router.push("/criarRotina")} />
           </View>
@@ -213,7 +213,7 @@ export default function Rotina() {
           <View style={styles.botaoContainer}>
             <Button label="Minhas Rotinas" onPress={() => router.push("/minhasRotinas")} />
           </View>
-        </>
+        </ScrollView>
       ) : (
         <View style={styles.listaContainer}>
           <Text style={styles.tituloSecao}>Lista de Atividades</Text>
@@ -377,6 +377,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#F5F2E8",
     padding: 24,
+  },
+  scrollContent: {
+    alignItems: "center",
+    paddingBottom: 140,
   },
   logo: {
     width: 150,

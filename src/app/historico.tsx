@@ -3,19 +3,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    FlatList,
-    Image,
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  FlatList,
+  Image,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { API_URL } from "./api";
 
@@ -54,7 +54,7 @@ export default function HistoricoScreen() {
 
   const [historico, setHistorico] = useState<DiarioItem[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
-  const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
+  const [tipoUsuario, setTipoUsuario] = useState<number | null>(null);
 
   // Estados de Edição
   const [idEditando, setIdEditando] = useState<number | null>(null);
@@ -73,7 +73,7 @@ export default function HistoricoScreen() {
         try {
           let tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
           if (tipoLogado) {
-            setTipoUsuario(String(tipoLogado).trim());
+            setTipoUsuario(Number(tipoLogado));
           }
         } catch (error) {
           console.error("Erro ao carregar tipo de usuário:", error);
@@ -377,7 +377,7 @@ export default function HistoricoScreen() {
   };
 
   // Verifica se o usuário pode editar (apenas se NÃO for responsável "1" ou "3" e nem no modo leitura)
-  const podeEditar = !modoSomenteLeitura && tipoUsuario !== "1";
+  const podeEditar = !modoSomenteLeitura && tipoUsuario !== 1;
 
   const renderItem = ({ item }: { item: DiarioItem }) => {
     const editando = idEditando === item.idDiario;
@@ -574,7 +574,26 @@ export default function HistoricoScreen() {
       )}
 
       <View style={styles.barraMenuGeral}>
-        {tipoUsuario === "2" ? (
+        {tipoUsuario === 1 && (
+          <>
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/discenteResp")}>
+              <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Início</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/diarioResp")}>
+              <Image source={require("../../assets/images/diarioD.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Diário</Text>
+            </Pressable>
+
+            <Pressable style={styles.botaoMenu} onPress={() => router.push("/configuracoes")}>
+              <Image source={require("../../assets/images/confg.png")} style={styles.iconeCustom} />
+              <Text style={styles.tabLabel}>Conf.</Text>
+            </Pressable>
+          </>
+        )}
+
+        {tipoUsuario === 2 && (
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/professores")}>
               <Image source={require("../../assets/images/prof.png")} style={styles.iconeCustom} />
@@ -596,7 +615,9 @@ export default function HistoricoScreen() {
               <Text style={styles.tabLabel}>Conf.</Text>
             </Pressable>
           </>
-        ) : (
+        )}
+
+        {tipoUsuario === 3 && (
           <>
             <Pressable style={styles.botaoMenu} onPress={() => router.push("/discente")}>
               <Image source={require("../../assets/images/home.png")} style={styles.iconeCustom} />

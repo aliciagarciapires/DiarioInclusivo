@@ -325,12 +325,11 @@ export default function CriarRotina() {
             </View>
           </View>
         ))}
-      </ScrollView>
 
-      {/* Botão para Enviar os dados ao Banco */}
-      <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarRotina}>
-        <Text style={styles.textoFinalizar}>Salvar Rotina</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarRotina}>
+          <Text style={styles.textoFinalizar}>Salvar Rotina</Text>
+        </TouchableOpacity>
+      </ScrollView>
 
       {/* --- MODAL 1: SELEÇÃO DE ATIVIDADES EXISTENTES --- */}
       <Modal visible={modalVisivel} animationType="slide" transparent={true}>
@@ -561,6 +560,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2F1CA6', 
     padding: 15, 
     alignItems: 'center', 
+    alignSelf: 'center',
     margin: 20, 
     borderRadius: 30, 
     marginBottom: 80 

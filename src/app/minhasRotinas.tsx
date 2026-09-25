@@ -328,6 +328,16 @@ export default function VisualizarRotina() {
               Nenhuma rotina encontrada. Crie uma nova rotina abaixo!
             </Text>
           }
+          ListFooterComponent={
+            <View style={styles.botaoAdicionarContainer}>
+              <TouchableOpacity
+                style={styles.botaoAdicionar}
+                onPress={() => router.push("/criarRotina")}
+              >
+                <Text style={styles.adicionar}>Adicionar nova rotina +</Text>
+              </TouchableOpacity>
+            </View>
+          }
           renderItem={({ item: rotinaItem }) => (
             <View style={styles.cardRotina}>
               <View style={styles.headerCard}>
@@ -387,16 +397,6 @@ export default function VisualizarRotina() {
           )}
         />
       )}
-
-      {/* BOTÃO FLUTUANTE PARA CRIAR NOVA ROTINA */}
-      <View style={styles.botaoAdicionarContainer}>
-        <TouchableOpacity
-          style={styles.botaoAdicionar}
-          onPress={() => router.push("/criarRotina")}
-        >
-          <Text style={styles.adicionar}>Adicionar nova rotina +</Text>
-        </TouchableOpacity>
-      </View>
 
       {/* --- MODAL PRINCIPAL --- */}
       <Modal visible={modalVisivel} animationType="slide" transparent={true} onRequestClose={() => setModalVisivel(false)}>
@@ -649,10 +649,8 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   botaoAdicionarContainer: {
-    position: "absolute",
-    bottom: 95,
     alignSelf: "center",
-    zIndex: 10,
+    width: "100%",
   },
   botaoAdicionar: {
     width: 260,
@@ -660,6 +658,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2F1CA6",
     justifyContent: "center",
     alignItems: "center",
+    alignSelf: "center",
     borderRadius: 30,
     marginBottom: 20,
   },

@@ -39,7 +39,7 @@ export default function Professores() {
                     style={styles.card} 
                     onPress={() => router.push({ pathname: "/infoProf", params: { idUsuario: item.id } })}
                   >
-                    <Image source={item.imagem} style={styles.imagem} resizeMode="contain" />
+                    <Image source={require("../../assets/images/professor.png")}  style={styles.imagem} resizeMode="contain" />
                   </Pressable>
 
                   <Pressable 

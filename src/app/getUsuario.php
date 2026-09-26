@@ -14,7 +14,7 @@ if ($id) {
     $resultado = $stmt->get_result();
     
     if ($row = $resultado->fetch_assoc()) {
-        $row['telefone'] = !empty($row['telefone']) ? $row['telefone'] : "Não informado";
+        $row['telefone'] = trim((string)($row['telefone'] ?? ""));
         $row['email'] = !empty($row['email']) ? $row['email'] : "Não informado";
         $row['senha'] = !empty($row['senha']) ? $row['senha'] : "Não informada";
         $row['tipo_de_usuario'] = (int)$row['tipo_de_usuario'];

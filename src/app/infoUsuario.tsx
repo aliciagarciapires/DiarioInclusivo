@@ -3,16 +3,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import Footer from "../../components/Footer";
 import { API_URL } from "./api";
@@ -292,22 +292,24 @@ export default function InfoUsuario() {
           </View>
 
           {/* CAMPO TELEFONE */}
-          <View style={styles.infoRow}>
-            <View style={styles.labelContainer}>
-              <Text style={styles.label}>Telefone:</Text>
+          {Boolean(usuario.telefone?.replace(/\D/g, "")) && (
+            <View style={styles.infoRow}>
+              <View style={styles.labelContainer}>
+                <Text style={styles.label}>Telefone:</Text>
+              </View>
+              {editando ? (
+                <TextInput
+                  style={styles.input}
+                  value={telefone}
+                  onChangeText={aplicarMascaraTelefone}
+                  keyboardType="numeric"
+                  maxLength={15}
+                />
+              ) : (
+                <Text style={styles.value}>{usuario.telefone}</Text>
+              )}
             </View>
-            {editando ? (
-              <TextInput
-                style={styles.input}
-                value={telefone}
-                onChangeText={aplicarMascaraTelefone}
-                keyboardType="numeric"
-                maxLength={15}
-              />
-            ) : (
-              <Text style={styles.value}>{usuario.telefone || "Não informado"}</Text>
-            )}
-          </View>
+          )}
 
           {/* BOTÃO SALVAR (Exibido apenas quando estiver editando) */}
           {editando && (

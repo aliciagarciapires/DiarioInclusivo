@@ -39,34 +39,37 @@ export default function Inicio(){
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1, 
-        justifyContent: "center", 
-        alignItems: "center", 
-        backgroundColor: "#F5F2E8", 
-        padding: 32 
+        flex: 1,
+        backgroundColor: "#F5F2E8",
     },
     contentContainer: {
         flexGrow: 1,
         justifyContent: "center",
         alignItems: "center",
+        paddingHorizontal: 24,
         paddingVertical: 24,
     },
     title: {
-        fontSize: 32, // Ajustado ligeiramente para evitar cortes em ecrãs menores
+        width: "100%",
+        flexShrink: 1,
+        fontSize: 32,
         fontWeight: "bold", 
         color: "#2F1CA6", 
         textAlign: "center" 
     },
     subtitulo: {
+        width: "100%",
+        flexShrink: 1,
         fontSize: 15,
         color: "#0B8CBF",
         textAlign: "center",
-        marginTop: 12, // Espaçamento adequado em relação ao título
+        marginTop: 12,
         marginBottom: 20
     },
     logo: {
-        width: "100%", 
-        height: 200, 
-        marginBottom: 30 // Espaçamento entre a imagem e o botão
+        width: "100%",
+        maxWidth: 320,
+        height: 200,
+        marginBottom: 30
     }
 });

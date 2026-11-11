@@ -1,27 +1,30 @@
-import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Href, useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons'; //exibe ícones
+import AsyncStorage from "@react-native-async-storage/async-storage"; //guarda dados localmente no celular
+import DateTimePicker from '@react-native-community/datetimepicker'; //mostra o seletor de hora e data
+import { Href, useFocusEffect, useRouter } from 'expo-router'; //navegação entre telas
+import React, { useCallback, useEffect, useRef, useState } from 'react'; //useCallback para otimizar a performance,
+// useRef para guardar valores entre renderizações, 
+// useState para criar estados 
+// useEffect para executar funções quando a tela é montada
 import {
-    Alert,
-    FlatList,
+    Alert, 
+    FlatList, //lista com melhor desempenho
     Image,
-    Modal,
+    Modal, //janela pop-up
     Pressable,
-    ScrollView,
+    ScrollView, //rolar com conteúdo grande
     StyleSheet,
     Text,
     TextInput,
-    TouchableOpacity,
+    TouchableOpacity, //reduz opacidade a ser tocado
     View
 } from 'react-native';
-import Footer from '../../components/Footer';
-import { API_URL } from "./api";
+import Footer from '../../components/Footer'; //rodapé da tela
+import { API_URL } from "./api"; //chamar o servidor
 
 // Define o formato de uma atividade que já foi adicionada à rotina atual
 interface Atividade {
-  idOcorrencia: number;
+  idOcorrencia: number; //aitividades iguais mas em horas diferentes terão idOcorrencia diferentes
   id: string;
   nome: string;
   inicio: Date;
@@ -36,8 +39,6 @@ interface AtividadeMaster {
 
 export default function CriarRotina() {
   const router = useRouter(); 
-  
-
   // --- ESTADOS DA TELA ---
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
   

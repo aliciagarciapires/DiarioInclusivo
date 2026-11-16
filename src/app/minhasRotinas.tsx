@@ -120,11 +120,11 @@ export default function VisualizarRotina() {
           // Busca o ID do usuário logado dinamicamente
           const idLogado = await AsyncStorage.getItem("idUsuario");
           if (idLogado) {
-            const idFormatado = idLogado.trim();
-            setIdUsuario(idFormatado);
-            carregarRotinasDoBanco(idFormatado);
+            const idFormatado = idLogado.trim(); // Remove espaços em branco antes e depois do ID
+            setIdUsuario(idFormatado); // Armazena o ID do usuário no estado
+            carregarRotinasDoBanco(idFormatado); // Chama a função para carregar as rotinas do banco usando o ID do usuário
           } else {
-            setCarregando(false);
+            setCarregando(false); // Para de carregar se não houver ID do usuário
             Alert.alert("Aviso", "Usuário não identificado. Faça login novamente.");
           }
         } catch (error) {

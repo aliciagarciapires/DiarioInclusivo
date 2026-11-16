@@ -11,7 +11,7 @@ $dbname = "diarioinclusivo_banco";
 //$pass = "";
 //$dbname = "diarioinclusivo";
 
-$mysqli = new mysqli($host, $user, $pass, $dbname);
+$mysqli = new mysqli($host, $user, $pass, $dbname); //cria a conexão com o banco utilizando a extensão mysqli
 
 if ($mysqli->connect_error) {
     header("Content-Type: application/json");

@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons'; //exibe ícones
 import AsyncStorage from "@react-native-async-storage/async-storage"; //guarda dados localmente no celular
 import DateTimePicker from '@react-native-community/datetimepicker'; //mostra o seletor de hora e data
 import { Href, useFocusEffect, useRouter } from 'expo-router'; //navegação entre telas
-import React, { useCallback, useEffect, useRef, useState } from 'react'; //useCallback para otimizar a performance,
+import React, { useCallback, useEffect, useRef, useState } from 'react'; 
+//useCallback para otimizar a performance,
 // useRef para guardar valores entre renderizações, 
 // useState para criar estados 
 // useEffect para executar funções quando a tela é montada
@@ -22,6 +23,7 @@ import {
 import Footer from '../../components/Footer'; //rodapé da tela
 import { API_URL } from "./api"; //chamar o servidor
 
+//INTERFACE:define a estrutura de dados que será usada para as atividades e rotinas
 // Define o formato de uma atividade que já foi adicionada à rotina atual
 interface Atividade {
   idOcorrencia: number; //aitividades iguais mas em horas diferentes terão idOcorrencia diferentes
@@ -31,7 +33,7 @@ interface Atividade {
   fim: Date;
 }
 
-// Define o formato de uma atividade vinda da lista geral do banco de dados
+//  Define o formato de uma atividade pré-cadastrada que vem do banco de dados
 interface AtividadeMaster {
   idAtividades: number;
   nome: string;
@@ -83,7 +85,8 @@ export default function CriarRotina() {
       try {
         const resposta = await fetch(`${API_URL}/buscarAtividades.php`);
         const dados = await resposta.json();
-        if (dados && Array.isArray(dados)) {
+        if (dados && Array.isArray(dados)) //verifica se dados existe e é um array 
+        {
           setListaMaster(dados);
         }
       } catch (error) {
@@ -96,7 +99,7 @@ export default function CriarRotina() {
   // Adiciona a atividade selecionada no modal para a lista da rotina
   const adicionarDaMaster = (atividade: AtividadeMaster) => {
     const novaAtiv: Atividade = {
-      idOcorrencia: proximaOcorrencia.current++,
+      idOcorrencia: proximaOcorrencia.current++, //se for mais de uma igual vai somando
       id: atividade.idAtividades.toString(),
       nome: atividade.nome,
       inicio: new Date(), // Inicia por padrão com a hora atual
@@ -109,7 +112,7 @@ export default function CriarRotina() {
 
   // Permite somente ao ADM cadastrar uma nova atividade sem sair da criação da rotina
   const criarNovaAtividade = async () => {
-    const nomeLimpo = novoNomeAtividade.trim();
+    const nomeLimpo = novoNomeAtividade.trim(); //novo limpo sem espaços extras
 
     if (!nomeLimpo) {
       Alert.alert('Aviso', 'Digite o nome da atividade.');

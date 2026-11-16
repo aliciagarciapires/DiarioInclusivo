@@ -13,18 +13,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
-include_once "conexao.php";
+include_once "conexao.php"; //fazendo a conexão com o banco de dados
 
-date_default_timezone_set('America/Sao_Paulo');
+date_default_timezone_set('America/Sao_Paulo'); //horario brasilia
 
-$dados = json_decode(file_get_contents("php://input"), true);
+$dados = json_decode(file_get_contents("php://input"), true); //pega os dados enviados pelo corpo (body) do React Native
 
-ob_end_clean();
+ob_end_clean(); //limpa o buffer de saída para evitar que qualquer saída anterior interfira na resposta JSON
 
-if (!empty($dados['novoNomeAtividade'])) {
+if (!empty($dados['novoNomeAtividade'])) //verifica se o campo novoNomeAtividade não está vazio
+    {
     
-    $nomeAtividade = trim($dados['novoNomeAtividade']);
-    $nomeLimpo = $mysqli->real_escape_string($nomeAtividade);
+    $nomeAtividade = trim($dados['novoNomeAtividade']); //remove espaços em branco do início e do fim do nome da atividade
+    $nomeLimpo = $mysqli->real_escape_string($nomeAtividade); //protege contra SQL Injection, escapando caracteres especiais no nome da atividade
     
     // 1. Verifica se já existe uma atividade com esse mesmo nome
     $sqlVerifica = "SELECT idAtividades FROM atividades WHERE nome = '$nomeLimpo' LIMIT 1";
@@ -43,7 +44,7 @@ if (!empty($dados['novoNomeAtividade'])) {
     $query = "INSERT INTO atividades (nome) VALUES ('$nomeLimpo')";
     
     if ($mysqli->query($query)) {
-        $idGerado = $mysqli->insert_id;
+        $idGerado = $mysqli->insert_id; // Pega o ID automático gerado pelo banco de dados para a nova atividade
 
         echo json_encode([
             "sucesso" => true, 

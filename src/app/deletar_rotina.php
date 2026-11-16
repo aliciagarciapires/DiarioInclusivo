@@ -4,14 +4,15 @@ header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-include_once "conexao.php";
+include_once "conexao.php"; //fazendo a conexão com o banco de dados
 
-$dados = json_decode(file_get_contents("php://input"), true);
+$dados = json_decode(file_get_contents("php://input"), true); //pega os dados enviados pelo corpo (body) do React Native
 
-if (!empty($dados['idRotina'])) {
-    $idRotina = intval($dados['idRotina']);
+if (!empty($dados['idRotina'])) //verifica se o campo idRotina não está vazio
+    {
+    $idRotina = intval($dados['idRotina']); //garante que o ID seja um número inteiro seguro
     
-    // Deleta os vínculos primeiro
+    // Deleta os vínculos primeiro (as atividades associadas à rotina)
     $mysqli->query("DELETE FROM rotina_tem_atividades WHERE idRotina = $idRotina");
     
     // Deleta a rotina

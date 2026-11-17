@@ -1,9 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
-import { Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; 
-import { Tabs } from "expo-router";
-import { StyleSheet, Image } from "react-native";
 import React from "react";
+import { Image, Pressable } from "react-native";
 
 const LogoDireita = () => (
   <Image 

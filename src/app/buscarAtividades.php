@@ -59,7 +59,6 @@ $atividades = array();
 if ($result->num_rows > 0) {
     // Percorre cada linha trazida pelo MySQL como um array associativo ($row)
     while ($row = $result->fetch_assoc()) {
-        
         // Mapeamento dinâmico do ID: procura a coluna correta ('idAtividades', 'id' ou 'id_atividade')
         // O operador ?? (Null Coalescing) pega o primeiro valor que existir; se nenhum existir, usa 0
         $id = $row['idAtividades'] ?? $row['id'] ?? $row['id_atividade'] ?? 0;

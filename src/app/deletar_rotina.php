@@ -10,14 +10,16 @@ $dados = json_decode(file_get_contents("php://input"), true); //pega os dados en
 
 if (!empty($dados['idRotina'])) //verifica se o campo idRotina não está vazio
     {
-    $idRotina = intval($dados['idRotina']); //garante que o ID seja um número inteiro seguro
+    $idRotina = intval($dados['idRotina']); //garante que o ID seja um número inteiro seguro, protegendo contra SQL Injection
     
     // Deleta os vínculos primeiro (as atividades associadas à rotina)
+    //Faz por partes para garantrir que não haja problemas de integridade referencial no banco de dados
     $mysqli->query("DELETE FROM rotina_tem_atividades WHERE idRotina = $idRotina");
     
     // Deleta a rotina
     $query = "DELETE FROM rotina WHERE idRotina = $idRotina";
-    if ($mysqli->query($query)) {
+    if ($mysqli->query($query)) // Se a exclusão for bem-sucedida, retorna sucesso
+        {
         echo json_encode(["sucesso" => true, "mensagem" => "Rotina deletada com sucesso!"]);
     } else {
         echo json_encode(["sucesso" => false, "mensagem" => "Erro: " . $mysqli->error]);

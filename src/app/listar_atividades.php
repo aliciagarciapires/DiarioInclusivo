@@ -8,14 +8,16 @@ ob_clean();
 
 try {
     // Mudamos para $mysqli para conversar com o seu conexao.php
+    // Faz a consulta SQL para buscar todas as atividades
     $query = "SELECT idAtividades, nome FROM atividades";
+    // Executa a consulta SQL
     $result = $mysqli->query($query);
 
     if (!$result) { //caso não consiga executar a busca gera a msg de erro
-        throw new Exception($mysqli->error);
+        throw new Exception($mysqli->error); //vai direto pro catch
     }
     
-    // Transforma os resultados do banco em um array
+    // Transforma os resultados do banco em um array associativo
     $atividades = $result->fetch_all(MYSQLI_ASSOC);
 
     // Devolve a lista certinha em JSON para o seu React Native

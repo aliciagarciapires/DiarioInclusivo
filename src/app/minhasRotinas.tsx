@@ -1,17 +1,23 @@
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage"; //para guardar dados no celular, 
+//como o tipo de usuário logado
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
+//useCallback para otimizar a performance,
+// useRef para guardar valores entre renderizações, 
+// useState para criar estados e atualizar
+// useEffect para executar funções quando a tela é montada, depende de condições (ex: carregar dados do banco)
+//asnync/await para esperar a resposta do servidor antes de continuar, pode demorar
 import {
-    ActivityIndicator,
+    ActivityIndicator, //mostra um círculo girando enquanto carrega dados do servidor
     Alert,
-    Dimensions,
-    FlatList,
+    Dimensions, //pega a largura da tela do dispositivo, útil para layouts responsivos
+    FlatList, //mostra uma lista de itens, pode ser rolada para cima e para baixo
     Image,
-    Modal,
-    Platform,
-    Pressable,
+    Modal, //mostra uma tela modal, que aparece por cima da tela atual, usado para editar rotinas
+    Platform, //verifica se o sistema operacional é Android ou iOS, para mostrar o DateTimePicker de forma diferente
+    Pressable, //botão que pode ser pressionado, usado para o menu inferior
     ScrollView,
     StyleSheet,
     Text,
@@ -21,6 +27,7 @@ import {
 } from "react-native";
 import Footer from "../../components/Footer";
 import { API_URL } from "./api";
+
 
 // Obtém a largura da tela do dispositivo (útil para layouts responsivos)
 const { width } = Dimensions.get("window");
@@ -47,7 +54,8 @@ interface AtividadeMaster {
 
 export default function VisualizarRotina() {
   // --- ESTADOS PRINCIPAIS ---
-  const [rotinas, setRotinas] = useState<Rotina[]>([]);
+  //todos possuem set porque são estados que podem ser alterados durante a execução do componente
+  const [rotinas, setRotinas] = useState<Rotina[]>([]); //usamos rotina como array porque o usuário pode ter várias rotinas
   const [carregando, setCarregando] = useState<boolean>(true);
   const [tarefasConcluidas, setTarefasConcluidas] = useState<string[]>([]);
   const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
@@ -55,8 +63,9 @@ export default function VisualizarRotina() {
 
 
   // --- ESTADOS DO MODAL DE EDIÇÃO ---
+  //todos possuem set porque são estados que podem ser alterados durante a execução do componente
   const [modalVisivel, setModalVisivel] = useState(false);
-  const [abaModal, setAbaModal] = useState<'editar' | 'selecionar'>('editar');
+  const [abaModal, setAbaModal] = useState<'editar' | 'selecionar'>('editar'); //aba do modal que está sendo exibida, pode ser 'editar' ou 'selecionar'
 
   const [rotinaEditandoId, setRotinaEditandoId] = useState<number | null>(null);
   const [nomeRotinaEdit, setNomeRotinaEdit] = useState('');
@@ -73,20 +82,31 @@ export default function VisualizarRotina() {
 
   const carregarRotinasDoBanco = async (idUser: string) => {
     try {
+      //começando o carregamento, para mostrar o ActivityIndicator na tela
       setCarregando(true);
-      const URL_API = `${API_URL}/listar_rotina.php?idUsuario=${idUser}&t=${new Date().getTime()}`;
-
+      //pega as rotinas que já estão no banco de dados, usando o id do usuário logado
+      //com timestamp para evitar cache do navegador, procurando por hora com milissegundos
+      const URL_API = `${API_URL}/listar_rotina.php?idUsuario=${idUser}&t=${new Date().getTime()}`; 
+      //faz a requisição para o servidor PHP, que retorna as rotinas do usuário logado
       const resposta = await fetch(URL_API);
       const resultado = await resposta.json();
 
-      if (resultado.sucesso && Array.isArray(resultado.dados)) {
+      if (resultado.sucesso && Array.isArray(resultado.dados))
+        //verifica se o resultado da requisição foi bem-sucedido e se os dados retornados são um array
+      {
+        //recarrega as rotinas atualizando os estados e mostrando pro react que pode redenrizar a tela novamente
         setRotinas(resultado.dados);
-      } else {
+      } else 
+        //se não houver rotinas, limpa a lista de rotinas
+      {
         setRotinas([]);
       }
-    } catch (error) {
+    } 
+    //se houver algum erro na requisição, mostra no console do react
+    catch (error) {
       console.error("Erro ao buscar rotinas:", error);
-    } finally {
+    } //finally é executado sempre, mesmo que haja erro ou não, para garantir que o carregamento seja finalizado
+    finally {
       setCarregando(false);
     }
   };
@@ -94,11 +114,12 @@ export default function VisualizarRotina() {
   const carregarAtividadesMaster = async () => {
     try {
       const URL_MASTER = `${API_URL}/buscarAtividades.php?t=${new Date().getTime()}`;
-      const resposta = await fetch(URL_MASTER);
-      const dados = await resposta.json();
+      const resposta = await fetch(URL_MASTER); //recebe em HTTP a resposta do servidor de atividades master
+      const dados = await resposta.json(); //converte para JSON
 
-      if (Array.isArray(dados)) {
-        setListaMaster(dados);
+      if (Array.isArray(dados)) //verifica se os dados recebidos são um array, para evitar erros de tipagem
+         {
+        setListaMaster(dados); //recarrega a lista de atividades master no estado, para poder ser usada no modal de seleção
       }
     } catch (error) {
       console.error("Erro ao carregar atividades master:", error);
@@ -114,11 +135,11 @@ export default function VisualizarRotina() {
         try {
           const tipoLogado = await AsyncStorage.getItem("tipo_de_usuario");
           if (tipoLogado) {
-            setTipoUsuario(String(tipoLogado).trim());
+            setTipoUsuario(String(tipoLogado).trim()); //converte em string e tira os espaços em branco antes e depois do valor, para evitar erros de tipagem
           }
 
           // Busca o ID do usuário logado dinamicamente
-          const idLogado = await AsyncStorage.getItem("idUsuario");
+          const idLogado = await AsyncStorage.getItem("idUsuario"); 
           if (idLogado) {
             const idFormatado = idLogado.trim(); // Remove espaços em branco antes e depois do ID
             setIdUsuario(idFormatado); // Armazena o ID do usuário no estado
@@ -133,8 +154,9 @@ export default function VisualizarRotina() {
         }
       };
 
-      carregarDadosLocais();
-    }, [])
+      carregarDadosLocais(); // Chama a função para carregar os dados locais do usuário
+    }, 
+    [])
   );
 
   const confirmarExclusaoRotina = (idRotina: number) => {
@@ -152,7 +174,7 @@ export default function VisualizarRotina() {
                 `${API_URL}/deletar_rotina.php`,
                 {
                   method: "POST",
-                  headers: { "Content-Type": "application/json" },
+                  headers: { "Content-Type": "application/json" }, //headers para informar que o corpo da requisição é JSON
                   body: JSON.stringify({ idRotina: idRotina }),
                 }
               );

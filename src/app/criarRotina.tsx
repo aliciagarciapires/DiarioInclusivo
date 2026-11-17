@@ -5,8 +5,9 @@ import { Href, useFocusEffect, useRouter } from 'expo-router'; //navegação ent
 import React, { useCallback, useEffect, useRef, useState } from 'react'; 
 //useCallback para otimizar a performance,
 // useRef para guardar valores entre renderizações, 
-// useState para criar estados 
-// useEffect para executar funções quando a tela é montada
+// useState para criar estados e atualizar
+// useEffect para executar funções quando a tela é montada, depende de condições (ex: carregar dados do banco)
+//asnync/await para esperar a resposta do servidor antes de continuar, pode demorar
 import {
     Alert, 
     FlatList, //lista com melhor desempenho

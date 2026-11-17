@@ -1,21 +1,23 @@
 <?php
+//metodos de requisição permitidos
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') //se for options entra aqui, caso contrario continua o script
+    {
     exit;
 }
 
-$dados = json_decode(file_get_contents("php://input"), true);
-$idRotina = filter_var($dados['idRotina'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-$idAtividade = filter_var($dados['idAtividades'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-$inicio = $dados['horas_iniciais'] ?? null;
-$fim = $dados['horas_finais'] ?? null;
-$formatoHora = '/^(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?$/D';
+$dados = json_decode(file_get_contents("php://input"), true); //pega os dados enviados pelo corpo (body) do React Native, que devem estar em formato JSON
+$idRotina = filter_var($dados['idRotina'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]); //id da rotina a ser deletada, usando o operador de coalescência nula (??) para definir $idRotina como null caso 'idRotina' não esteja presente no array $dados
+$idAtividade = filter_var($dados['idAtividades'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]); //id da atividade a ser deletada, usando o operador de coalescência nula (??) para definir $idAtividade como null caso 'idAtividades' não esteja presente no array $dados
+$inicio = $dados['horas_iniciais'] ?? null; //horário inicial da atividade, usando o operador de coalescência nula (??) para definir $inicio como null caso 'horas_iniciais' não esteja presente no array $dados
+$fim = $dados['horas_finais'] ?? null; //horário final da atividade, usando o operador de coalescência nula (??) para definir $fim como null caso 'horas_finais' não esteja presente no array $dados
+$formatoHora = '/^(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?$/D'; //expressão regular para validar o formato de hora, aceitando tanto HH:mm quanto HH:mm:ss
 
-if (!$idRotina || !$idAtividade || !is_string($inicio) || !is_string($fim)
+if (!$idRotina || !$idAtividade || !is_string($inicio) || !is_string($fim) //verifica se os IDs da rotina e da atividade são válidos e se os horários são strings, caso contrário retorna um erro
     || !preg_match($formatoHora, $inicio) || !preg_match($formatoHora, $fim)) {
     http_response_code(400);
     echo json_encode(['sucesso' => false, 'mensagem' => 'Informe a rotina, a atividade e os horários inicial e final válidos.']);
@@ -27,7 +29,7 @@ $inicio = strlen($inicio) === 5 ? $inicio . ':00' : $inicio;
 $fim = strlen($fim) === 5 ? $fim . ':00' : $fim;
 
 try {
-    include_once "conexao.php";
+    include_once "conexao.php"; //fazendo a conexão com o banco de dados
 
     // Remove somente esta ocorrência, preservando o cadastro e os outros horários.
     $stmt = $mysqli->prepare(

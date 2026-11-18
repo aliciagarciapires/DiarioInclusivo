@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Inclui a conexão (ajuste o nome do arquivo se necessário)
+// Inclui a conexão
 include 'conexao.php';
 
 $rawInput = file_get_contents("php://input");

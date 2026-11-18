@@ -9,8 +9,6 @@ include_once "conexao.php";
 if (isset($mysqli)) {
     $mysqli->set_charset("utf8");
 }
-
-// Consulta ajustada com base nas suas imagens:
 // - Pega os dados principais da tabela 'diario' (d)
 // - Cruza com 'diario_tem_atividades' (ta) para pegar a avaliação e o idAtividades
 // - Cruza com 'atividades' (a) para comparar o idAtividades e pegar o 'nome'

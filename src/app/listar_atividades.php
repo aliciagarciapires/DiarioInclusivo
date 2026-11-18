@@ -3,11 +3,9 @@
 header("Content-Type: application/json");
 include_once "conexao.php";
 
-// Limpa o "Conexão bem-sucedida!" do conexao.php para não quebrar o React Native
 ob_clean(); 
 
 try {
-    // Mudamos para $mysqli para conversar com o seu conexao.php
     // Faz a consulta SQL para buscar todas as atividades
     $query = "SELECT idAtividades, nome FROM atividades";
     // Executa a consulta SQL
@@ -20,7 +18,7 @@ try {
     // Transforma os resultados do banco em um array associativo
     $atividades = $result->fetch_all(MYSQLI_ASSOC);
 
-    // Devolve a lista certinha em JSON para o seu React Native
+    // Devolve a lista certinha em JSON
     echo json_encode([
         "sucesso" => true,
         "dados" => $atividades
